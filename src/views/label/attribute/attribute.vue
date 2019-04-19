@@ -310,6 +310,7 @@ export default {
             this.modalObj.recordValues.forEach(recordTtem => {
               if (recordTtem.id === item.id) {
                 recordTtem['delete'] = 1
+                console.log('test')
               }
             })
           }
