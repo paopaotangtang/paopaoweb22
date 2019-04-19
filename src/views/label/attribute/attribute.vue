@@ -21,6 +21,13 @@
               </span>
           </a-menu-item>
         </a-sub-menu>
+        <!--<div>test look</div>-->
+        <!--<a-menu-item  class="c-item" v-for="(item2,index2) in propData[0]" :key="index2">-->
+              <!--<span > {{item2.prop_name}}</span>-->
+              <!--<span>-->
+              <!--<a-button type="primary"  @click="showModal(2,item2.id)" >查看/修改</a-button>-->
+              <!--</span>-->
+          <!--</a-menu-item>-->
 
       </a-menu>
       <div v-else style="padding: 20px;">您还未设置属性</div>
@@ -141,7 +148,7 @@ export default {
         propType: 1,
         propertyValues: [{
           'value_name': '', // 选项名字
-          'value_id': '' ,// 选项id
+          'value_id': '', // 选项id
           'localId': new Date().getTime() + 'first'
         }]
       }
@@ -154,6 +161,7 @@ export default {
         },
         success: (res) => {
           console.log('这里是返回的真数据', res)
+
           this.allPropertyType = res.all_property_type
           this.openKeys.push(this.allPropertyType[0])
           this.properties = res.properties
@@ -163,6 +171,14 @@ export default {
             })
             this.propData.push(diffData)
           })
+          // add之后获取数据完成之后关闭loading和modal
+          if (this.confirmLoading) {
+            this.confirmLoading = false
+           console.log('添加成功，重新赋值以后的数组',this.properties)
+          }
+          if (this.visible) {
+            this.visible = false
+          }
         },
         error: function (err) {
           console.log('error!', err)
@@ -246,10 +262,10 @@ export default {
         method: 'POST',
         data: modalData,
         success: (res) => {
-          console.log('成功调用了ajax', res)
-          this.getData()
-          this.visible = false
-          this.confirmLoading = false
+          if (res.status === 'success') {
+            console.log('添加成功，重新赋值之前的数组',this.properties)
+            this.getProperty()
+          }
         },
         error: function (err) {
           console.log('error!', err)

@@ -7,7 +7,7 @@
     <div class="c-table">
       <a-table :columns="columns" :dataSource="data" :rowKey="item => item.id">
         <span slot="source_name" >source_name</span>
-        <span slot="source_type" >source_type</span>
+        <span slot="label_type_id" >label_type_id</span>
         <span slot="count" >count</span>
         <span slot="create_time" >create_time</span>
         <span slot="action" >
@@ -29,7 +29,7 @@
       </div>
       <div class="c-flex">
         <span class="c-title">图像分类：</span>
-        <a-dropdown style="width: 200px;" trigger="click">
+        <a-dropdown style="width: 200px;" :trigger="['click']">
         <a-menu slot="overlay" overlayClassName="c-menu" @click="handleButtonClick">
           <a-menu-item key="1" class="c-item" title="人脸质量标注">人脸质量标注</a-menu-item>
           <a-menu-item key="2" class="c-item" title="人车混合">人车混合</a-menu-item>
@@ -54,7 +54,7 @@ var columns = [{
   dataIndex: 'source_name'
 }, {
   title: '类型',
-  dataIndex: 'source_type'
+  dataIndex: 'label_type_id'
 }, {
   title: '图片数量',
   dataIndex: 'count'
@@ -76,7 +76,7 @@ export default {
       columns: columns,
       sourceName: '', // 新建数据源名
       typeName: '人脸质量标注',
-      sourceType: 1,
+      labelTypeId: 1,
       checked: true,
       fileUrl: '', // 数据源地址
       visible: false,
@@ -95,6 +95,11 @@ export default {
     look (e) {
       console.log(3263262, e)
     },
+    initModal () {
+        this.sourceName = '',
+        this.labelTypeId = 1,
+        this.fileUrl = ''
+    },
 
     getData (e) {
       var params = {
@@ -108,19 +113,19 @@ export default {
           console.log('这里是返回的真数据', res)
           // 假数据
           this.data = res.sources
-          this.data = [{
-            id: '1101',
-            source_name: 'John Brown',
-            source_type: '人脸',
-            count: 155,
-            create_time: 1555035378
-          }, {
-            id: '1012',
-            source_name: 'John Brown',
-            source_type: '人脸',
-            count: 155,
-            create_time: 1555040168
-          }]
+          // this.data = [{
+          //   id: '1101',
+          //   source_name: 'John Brown',
+          //   label_type_id: '人脸',
+          //   count: 155,
+          //   create_time: 1555035378
+          // }, {
+          //   id: '1012',
+          //   source_name: 'John Brown',
+          //   label_type_id: '人脸',
+          //   count: 155,
+          //   create_time: 1555040168
+          // }]
           this.data.forEach(item => {
             item.create_time = this.getTime(item.create_time)
           })
@@ -134,6 +139,7 @@ export default {
       this.myAjax(params)
     },
     showModal () {
+      this.initModal()
       this.visible = true
     },
     handleOk (e) {
@@ -156,20 +162,22 @@ export default {
         method: 'POST',
         data: {
           'source_name': this.sourceName,
-          'source_type': this.sourceType,
+          'label_type_id': this.labelTypeId,
           'file_url': this.fileUrl
         },
         success: (res) => {
-          console.log('成功调用了ajax', res)
+          console.log('ok成功了！！！', res)
+          if(res.status === 'success'){
           this.getData()
-          this.visible = false
           this.confirmLoading = false
+          this.visible = false
+          }
         },
         error: function (err) {
           console.log('error!', err)
         }
       }
-      this.myAjax(params)
+       this.myAjax(params)
     },
     handleCancel (e) {
       console.log('Clicked cancel button')
@@ -186,7 +194,7 @@ export default {
     },
     handleButtonClick (e) { // 修改数据类型
       this.typeName = e.item.title // 修改类型的显示
-      this.sourceType = e.key // 修改数据类型
+      this.labelTypeId = e.key // 修改数据类型
     }
 
   }
