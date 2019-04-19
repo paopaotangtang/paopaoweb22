@@ -5,7 +5,7 @@
       <span>数据源</span><a-button type="primary" class="c-create" @click="showModal">新建数据源</a-button>
     </div>
     <div class="c-table">
-      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.id">
+      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.id" v-if="data.length">
         <span slot="source_name" >source_name</span>
         <span slot="label_type_id" >label_type_id</span>
         <span slot="count" >count</span>
@@ -14,7 +14,9 @@
            <a-button type="primary"  @click="look" >查看图片</a-button>
         </span>
       </a-table>
+      <div  v-else style="padding: 20px;">暂无数据源信息</div>
     </div>
+
     <a-modal
       title="新建数据源"
       :visible="visible"
@@ -67,12 +69,11 @@ var columns = [{
   scopedSlots: { customRender: 'action' }
 }]
 
-var data
 export default {
   name: 'datasource',
   data () {
     return {
-      data: data,
+      data: [],
       columns: columns,
       sourceName: '', // 新建数据源名
       typeName: '人脸质量标注',
@@ -96,9 +97,9 @@ export default {
       console.log(3263262, e)
     },
     initModal () {
-        this.sourceName = '',
-        this.labelTypeId = 1,
-        this.fileUrl = ''
+      this.sourceName = '',
+      this.labelTypeId = 1,
+      this.fileUrl = ''
     },
 
     getData (e) {
@@ -167,17 +168,17 @@ export default {
         },
         success: (res) => {
           console.log('ok成功了！！！', res)
-          if(res.status === 'success'){
-          this.getData()
-          this.confirmLoading = false
-          this.visible = false
+          if (res.status === 'success') {
+            this.getData()
+            this.confirmLoading = false
+            this.visible = false
           }
         },
         error: function (err) {
           console.log('error!', err)
         }
       }
-       this.myAjax(params)
+      this.myAjax(params)
     },
     handleCancel (e) {
       console.log('Clicked cancel button')
