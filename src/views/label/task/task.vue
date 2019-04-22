@@ -1,28 +1,269 @@
 <template>
-<div>任务列表</div>
+  <div>
+    <div class="c-bread">
+      <span>任务列表</span><a-button type="primary" class="c-create" @click="showModal">新建任务</a-button>
+    </div>
+    <div class="c-table">
+      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.task_id" v-if="data.length">
+        <span slot="task_name" >task_name</span>
+        <span slot="task_id" >task_id</span>
+        <span slot="label_type" >label_type</span>
+        <span slot="count" >count</span>
+        <span slot="create_time" >create_time</span>
+        <span slot="sampling_rate" >sampling_rate</span>
+        <span slot="difficult_num" >difficult_num</span>
+        <span slot="is_complete" >is_complete</span>
+        <span slot="action" >
+           <a-button type="primary"  @click="look" >待定</a-button>
+        </span>
+      </a-table>
+      <div  v-else style="padding: 20px;">暂无任务信息</div>
+    </div>
+
+    <a-modal
+      title="新建任务"
+      :visible="visible"
+      @ok="handleOk"
+      :confirmLoading="confirmLoading"
+      @cancel="handleCancel"
+      :okText="step===1?'下一步':'确认'"
+      cancelText="取消"
+    >
+      <!--step==1-->
+      <div class="c-margin-b" v-if="step==1">
+        <span class="c-title">图像分类：</span>
+        <a-dropdown style="width: 200px;" :trigger="['click']">
+          <a-menu slot="overlay" overlayClassName="c-menu" @click="handleButtonClick">
+            <a-menu-item key="1" class="c-item" title="人脸质量标注">人脸质量标注</a-menu-item>
+            <a-menu-item key="2" class="c-item" title="人车混合">人车混合</a-menu-item>
+          </a-menu>
+          <a-button>
+            {{labelType}}<a-icon type="down" />
+          </a-button>
+        </a-dropdown>
+      </div>
+
+      <!--step==2 & label_type==人脸质量标注-->
+      <div v-if="step==2">
+        <div class="c-margin-b">
+          <span class="c-title">任务名称：</span><a-input placeholder="请输入任务名称" v-model="taskName" />
+        </div>
+        <div class="c-margin-b">
+          <span class="c-title">难度系数：</span><a-input placeholder="请输入难度系数" v-model="difficultNum" />
+        </div>
+        <div class="c-margin-b">
+          <span class="c-title">配置属性：</span>
+            <a-select
+              mode="multiple"
+              :size="'default'"
+              placeholder="Please select"
+              :defaultValue="propChecked"
+              style="width: 70%"
+              @change="handleChange"
+              @popupScroll="popupScroll"
+            >
+              <a-select-option v-for="(item) in allProps" :key="item.prop_id" >
+                {{item.prop_name}}
+              </a-select-option>
+            </a-select>
+        </div>
+      </div>
+
+    </a-modal>
+
+  </div>
 </template>
 
 <script>
+var columns = [{
+  title: '任务名称',
+  dataIndex: 'task_name'
+}, {
+  title: '任务id',
+  dataIndex: 'task_id'
+}, {
+  title: '任务类型',
+  dataIndex: 'label_type'
+}, {
+  title: '图片数量',
+  dataIndex: 'count'
+}, {
+  title: '导入时间',
+  dataIndex: 'create_time'
+}, {
+  title: '抽检率',
+  dataIndex: 'sampling_rate'
+}, {
+  title: '难度系数',
+  dataIndex: 'difficult_num'
+}, {
+  title: '状态',
+  dataIndex: 'is_complete'
+}, {
+  title: '操作',
+  dataIndex: 'action',
+  scopedSlots: { customRender: 'action' }
+}]
+
 export default {
-
-  beforeCreate () {
-  },
-  mounted: function () {
-
-  },
-  methods: {
-
-  },
   name: 'task',
   data () {
     return {
+      data: [],
+      columns: columns,
+      allProps: [],
+      allSources: [],
+      propChecked:[],
+      step: 1,
+      taskName: '', // 新建任务
+      samplingRate: 0, // 抽检比例
+      difficultNum: 0, // 难度系数
+      labelType: '人脸质量标注',
+      labelTypeId: 1,
+      checked: true,
+      visible: false,
+      confirmLoading: false
     }
+  },
+  beforeCreate () {
+    this.form = this.$form.createForm(this)
+  },
+  beforeMount () {
+    this.getData()
+  },
+  mounted () {
+  },
+  methods: {
+    look (e) {
+      console.log(3263262, e)
+    },
+    initModal () {
+      this.labelType = '人脸质量标注'
+      this.labelTypeId = 1
+    },
+
+    getData (e) {
+      var params = {
+        url: this.baseUrl + '/task/admin',
+        method: 'GET',
+        data: {
+          'page': 1,
+          'pagerows': 10
+        },
+        success: (res) => {
+          console.log('这里是返回的真数据', res)
+          // 假数据
+          this.data = res.tasks
+          this.data.forEach(item => {
+            item.create_time = this.getTime(item.create_time)
+          })
+          console.log(this.data)
+        },
+        error: function (err) {
+          console.log('error!', err)
+        }
+      }
+      this.myAjax(params)
+    },
+    showModal () {
+      this.initModal()
+      this.visible = true
+    },
+    handleOk (e) {
+      if (this.step === 1) { // 下一步获取所有的属性和数据源
+        this.confirmLoading = true
+        let params = {
+          url: this.baseUrl + '/add_task',
+          method: 'GET',
+          data: {
+            'label_type_id': this.labelTypeId
+          },
+          success: (res) => {
+            console.log('ok成功了！！！', res)
+            this.allProps = res.props
+            this.allSources = res.sources
+            this.confirmLoading = false
+            this.allProps.filter((item)=>{
+              this.propChecked.push(item.prop_name)
+            })
+            console.log(this.propChecked)
+          },
+          error: function (err) {
+            console.log('error!', err)
+          }
+        }
+        this.myAjax(params)
+        this.step = 2
+        return
+      }
+      if (!this.taskName) {
+        this.$warning({
+          title: '任务名称不能为空',
+          content: '请填写任务名称'
+        })
+        return
+      } else if (!this.fileUrl) {
+        this.$warning({
+          title: '任务地址不能为空',
+          content: '请填写任务地址'
+        })
+        return
+      }
+      this.confirmLoading = true
+      let params = {
+        url: this.baseUrl + '/add_task',
+        method: 'POST',
+        data: {
+          'task_name': this.taskName,
+          'label_type_id': this.labelTypeId,
+          'file_url': this.fileUrl
+        },
+        success: (res) => {
+          console.log('ok成功了！！！', res)
+          if (res.status === 'success') {
+            this.getData()
+            this.confirmLoading = false
+            this.visible = false
+          }
+        },
+        error: function (err) {
+          console.log('error!', err)
+        }
+      }
+      this.myAjax(params)
+    },
+    handleCancel (e) {
+      console.log('Clicked cancel button')
+      this.visible = false
+      this.step = 1
+    },
+    getTime (timestamp) {
+      let time = new Date(timestamp * 1000)
+      console.log(111, timestamp, time)
+      let y = time.getFullYear()
+      let m = time.getMonth() + 1
+      let d = time.getDate()
+      console.log(y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d))
+      return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
+    },
+    handleButtonClick (e) { // 修改数据类型
+      this.labelType = e.item.title // 修改类型的显示
+      this.labelTypeId = e.key // 修改数据类型
+    },
+    handleChange (value) {
+      console.log(`Selected: ${value}`)
+    },
+    popupScroll () {
+      console.log('popupScroll')
+    }
+
   }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style scoped>
   nav {
     height: 60px;
     font: 16px/60px "微软雅黑";
@@ -38,22 +279,39 @@ export default {
   li:hover{
     background: #65ae7e;
   }
-  .c-user{
-    color: gray;
+  .c-table{
+    border: 1px solid paleturquoise;
+    border-radius: 5px;
+    width: 80%;
+    margin: 0 auto;
+    color: rgba(0, 0, 0, 0.65);
   }
-  .c-user:hover{
-    background: none;
-  }
-
-  .c-text{
-    font: 20px/40px "微软雅黑";
-    color: blue;
-    text-align: center;
-  }
-  .c-label-box {
-    position: absolute;
-    border: 5px dashed yellow;
-    z-index: 99;
+  .c-bread{
+    padding: 0 10%;
+    font-size: 22px;
+    line-height: 60px;
+    text-align: left;
   }
 
+  .c-create{
+    margin-left: 20px;
+
+  }
+  .c-margin-b{
+    margin-bottom: 10px;
+  }
+  .ant-input{
+    width: 70%;
+  }
+  .c-flex-box{
+    display: flex;
+    justify-content: space-between;
+  }
+  .c-title{
+    display: inline-block;
+    width: 20%;
+  }
+  .c-item{
+    display: block;
+  }
 </style>

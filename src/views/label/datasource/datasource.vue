@@ -7,7 +7,7 @@
     <div class="c-table">
       <a-table :columns="columns" :dataSource="data" :rowKey="item => item.id" v-if="data.length">
         <span slot="source_name" >source_name</span>
-        <span slot="label_type_id" >label_type_id</span>
+        <span slot="label_type" >label_type</span>
         <span slot="count" >count</span>
         <span slot="create_time" >create_time</span>
         <span slot="action" >
@@ -37,7 +37,7 @@
           <a-menu-item key="2" class="c-item" title="人车混合">人车混合</a-menu-item>
         </a-menu>
         <a-button>
-          {{typeName}}<a-icon type="down" />
+          {{labelType}}<a-icon type="down" />
         </a-button>
       </a-dropdown>
       </div>
@@ -56,7 +56,7 @@ var columns = [{
   dataIndex: 'source_name'
 }, {
   title: '类型',
-  dataIndex: 'label_type_id'
+  dataIndex: 'label_type'
 }, {
   title: '图片数量',
   dataIndex: 'count'
@@ -76,10 +76,9 @@ export default {
       data: [],
       columns: columns,
       sourceName: '', // 新建数据源名
-      typeName: '人脸质量标注',
+      labelType: '人脸质量标注',
       labelTypeId: 1,
       checked: true,
-      fileUrl: '', // 数据源地址
       visible: false,
       confirmLoading: false
     }
@@ -98,6 +97,7 @@ export default {
     },
     initModal () {
       this.sourceName = '',
+      this.labelType = '人脸质量标注',
       this.labelTypeId = 1,
       this.fileUrl = ''
     },
@@ -194,8 +194,8 @@ export default {
       return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
     },
     handleButtonClick (e) { // 修改数据类型
-      this.typeName = e.item.title // 修改类型的显示
-      this.labelTypeId = e.key // 修改数据类型
+      this.labelType = e.item.title // 修改类型的显示
+      this.labelTypeId = e.key
     }
 
   }

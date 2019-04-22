@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
     <header>meto糖糖自用标注系统</header>
-    <ul class="c-nav">
+    <ul class="c-label-nav">
       <li class="c-user">当前用户：管理员</li>
       <router-link exact to="/label/task" tag="li">首页</router-link>
       <router-link exact to="/label/datasource" tag="li">数据源</router-link>
@@ -51,19 +51,19 @@ export default {
      text-underline: none;
      color: white;
    }
-  ul.c-nav {
+  ul.c-label-nav {
     height: 60px;
     font: 16px/60px "微软雅黑";
     background: rgba(74, 142, 202, 0.48);
     color: white;
   }
-  .c-nav li{
+  .c-label-nav li{
     display: inline-block;
     padding: 0 20px;
     cursor: pointer;
     transition:0.5s;
   }
-  .c-nav li:hover{
+  .c-label-nav li:hover{
     background: #65ae7e;
   }
   .c-user{

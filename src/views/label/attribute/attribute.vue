@@ -21,13 +21,6 @@
               </span>
           </a-menu-item>
         </a-sub-menu>
-        <!--<div>test look</div>-->
-        <!--<a-menu-item  class="c-item" v-for="(item2,index2) in propData[0]" :key="index2">-->
-              <!--<span > {{item2.prop_name}}</span>-->
-              <!--<span>-->
-              <!--<a-button type="primary"  @click="showModal(2,item2.id)" >查看/修改</a-button>-->
-              <!--</span>-->
-          <!--</a-menu-item>-->
 
       </a-menu>
       <div v-else style="padding: 20px;">您还未设置属性</div>
@@ -56,7 +49,7 @@
             <a-menu-item key="2" class="c-item" title="行人属性">行人属性</a-menu-item>
           </a-menu>
           <a-button :disabled="modalType==1?false:true">
-            {{modalObj.labelType==1?'人脸质量标注':'行人属性'}}<a-icon type="down" />
+            {{modalObj.labelType}}<a-icon type="down" />
           </a-button>
         </a-dropdown>
       </div>
@@ -74,7 +67,6 @@
         </a-dropdown>
       </div>
 
-      <hr />
       <div style="height: 250px;overflow-y: auto;">
 
         <div class="c-card" v-for="(item,index) in modalObj.propertyValues" v-bind:key="index">
@@ -107,7 +99,8 @@ export default {
       modalType: 1,
       modalObj: {
         propName: '', // 新建数据源名
-        labelType: 1,
+        labelType: '人脸质量标注',
+        labelTypeId:1,
         propType: 1,
         propertyValues: [{
           'value_name': '', // 选项名字
@@ -144,7 +137,8 @@ export default {
     initModal () {
       this.modalObj = {
         propName: '', // 新建数据源名
-        labelType: 1,
+        labelType: '人脸质量标注',
+        labelTypeId: 1,
         propType: 1,
         propertyValues: [{
           'value_name': '', // 选项名字
@@ -172,12 +166,11 @@ export default {
             this.propData.push(diffData)
           })
           // add之后获取数据完成之后关闭loading和modal
-          if (this.confirmLoading) {
+          if (this.confirmLoading || this.visible) {
             this.confirmLoading = false
-           console.log('添加成功，重新赋值以后的数组',this.properties)
-          }
-          if (this.visible) {
             this.visible = false
+            this.$forceUpdate()
+            console.log('添加成功，重新赋值以后的数组', this.properties)
           }
         },
         error: function (err) {
@@ -247,7 +240,7 @@ export default {
       if (this.modalType === 1) { // 新建属性的参数
         modalData = {
           'prop_name': this.modalObj.propName, // 属性名
-          'label_type_id': this.modalObj.labelType, // 标注类型
+          'label_type_id': this.modalObj.labelTypeId, // 标注类型
           'prop_type': this.modalObj.propType,
           'property_value': this.modalObj.propertyValues
         }
@@ -263,7 +256,7 @@ export default {
         data: modalData,
         success: (res) => {
           if (res.status === 'success') {
-            console.log('添加成功，重新赋值之前的数组',this.properties)
+            console.log('添加成功，重新赋值之前的数组')
             this.getProperty()
           }
         },
@@ -286,10 +279,11 @@ export default {
       return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
     },
     labelTypeChange (e) { // 修改标注类别labeltype
-      this.modalObj.labelType = e.key // 修改数据类型
+      this.modalObj.labelType = e.item.title// 修改数据类型
+      this.modalObj.labelTypeId = e.key
     },
     propTypeChange (e) { // 修改属性类别
-      this.modalObj.propType = e.key // 修改数据类型
+      this.modalObj.propType = e.title // 修改数据类型
     },
     addValue () {
       let localId = new Date().getTime() + this.modalObj.propertyValues.length
@@ -361,6 +355,7 @@ export default {
     width: 100%;
     text-align: left;
   }
+
   .c-bread{
     padding: 0 10%;
     font-size: 22px;
@@ -389,8 +384,8 @@ export default {
     border-bottom: 1px solid silver;
     padding:20px 0;
   }
+
   .c-card .ant-input{
     width: 50%;
   }
-
 </style>
