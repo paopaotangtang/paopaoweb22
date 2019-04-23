@@ -10,7 +10,6 @@
         <span slot="label_type" >label_type</span>
         <span slot="count" >count</span>
         <span slot="create_time" >create_time</span>
-        <span slot="sampling_rate" >sampling_rate</span>
         <span slot="difficult_num" >difficult_num</span>
         <span slot="is_complete" >is_complete</span>
         <span slot="action" >
@@ -50,7 +49,7 @@
           <span class="c-title">任务名称：</span><a-input placeholder="请输入任务名称" v-model="taskName" />
         </div>
         <div class="c-margin-b">
-          <span class="c-title">难度系数：</span><a-input placeholder="请输入难度系数" v-model="difficultNum" />
+          <span class="c-title">难度系数：</span><a-input-number  placeholder="请输入难度系数"  v-model="difficultNum" @blur="difficultNumChange" />
         </div>
         <!--属性配置-->
         <div class="c-margin-b">
@@ -59,11 +58,11 @@
               mode="multiple"
               :size="'default'"
               placeholder="请选择属性"
-              :defaultValue="allPropString"
+              :defaultValue="propIds"
               style="width: 70%"
               @change="handleProp"
             >
-              <a-select-option v-for="item in allProps" :key="item.prop_name" >
+              <a-select-option v-for="item in allProps" :key="item.prop_id" >
                 {{item.prop_name}}
               </a-select-option>
             </a-select>
@@ -106,9 +105,6 @@ var columns = [{
   title: '导入时间',
   dataIndex: 'create_time'
 }, {
-  title: '抽检率',
-  dataIndex: 'sampling_rate'
-}, {
   title: '难度系数',
   dataIndex: 'difficult_num'
 }, {
@@ -128,7 +124,7 @@ export default {
       columns: columns,
       allProps: [],
       allSources: [],
-      allPropString: [],
+      propIds: [],
       prop_ids: [],
       source_id: undefined,
       sourceChecked: undefined,
@@ -154,8 +150,12 @@ export default {
     look (e) {
     },
     initModal () {
+      this.step = 1
       this.labelType = '人脸质量标注'
       this.labelTypeId = 1
+      this.taskName = ''
+      this.difficultNum = undefined
+      this.propIds = []
     },
 
     getData (e) {
@@ -184,6 +184,7 @@ export default {
     showModal () {
       this.initModal()
       this.visible = true
+      this.confirmLoading = false
     },
     handleOk (e) {
       if (this.step === 1) { // 下一步获取所有的属性和数据源
@@ -199,11 +200,9 @@ export default {
             this.sourceChecked = this.allSources[0].source_name // 给组件的默认数据源
             this.source_id = this.allSources[0].source_id // 要传给后台的已选数据源id,默认第一个
             this.confirmLoading = false
-            this.allPropString = []// 打开modal重置
-            this.prop_ids = []
             this.allProps.filter(item => {
-              this.allPropString.push(item.prop_name)// 给组件用的可选属性们
-              this.prop_ids.push(item.prop_id)// 要传给后台的已选属性ids,默认全部
+              // this.allPropString.push(item.prop_name)// 给组件用的可选属性们
+              this.propIds.push(item.prop_id)// 给组件用的可选属性们
             })
             this.step = 2
           },
@@ -214,7 +213,6 @@ export default {
         this.myAjax(params)
       } else if (this.step === 2) {
         // 添加时，先过滤出组件里选择的属性ids
-
         if (!this.taskName) {
           this.$warning({
             title: '任务名称不能为空',
@@ -225,6 +223,12 @@ export default {
           this.$warning({
             title: '难度系数不能为空',
             content: '请填写难度系数'
+          })
+          return
+        } else if (this.difficultNum <= 0) {
+          this.$warning({
+            title: '难度系数不正确',
+            content: '请填写大于等于0的值'
           })
           return
         } else if (!this.prop_ids.length) {
@@ -241,7 +245,7 @@ export default {
           data: {
             'task_name': this.taskName,
             'difficult_num': this.difficultNum,
-            'prop_ids': this.prop_ids,
+            'prop_ids': this.prop_ids.join(','),
             'source_id': this.source_id
           },
           success: (res) => {
@@ -260,9 +264,9 @@ export default {
       }
     },
     handleCancel (e) {
-      console.log('Clicked cancel button')
       this.visible = false
-      this.step = 1
+      this.confirmLoading = false
+      this.initModal()
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
@@ -278,6 +282,7 @@ export default {
       console.log('labelTypeId', this.labelTypeId)
     },
     handleProp (value) {
+      this.prop_ids = value
       console.log(`Selected: ${value}`)
     },
     handleSource (value) {
@@ -285,6 +290,14 @@ export default {
       // sourceChecked
       this.source_id = this.allSources.filter(item => item.souce_name === value)[0].source_id
       console.log(this.sourceChecked, this.source_id)
+    },
+    difficultNumChange (e) {
+      if (e.target.value <= 0) {
+        this.$warning({
+          title: '难度系数不正确',
+          content: '请填写大于等于0的值'
+        })
+      }
     }
 
   }
