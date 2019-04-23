@@ -25,6 +25,7 @@
       @cancel="handleCancel"
       okText="确认"
       cancelText="取消"
+      :maskClosable="false"
     >
       <div class="c-flex">
         <span class="c-title">数据源名称：</span><a-input placeholder="请输入数据源名称" v-model="sourceName"/>
@@ -78,6 +79,7 @@ export default {
       sourceName: '', // 新建数据源名
       labelType: '人脸质量标注',
       labelTypeId: 1,
+      fileUrl: '',
       checked: true,
       visible: false,
       confirmLoading: false

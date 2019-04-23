@@ -27,6 +27,7 @@
       :confirmLoading="confirmLoading"
       @cancel="handleCancel"
       :okText="step===1?'下一步':'确认'"
+      :maskClosable="false"
       cancelText="取消"
     >
       <!--step==1-->
@@ -51,21 +52,35 @@
         <div class="c-margin-b">
           <span class="c-title">难度系数：</span><a-input placeholder="请输入难度系数" v-model="difficultNum" />
         </div>
+        <!--属性配置-->
         <div class="c-margin-b">
           <span class="c-title">配置属性：</span>
             <a-select
               mode="multiple"
               :size="'default'"
-              placeholder="Please select"
-              :defaultValue="propChecked"
+              placeholder="请选择属性"
+              :defaultValue="allPropString"
               style="width: 70%"
-              @change="handleChange"
-              @popupScroll="popupScroll"
+              @change="handleProp"
             >
-              <a-select-option v-for="(item) in allProps" :key="item.prop_id" >
+              <a-select-option v-for="item in allProps" :key="item.prop_name" >
                 {{item.prop_name}}
               </a-select-option>
             </a-select>
+        </div>
+        <!--选择数据源-->
+        <div class="c-margin-b">
+          <span class="c-title">选择数据源：</span>
+          <a-select
+            :size="'default'"
+            :defaultValue="sourceChecked"
+            style="width: 70%"
+            @change="handleSource"
+          >
+            <a-select-option v-for="item in allSources" :key="item.source_name">
+              {{item.source_name}}
+            </a-select-option>
+          </a-select>
         </div>
       </div>
 
@@ -113,11 +128,13 @@ export default {
       columns: columns,
       allProps: [],
       allSources: [],
-      propChecked:[],
+      allPropString: [],
+      prop_ids: [],
+      source_id: undefined,
+      sourceChecked: undefined,
       step: 1,
       taskName: '', // 新建任务
-      samplingRate: 0, // 抽检比例
-      difficultNum: 0, // 难度系数
+      difficultNum: undefined, // 难度系数
       labelType: '人脸质量标注',
       labelTypeId: 1,
       checked: true,
@@ -135,7 +152,6 @@ export default {
   },
   methods: {
     look (e) {
-      console.log(3263262, e)
     },
     initModal () {
       this.labelType = '人脸质量标注'
@@ -171,66 +187,77 @@ export default {
     },
     handleOk (e) {
       if (this.step === 1) { // 下一步获取所有的属性和数据源
+        console.log(this.labelTypeId)
         this.confirmLoading = true
         let params = {
-          url: this.baseUrl + '/add_task',
+          url: this.baseUrl + '/add_task?label_type_id=' + this.labelTypeId,
           method: 'GET',
-          data: {
-            'label_type_id': this.labelTypeId
-          },
           success: (res) => {
             console.log('ok成功了！！！', res)
             this.allProps = res.props
             this.allSources = res.sources
+            this.sourceChecked = this.allSources[0].source_name // 给组件的默认数据源
+            this.source_id = this.allSources[0].source_id // 要传给后台的已选数据源id,默认第一个
             this.confirmLoading = false
-            this.allProps.filter((item)=>{
-              this.propChecked.push(item.prop_name)
+            this.allPropString = []// 打开modal重置
+            this.prop_ids = []
+            this.allProps.filter(item => {
+              this.allPropString.push(item.prop_name)// 给组件用的可选属性们
+              this.prop_ids.push(item.prop_id)// 要传给后台的已选属性ids,默认全部
             })
-            console.log(this.propChecked)
+            this.step = 2
           },
           error: function (err) {
             console.log('error!', err)
           }
         }
         this.myAjax(params)
-        this.step = 2
-        return
-      }
-      if (!this.taskName) {
-        this.$warning({
-          title: '任务名称不能为空',
-          content: '请填写任务名称'
-        })
-        return
-      } else if (!this.fileUrl) {
-        this.$warning({
-          title: '任务地址不能为空',
-          content: '请填写任务地址'
-        })
-        return
-      }
-      this.confirmLoading = true
-      let params = {
-        url: this.baseUrl + '/add_task',
-        method: 'POST',
-        data: {
-          'task_name': this.taskName,
-          'label_type_id': this.labelTypeId,
-          'file_url': this.fileUrl
-        },
-        success: (res) => {
-          console.log('ok成功了！！！', res)
-          if (res.status === 'success') {
-            this.getData()
-            this.confirmLoading = false
-            this.visible = false
-          }
-        },
-        error: function (err) {
-          console.log('error!', err)
+      } else if (this.step === 2) {
+        // 添加时，先过滤出组件里选择的属性ids
+
+        if (!this.taskName) {
+          this.$warning({
+            title: '任务名称不能为空',
+            content: '请填写任务名称'
+          })
+          return
+        } else if (!this.difficultNum) {
+          this.$warning({
+            title: '难度系数不能为空',
+            content: '请填写难度系数'
+          })
+          return
+        } else if (!this.prop_ids.length) {
+          this.$warning({
+            title: '配置属性不能为空',
+            content: '请填写配置属性'
+          })
+          return
         }
+        this.confirmLoading = true
+        let params = {
+          url: this.baseUrl + '/add_task',
+          method: 'POST',
+          data: {
+            'task_name': this.taskName,
+            'difficult_num': this.difficultNum,
+            'prop_ids': this.prop_ids,
+            'source_id': this.source_id
+          },
+          success: (res) => {
+            console.log('ok成功了！！！', res)
+            if (res.status === 'success') {
+              this.getData()
+              this.confirmLoading = false
+              this.visible = false
+            }
+          },
+          error: function (err) {
+            console.log('error!', err)
+          }
+        }
+        this.myAjax(params)
       }
-      this.myAjax(params)
     },
     handleCancel (e) {
       console.log('Clicked cancel button')
@@ -243,18 +270,21 @@ export default {
       let y = time.getFullYear()
       let m = time.getMonth() + 1
       let d = time.getDate()
-      console.log(y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d))
       return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
     },
     handleButtonClick (e) { // 修改数据类型
       this.labelType = e.item.title // 修改类型的显示
       this.labelTypeId = e.key // 修改数据类型
+      console.log('labelTypeId', this.labelTypeId)
     },
-    handleChange (value) {
+    handleProp (value) {
       console.log(`Selected: ${value}`)
     },
-    popupScroll () {
-      console.log('popupScroll')
+    handleSource (value) {
+      console.log(`Selected: ${value}`)
+      // sourceChecked
+      this.source_id = this.allSources.filter(item => item.souce_name === value)[0].source_id
+      console.log(this.sourceChecked, this.source_id)
     }
 
   }

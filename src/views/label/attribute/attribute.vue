@@ -35,6 +35,7 @@
       okText="确认"
       cancelText="取消"
       width="600px"
+      :maskClosable="false"
     >
       <div class="c-flex">
         <span class="c-title">属性名称：</span><a-input
