@@ -156,6 +156,7 @@ export default {
       this.taskName = ''
       this.difficultNum = undefined
       this.propIds = []
+      this.prop_ids = []
     },
 
     getData (e) {
@@ -203,6 +204,8 @@ export default {
             this.allProps.filter(item => {
               // this.allPropString.push(item.prop_name)// 给组件用的可选属性们
               this.propIds.push(item.prop_id)// 给组件用的可选属性们
+              this.prop_ids.push(item.prop_id)// 给后台用的已选属性，默认全部
+              console.log(this.propIds)
             })
             this.step = 2
           },
@@ -213,6 +216,7 @@ export default {
         this.myAjax(params)
       } else if (this.step === 2) {
         // 添加时，先过滤出组件里选择的属性ids
+        console.log('配置属性数组', this.prop_ids)
         if (!this.taskName) {
           this.$warning({
             title: '任务名称不能为空',
@@ -288,7 +292,8 @@ export default {
     handleSource (value) {
       console.log(`Selected: ${value}`)
       // sourceChecked
-      this.source_id = this.allSources.filter(item => item.souce_name === value)[0].source_id
+      let filterArray = this.allSources.filter(item => item.source_name === value)
+      this.source_id = filterArray[0].source_id
       console.log(this.sourceChecked, this.source_id)
     },
     difficultNumChange (e) {

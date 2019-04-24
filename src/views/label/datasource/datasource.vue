@@ -98,9 +98,9 @@ export default {
       console.log(3263262, e)
     },
     initModal () {
-      this.sourceName = '',
-      this.labelType = '人脸质量标注',
-      this.labelTypeId = 1,
+      this.sourceName = ''
+      this.labelType = '人脸质量标注'
+      this.labelTypeId = 1
       this.fileUrl = ''
     },
 

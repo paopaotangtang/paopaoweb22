@@ -14,7 +14,7 @@
       >
         <a-sub-menu v-for="(item1,index1) in allPropertyType" :key="item1">
           <span slot="title"><a-icon type="deployment-unit" /><span>{{item1}}</span></span>
-          <a-menu-item  class="c-item" v-for="(item2,index2) in propData[index1]" :key="item2.id">
+          <a-menu-item  class="c-item" v-for="item2 in propData[index1]" :key="item2.id">
               <span > {{item2.prop_name}}</span>
               <span>
               <a-button type="primary"  @click="showModal(2,item2.id)" >查看/修改</a-button>
@@ -101,7 +101,7 @@ export default {
       modalObj: {
         propName: '', // 新建数据源名
         labelType: '人脸质量标注',
-        labelTypeId:1,
+        labelTypeId: 1,
         propType: 1,
         propertyValues: [{
           'value_name': '', // 选项名字

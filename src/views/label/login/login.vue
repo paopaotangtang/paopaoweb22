@@ -76,42 +76,36 @@ export default {
             },
             success: (res) => {
               console.log('成功调用了ajax', res)
-              if (res.data.code === 200) { // 如果账号密码正确
-              // if (res.code === 200) { // 如果账号密码正确
+              // if (res.data.code === 200) { // 如果账号密码正确
+              if (res.code === 200) { // 如果账号密码正确
                 console.log('返回了', res)
                 window.localStorage.setItem('isLogin', true)
+                this.$success({
+                  title: '登陆成功',
+                  content: res.msg
+                })
                 this.$router.push('/label')
               } else if (res.code === 250) {
-                this.msg = res.msg
-                this.error()
+                this.$error({
+                  title: '登录失败',
+                  content: res.msg
+                })
               }
             },
             error: function (err) {
-              console.log('ajaxerrle!', err)
+              console.log('ajax error!', err)
             }
 
           }
           this.myAjax(params)
         }
       })
-    },
-    success () {
-      this.$success({
-        title: '登陆成功',
-        content: this.msg
-      })
-    },
-    error () {
-      this.$error({
-        title: '登录失败',
-        content: this.msg
-      })
     }
+
   },
   name: 'login',
   data () {
     return {
-      msg: ''
     }
   }
 }
