@@ -2,7 +2,7 @@ function myAjax (params) {
   var xhr = createXHR()
   // 定义xhr对象的请求响应事件
   xhr.onreadystatechange = function () {
-    console.log(xhr.readyState)
+    // console.log(xhr.readyState)
     switch (xhr.readyState) {
       case 0 :
         // alert("请求未初始化");

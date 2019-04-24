@@ -12,7 +12,7 @@
         style="width: 100%"
         v-if="allPropertyType.length"
       >
-        <a-sub-menu v-for="(item1,index1) in allPropertyType" :key="item1">
+        <a-sub-menu v-for="(item1,index1) in allPropertyType" :key="item1" >
           <span slot="title"><a-icon type="deployment-unit" /><span>{{item1}}</span></span>
           <a-menu-item  class="c-item" v-for="item2 in propData[index1]" :key="item2.id">
               <span > {{item2.prop_name}}</span>
@@ -149,6 +149,7 @@ export default {
       }
     },
     getProperty (e) {
+      var _this = this
       var params = {
         url: this.baseUrl + '/show_property',
         method: 'POST',
@@ -156,7 +157,6 @@ export default {
         },
         success: (res) => {
           console.log('这里是返回的真数据', res)
-
           this.allPropertyType = res.all_property_type
           this.openKeys.push(this.allPropertyType[0])
           this.properties = res.properties
@@ -170,11 +170,19 @@ export default {
           if (this.confirmLoading || this.visible) {
             this.confirmLoading = false
             this.visible = false
-            this.$forceUpdate()
+            // this.$success({
+            //   title: '创建成功',
+            //   content: '您已添加新属性'
+            // })
+            _this.$forceUpdate()
             console.log('添加成功，重新赋值以后的数组', this.properties)
           }
         },
         error: function (err) {
+          this.$error({
+            title: '失败',
+            content: err
+          })
           console.log('error!', err)
         }
       }
@@ -186,6 +194,7 @@ export default {
       if (this.modalType === 1) {
         this.initModal()// 新建需要清除modal脏数据
         this.visible = true
+        this.confirmLoading = false
       } else {
         this.getPropertyValue(propId)
       }
@@ -257,11 +266,14 @@ export default {
         data: modalData,
         success: (res) => {
           if (res.status === 'success') {
-            console.log('添加成功，重新赋值之前的数组')
             this.getProperty()
           }
         },
         error: function (err) {
+          this.$error({
+            title: '创建失败',
+            content: err
+          })
           console.log('error!', err)
         }
       }
@@ -269,6 +281,7 @@ export default {
     },
     handleCancel (e) {
       this.visible = false
+      this.confirmLoading = false
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
@@ -284,7 +297,8 @@ export default {
       this.modalObj.labelTypeId = e.key
     },
     propTypeChange (e) { // 修改属性类别
-      this.modalObj.propType = e.title // 修改数据类型
+      // console.log('proptypr',e)
+      this.modalObj.propType = e.key // 修改数据类型
     },
     addValue () {
       let localId = new Date().getTime() + this.modalObj.propertyValues.length

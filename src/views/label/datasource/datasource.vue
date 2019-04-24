@@ -26,6 +26,8 @@
       okText="确认"
       cancelText="取消"
       :maskClosable="false"
+      :pagination="pagination"
+      @change="handleTableChange"
     >
       <div class="c-flex">
         <span class="c-title">数据源名称：</span><a-input placeholder="请输入数据源名称" v-model="sourceName"/>
@@ -52,6 +54,7 @@
 </template>
 
 <script>
+// import reqwest from 'reqwest'
 var columns = [{
   title: '数据源名称',
   dataIndex: 'source_name'
@@ -74,6 +77,7 @@ export default {
   name: 'datasource',
   data () {
     return {
+      pagination: {},
       data: [],
       columns: columns,
       sourceName: '', // 新建数据源名
@@ -103,7 +107,6 @@ export default {
       this.labelTypeId = 1
       this.fileUrl = ''
     },
-
     getData (e) {
       var params = {
         url: this.baseUrl + '/source',
@@ -116,19 +119,6 @@ export default {
           console.log('这里是返回的真数据', res)
           // 假数据
           this.data = res.sources
-          // this.data = [{
-          //   id: '1101',
-          //   source_name: 'John Brown',
-          //   label_type_id: '人脸',
-          //   count: 155,
-          //   create_time: 1555035378
-          // }, {
-          //   id: '1012',
-          //   source_name: 'John Brown',
-          //   label_type_id: '人脸',
-          //   count: 155,
-          //   create_time: 1555040168
-          // }]
           this.data.forEach(item => {
             item.create_time = this.getTime(item.create_time)
           })
@@ -136,6 +126,10 @@ export default {
           console.log(this.data)
         },
         error: function (err) {
+          this.$error({
+            title: '创建失败',
+            content: err
+          })
           console.log('error!', err)
         }
       }
@@ -144,6 +138,7 @@ export default {
     showModal () {
       this.initModal()
       this.visible = true
+      this.confirmLoading = false
     },
     handleOk (e) {
       if (!this.sourceName) {
@@ -185,6 +180,7 @@ export default {
     handleCancel (e) {
       console.log('Clicked cancel button')
       this.visible = false
+      this.confirmLoading = false
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
@@ -198,6 +194,19 @@ export default {
     handleButtonClick (e) { // 修改数据类型
       this.labelType = e.item.title // 修改类型的显示
       this.labelTypeId = e.key
+    },
+    handleTableChange (pagination, filters, sorter) {
+      // console.log(pagination)
+      // const pager = { ...this.pagination }
+      // pager.current = pagination.current
+      // this.pagination = pager
+      // this.fetch({
+      //   results: pagination.pageSize,
+      //   page: pagination.current,
+      //   sortField: sorter.field,
+      //   sortOrder: sorter.order,
+      //   ...filters
+      // })
     }
 
   }

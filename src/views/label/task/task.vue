@@ -270,7 +270,6 @@ export default {
     handleCancel (e) {
       this.visible = false
       this.confirmLoading = false
-      this.initModal()
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
