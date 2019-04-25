@@ -27,7 +27,7 @@
     </div>
 
     <a-modal
-      :title="this.modalType==1?'添加属性':'属性详情'"
+      :title="this.modalType===1?'添加属性':'属性详情'"
       :visible="visible"
       @ok="handleOk"
       :confirmLoading="confirmLoading"
@@ -39,7 +39,7 @@
     >
       <div class="c-flex">
         <span class="c-title">属性名称：</span><a-input
-        placeholder="请输入属性名称" v-model="modalObj.propName" :disabled="modalType==1?false:true"/>
+        placeholder="请输入属性名称" v-model="modalObj.propName" :disabled="modalType===1?false:true"/>
       </div>
 
       <div class="c-flex">
@@ -149,10 +149,10 @@ export default {
       }
     },
     getProperty (e) {
-      var _this = this
-      var params = {
+      $.ajax({
+        type: 'POST',
         url: this.baseUrl + '/show_property',
-        method: 'POST',
+        dataType: 'json',
         data: {
         },
         success: (res) => {
@@ -174,7 +174,7 @@ export default {
             //   title: '创建成功',
             //   content: '您已添加新属性'
             // })
-            _this.$forceUpdate()
+            this.$forceUpdate()
             console.log('添加成功，重新赋值以后的数组', this.properties)
           }
         },
@@ -185,8 +185,7 @@ export default {
           })
           console.log('error!', err)
         }
-      }
-      this.myAjax(params)
+      })
     },
     showModal (modalType, propId) { // modalType:1创建属性2查看修改
       console.log('点击的属性的id', propId)
@@ -200,9 +199,10 @@ export default {
       }
     },
     getPropertyValue (propId) {
-      var params = {
+      $.ajax({
+        type: 'POST',
         url: this.baseUrl + '/show_property_value',
-        method: 'POST',
+        dataType: 'json',
         data: {
           prop_id: propId
         },
@@ -221,8 +221,7 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      }
-      this.myAjax(params)
+      })
     },
     handleOk (e) {
       if (!this.modalObj.propName) {
@@ -260,9 +259,10 @@ export default {
           'property_value': this.modalObj.recordValues // 记录的values
         }
       }
-      let params = {
+      $.ajax({
+        type: 'POST',
         url: this.baseUrl + '/add_property',
-        method: 'POST',
+        dataType: 'json',
         data: modalData,
         success: (res) => {
           if (res.status === 'success') {
@@ -276,8 +276,7 @@ export default {
           })
           console.log('error!', err)
         }
-      }
-      this.myAjax(params)
+      })
     },
     handleCancel (e) {
       this.visible = false

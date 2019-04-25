@@ -67,9 +67,10 @@ export default {
       e.preventDefault()
       this.form.validateFields((err, values) => {
         if (!err) {
-          var params = {
+          $.ajax({
+            type: 'POST',
             url: this.baseUrl + '/login',
-            method: 'post',
+            dataType: 'json',
             data: {
               'nickname': values.username,
               'password': values.password
@@ -95,9 +96,7 @@ export default {
             error: function (err) {
               console.log('ajax error!', err)
             }
-
-          }
-          this.myAjax(params)
+          })
         }
       })
     }
@@ -112,7 +111,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style >
+<style scoped>
   header {
     height: 40px;
     font: 16px/40px "微软雅黑";

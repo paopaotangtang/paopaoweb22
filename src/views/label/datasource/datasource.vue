@@ -54,7 +54,6 @@
 </template>
 
 <script>
-// import reqwest from 'reqwest'
 var columns = [{
   title: '数据源名称',
   dataIndex: 'source_name'
@@ -108,9 +107,9 @@ export default {
       this.fileUrl = ''
     },
     getData (e) {
-      var params = {
+      $.ajax({
         url: this.baseUrl + '/source',
-        method: 'GET',
+        dataType: 'json',
         data: {
           'page': 1,
           'pagerows': 10
@@ -122,8 +121,7 @@ export default {
           this.data.forEach(item => {
             item.create_time = this.getTime(item.create_time)
           })
-
-          console.log(this.data)
+          // console.log(this.data)
         },
         error: function (err) {
           this.$error({
@@ -132,8 +130,7 @@ export default {
           })
           console.log('error!', err)
         }
-      }
-      this.myAjax(params)
+      })
     },
     showModal () {
       this.initModal()
@@ -155,9 +152,10 @@ export default {
         return
       }
       this.confirmLoading = true
-      var params = {
+      $.ajax({
+        type: 'POST',
         url: this.baseUrl + '/add_source',
-        method: 'POST',
+        dataType: 'json',
         data: {
           'source_name': this.sourceName,
           'label_type_id': this.labelTypeId,
@@ -174,8 +172,7 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      }
-      this.myAjax(params)
+      })
     },
     handleCancel (e) {
       console.log('Clicked cancel button')
@@ -188,7 +185,6 @@ export default {
       let y = time.getFullYear()
       let m = time.getMonth() + 1
       let d = time.getDate()
-      console.log(y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d))
       return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
     },
     handleButtonClick (e) { // 修改数据类型

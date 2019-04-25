@@ -8,28 +8,65 @@
         class="login-form"
         @submit="handleSubmit"
       >
-        <a-form-item>
+        <a-form-item label="昵称"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
           <a-input
             v-decorator="[
-          'username',
+          'nickname',
           { rules: [{ required: true, message: '请输入用户名!' }] }
         ]"
-            placeholder="Username"
+            placeholder="请输入用户名"
           >
             <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)"/>
           </a-input>
         </a-form-item>
-        <a-form-item>
+        <a-form-item label="真实姓名"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
+          <a-input
+            v-decorator="[
+          'realname',
+          { rules: [{ required: true, message: '请输入真实姓名!' }] }
+        ]"
+            placeholder="请输入真实姓名"
+          >
+            <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)"/>
+          </a-input>
+        </a-form-item>
+        <a-form-item label="密码"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
           <a-input
             v-decorator="[
           'password',
           { rules: [{ required: true, message: '请输入密码!' }] }
         ]"
             type="password"
-            placeholder="Password"
+            placeholder="请输入密码"
           >
             <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)"/>
           </a-input>
+        </a-form-item>
+        <a-form-item label="邮箱"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
+          <a-input
+            v-decorator="['email',{rules: [{type: 'email', message: '邮箱格式错误!',},{required: true, message: '请输入邮箱!'}]}]"
+            placeholder="请输入邮箱"
+          />
+        </a-form-item>
+        <a-form-item label="标注类型"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
+          <a-select
+            :size="'default'"
+            v-decorator="['groupid', { rules: [{ required: true, message: '请选择类型!' }] ,initialValue:2}]"
+          >
+            <a-select-option v-for="item in groupType" :key="item.groupId">
+              {{item.groupName}}
+            </a-select-option>
+          </a-select>
         </a-form-item>
         <a-form-item>
           <a-button
@@ -45,8 +82,6 @@
 </template>
 
 <script>
-// var baseUrl = 'https://www.easy-mock.com/mock/5c931ac12418a911d0e22aa7/paopaoweb'
-var baseUrl = 'http://localhost:81'
 
 export default {
   beforeCreate () {
@@ -56,55 +91,71 @@ export default {
     toLabelHome () {
       this.$router.push({path: '/label/labelhome'})
     },
+    handleSource (value) {
+      console.log(`Selected: ${value}`)
+      // this.groupChecked = value
+    },
     handleSubmit (e) {
-      var that = this
       e.preventDefault()
       this.form.validateFields((err, values) => {
         if (!err) {
-          var params = {
-            url: baseUrl + '/login',
+          $.ajax({
+            type: 'POST',
+            url: this.baseUrl + '/register',
+            dataType: 'json',
             data: {
-              'nickname': values.username,
-              'password': values.password
+              'nickname': values.nickname,
+              'realname': values.realname,
+              'password': values.password,
+              'email': values.email,
+              'groupid': values.groupid
             },
             success: (res) => {
               console.log('成功调用了ajax', res)
-
-              if (res.status === 1) { // 如果账号密码正确
+              if (res.status === 'success') {
                 console.log('返回了', res)
-                localStorage.setItem('isLogin', true)
-                that.toLabelHome()
+
+                this.$success({
+                  title: '注册成功',
+                  content: '已为您跳转到主页...'
+                })
+                window.localStorage.setItem('isLogin', true)
+                this.toLabelHome()
               } else if (res.status === 0) {
-                this.msg = res.msg
-                this.error()
+                this.$error({
+                  title: '注册失败',
+                  content: res.msg
+                })
               }
             },
-            error: function (err) {
-              console.log('ajaxerrle!', err)
+            error: (err) => {
+              this.$error({
+                title: '注册失败',
+                content: err
+              })
             }
-
-          }
-          this.myAjax(params)
+          })
         }
-      })
-    },
-    success () {
-      this.$success({
-        title: '登陆成功',
-        content: this.msg
-      })
-    },
-    error () {
-      this.$error({
-        title: '登录失败',
-        content: this.msg
       })
     }
   },
   name: 'register',
   data () {
     return {
-      msg: ''
+      msg: '',
+      labelCol: {
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        sm: { span: 12 }
+      },
+      groupType: [{
+        groupName: '标注员',
+        groupId: 2
+      }, {
+        groupName: '质检员',
+        groupId: 3
+      }]
     }
   }
 }
@@ -116,12 +167,12 @@ export default {
     padding: 20px;
   }
   .c-login {
-    width: 300px;
-    height: 300px;
+    width: 400px;
+    height:420px;
     background: linear-gradient(bottom right, rgba(170, 136, 174, 0.39), rgba(135, 0, 103, 0.3));
     border-radius: 50px;
     border: 4px solid #000000;
-    margin: 10% auto 0;
+    margin: 50px auto 0;
     padding: 30px;
   }
 
