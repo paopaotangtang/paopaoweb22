@@ -4,27 +4,40 @@
     <div class="c-bread">
       <span>属性设置</span><a-button type="primary" class="c-create" @click="showModal(1)">添加属性</a-button>
     </div>
-    <div class="c-menu-table">
-      <a-menu
-        mode="inline"
-        :openKeys="openKeys"
-        @openChange="onOpenChange"
-        style="width: 100%"
-        v-if="allPropertyType.length"
-      >
-        <a-sub-menu v-for="(item1,index1) in allPropertyType" :key="item1" >
-          <span slot="title"><a-icon type="deployment-unit" /><span>{{item1}}</span></span>
-          <a-menu-item  class="c-item" v-for="item2 in propData[index1]" :key="item2.id">
-              <span > {{item2.prop_name}}</span>
-              <span>
-              <a-button type="primary"  @click="showModal(2,item2.id)" >查看/修改</a-button>
-              </span>
-          </a-menu-item>
-        </a-sub-menu>
-
-      </a-menu>
-      <div v-else style="padding: 20px;">您还未设置属性</div>
+    <a-radio-group v-model="mode"  @change="onChange">
+      <a-radio-button value="人脸质量标注">人脸质量标注</a-radio-button>
+      <a-radio-button value="行人">行人</a-radio-button>
+    </a-radio-group>
+    <div class="c-table">
+      <a-table :columns="columns" :dataSource="currentData" :rowKey="item => item.id" v-if="currentData.length">
+        <span slot="prop_name" >prop_name</span>
+        <span slot="action" >
+           <a-button type="primary"  @click="showModal(2,item.id)" >待定</a-button>
+        </span>
+      </a-table>
+      <div  v-else style="padding: 20px;">暂无任务信息</div>
     </div>
+    <!--<div class="c-menu-table">-->
+      <!--<a-menu-->
+        <!--mode="inline"-->
+        <!--:openKeys="openKeys"-->
+        <!--@openChange="onOpenChange"-->
+        <!--style="width: 100%"-->
+        <!--v-if="allPropertyType.length"-->
+      <!--&gt;-->
+        <!--<a-sub-menu v-for="(item1,index1) in allPropertyType" :key="item1" >-->
+          <!--<span slot="title"><a-icon type="deployment-unit" /><span>{{item1}}</span></span>-->
+          <!--<a-menu-item  class="c-item" v-for="item2 in propData[index1]" :key="item2.id">-->
+            <!--<span > {{item2.prop_name}}</span>-->
+            <!--<span>-->
+              <!--<a-button type="primary"  @click="showModal(2,item2.id)" >查看/修改</a-button>-->
+              <!--</span>-->
+          <!--</a-menu-item>-->
+        <!--</a-sub-menu>-->
+
+      <!--</a-menu>-->
+      <!--<div v-else style="padding: 20px;">您还未设置属性</div>-->
+    <!--</div>-->
 
     <a-modal
       :title="this.modalType===1?'添加属性':'属性详情'"
@@ -83,7 +96,7 @@
           <a-button type="primary" icon="plus" @click="addValue" >添加选项</a-button>
         </div>
 
-     </div>
+      </div>
 
     </a-modal>
 
@@ -92,12 +105,21 @@
 </template>
 
 <script>
-
+var columns = [{
+  title: '属性名称',
+  dataIndex: 'prop_name'
+}, {
+  title: '操作',
+  dataIndex: 'action',
+  scopedSlots: { customRender: 'action' }
+}]
 export default {
   name: 'attribute',
   data () {
     return {
+      mode: '人脸质量标注',
       modalType: 1,
+      columns,
       modalObj: {
         propName: '', // 新建数据源名
         labelType: '人脸质量标注',
@@ -111,6 +133,7 @@ export default {
       },
       properties: [],
       propData: [],
+      currentData: [],
       allPropertyType: [],
       visible: false,
       confirmLoading: false,
@@ -126,6 +149,11 @@ export default {
   mounted () {
   },
   methods: {
+    onChange (e) {
+      this.currentData = this.properties.filter(item => {
+        return item.label_type_name == this.mode
+      })
+    },
     onOpenChange (openKeys) {
       console.log(openKeys)
       const latestOpenKey = openKeys.find(key => this.openKeys.indexOf(key) === -1)
@@ -156,16 +184,17 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({}),
         success: (res) => {
-          console.log('这里是返回的真数据', res)
           this.allPropertyType = res.all_property_type
           this.openKeys.push(this.allPropertyType[0])
           this.properties = res.properties
-          this.allPropertyType.forEach(item => { // 筛选不同分类下的属性，存在数组里
-            let diffData = this.properties.filter(item2 => {
-              return item2.label_type_name === item
-            })
-            this.propData.push(diffData)
-          })
+          this.onChange()
+          console.log('properties', res.properties)
+          // this.allPropertyType.forEach(item => { // 筛选不同分类下的属性，存在数组里
+          //   let diffData = this.properties.filter(item2 => {
+          //     return item2.label_type_name === item
+          //   })
+          //   this.propData.push(diffData)
+          // })
           // add之后获取数据完成之后关闭loading和modal
           if (this.confirmLoading || this.visible) {
             this.confirmLoading = false
@@ -174,7 +203,7 @@ export default {
             //   title: '创建成功',
             //   content: '您已添加新属性'
             // })
-            this.$forceUpdate()
+            // this.$forceUpdate()
             console.log('添加成功，重新赋值以后的数组', this.properties)
           }
         },
@@ -371,6 +400,13 @@ export default {
     width: 100%;
     text-align: left;
   }
+  .c-table{
+    border: 1px solid paleturquoise;
+    border-radius: 5px;
+    width: 80%;
+    margin: 0 auto;
+    color: rgba(0, 0, 0, 0.65);
+  }
 
   .c-bread{
     padding: 0 10%;
@@ -378,10 +414,10 @@ export default {
     line-height: 60px;
     text-align: left;
   }
-.c-item{
-  display: flex;
-  justify-content: space-between;
-}
+  .c-item{
+    display: flex;
+    justify-content: space-between;
+  }
   .c-create{
     margin-left: 20px;
 
