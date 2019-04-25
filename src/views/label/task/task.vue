@@ -160,13 +160,10 @@ export default {
     },
 
     getData (e) {
-      var params = {
-        url: this.baseUrl + '/task/admin',
-        method: 'GET',
-        data: {
-          'page': 1,
-          'pagerows': 10
-        },
+      $.ajax({
+        type: 'GET',
+        url: this.baseUrl + '/task/admin?page=1&pagerows=10',
+        dataType: 'json',
         success: (res) => {
           console.log('这里是返回的真数据', res)
           // 假数据
@@ -179,8 +176,7 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      }
-      this.myAjax(params)
+      })
     },
     showModal () {
       this.initModal()
@@ -191,9 +187,10 @@ export default {
       if (this.step === 1) { // 下一步获取所有的属性和数据源
         console.log(this.labelTypeId)
         this.confirmLoading = true
-        let params = {
+        $.ajax({
+          type: 'GET',
           url: this.baseUrl + '/add_task?label_type_id=' + this.labelTypeId,
-          method: 'GET',
+          dataType: 'json',
           success: (res) => {
             console.log('ok成功了！！！', res)
             this.allProps = res.props
@@ -212,8 +209,7 @@ export default {
           error: function (err) {
             console.log('error!', err)
           }
-        }
-        this.myAjax(params)
+        })
       } else if (this.step === 2) {
         // 添加时，先过滤出组件里选择的属性ids
         console.log('配置属性数组', this.prop_ids)
@@ -243,15 +239,17 @@ export default {
           return
         }
         this.confirmLoading = true
-        let params = {
+        $.ajax({
+          type: 'POST',
           url: this.baseUrl + '/add_task',
-          method: 'POST',
-          data: {
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify({
             'task_name': this.taskName,
             'difficult_num': this.difficultNum,
             'prop_ids': this.prop_ids.join(','),
             'source_id': this.source_id
-          },
+          }),
           success: (res) => {
             console.log('ok成功了！！！', res)
             if (res.status === 'success') {
@@ -263,8 +261,7 @@ export default {
           error: function (err) {
             console.log('error!', err)
           }
-        }
-        this.myAjax(params)
+        })
       }
     },
     handleCancel (e) {

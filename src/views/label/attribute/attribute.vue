@@ -153,8 +153,8 @@ export default {
         type: 'POST',
         url: this.baseUrl + '/show_property',
         dataType: 'json',
-        data: {
-        },
+        contentType: 'application/json',
+        data: JSON.stringify({}),
         success: (res) => {
           console.log('这里是返回的真数据', res)
           this.allPropertyType = res.all_property_type
@@ -203,9 +203,10 @@ export default {
         type: 'POST',
         url: this.baseUrl + '/show_property_value',
         dataType: 'json',
-        data: {
+        contentType: 'application/json',
+        data: JSON.stringify({
           prop_id: propId
-        },
+        }),
         success: (res) => {
           this.modalObj = {
             propName: res.prop_name,
@@ -263,7 +264,8 @@ export default {
         type: 'POST',
         url: this.baseUrl + '/add_property',
         dataType: 'json',
-        data: modalData,
+        contentType: 'application/json',
+        data: JSON.stringify(modalData),
         success: (res) => {
           if (res.status === 'success') {
             this.getProperty()

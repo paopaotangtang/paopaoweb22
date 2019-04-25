@@ -156,11 +156,12 @@ export default {
         type: 'POST',
         url: this.baseUrl + '/add_source',
         dataType: 'json',
-        data: {
+        contentType: 'application/json',
+        data: JSON.stringify({
           'source_name': this.sourceName,
           'label_type_id': this.labelTypeId,
           'file_url': this.fileUrl
-        },
+        }),
         success: (res) => {
           console.log('ok成功了！！！', res)
           if (res.status === 'success') {

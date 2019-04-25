@@ -103,13 +103,14 @@ export default {
             type: 'POST',
             url: this.baseUrl + '/register',
             dataType: 'json',
-            data: {
+            contentType: 'application/json',
+            data: JSON.stringify({
               'nickname': values.nickname,
               'realname': values.realname,
               'password': values.password,
               'email': values.email,
               'groupid': values.groupid
-            },
+            }),
             success: (res) => {
               console.log('成功调用了ajax', res)
               if (res.status === 'success') {
@@ -121,7 +122,7 @@ export default {
                 })
                 window.localStorage.setItem('isLogin', true)
                 this.toLabelHome()
-              } else if (res.status === 0) {
+              } else if (res.status === 'fail') {
                 this.$error({
                   title: '注册失败',
                   content: res.msg

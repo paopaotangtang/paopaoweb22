@@ -71,10 +71,11 @@ export default {
             type: 'POST',
             url: this.baseUrl + '/login',
             dataType: 'json',
-            data: {
+            contentType: 'application/json',
+            data: JSON.stringify({
               'nickname': values.username,
               'password': values.password
-            },
+            }),
             success: (res) => {
               console.log('成功调用了ajax', res)
               // if (res.data.code === 200) { // 如果账号密码正确
