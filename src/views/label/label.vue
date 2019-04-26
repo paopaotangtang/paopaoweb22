@@ -22,18 +22,14 @@ export default {
   },
   methods: {
     quit () {
-      localStorage.removeItem('isLogin')
+      localStorage.removeItem('groupid')
+      localStorage.removeItem('user_id')
+      localStorage.removeItem('nickname')
       this.$success({
         title: '提示',
         content: '退出成功'
       })
       this.$router.push({path: '/login'})
-    },
-    success () {
-      this.$success({
-        title: '登陆成功',
-        content: this.msg
-      })
     }
   }
 }

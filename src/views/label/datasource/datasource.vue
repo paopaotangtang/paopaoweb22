@@ -21,6 +21,7 @@
 
     <a-modal
       title="新建数据源"
+      width="600px"
       :visible="visible"
       @ok="handleOk"
       :confirmLoading="confirmLoading"

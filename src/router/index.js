@@ -29,28 +29,28 @@ const router = new Router({
       name: 'label',
       component: Label,
       meta: {
-        isLogin: true
+        groupid: 1
       },
       children: [{
         path: '', // 默认子路由
         name: 'task',
         component: Task,
         meta: {
-          isLogin: true
+          groupid: 1
         }
       }, {
         path: 'datasource',
         name: 'datasource',
         component: DataSource,
         meta: {
-          isLogin: true
+          groupid: 1
         }
       }, {
         path: 'attribute',
         name: 'attribute',
         component: Attribute,
         meta: {
-          isLogin: true
+          groupid: 1
         }
       }, {
         path: '*', // 默认子路由
@@ -72,10 +72,10 @@ router.beforeEach((to, from, next) => {
   // to: Route: 即将要进入的目标 路由对象
   // from: Route: 当前导航正要离开的路由
   // next: Function: 一定要调用该方法来 resolve 这个钩子。执行效果依赖 next 方法的调用参数。
-  let needlogin = to.matched.some(item => item.meta.isLogin)// 有要求先登录的话就是true
-  let isLogin = localStorage.getItem('isLogin')
-  if (needlogin) {
-    if (isLogin) {
+  let isManage = to.matched.some(item => item.meta.groupid == 1)// 有要求先登录,且groupid==1管理员,的话就是true
+  let groupid = localStorage.getItem('groupid')
+  if (isManage) { // 是管理员就是已登录
+    if (groupid == 1) { // 如果是管理员就继续访问，否则去登录
       next()
     } else {
       router.push('/login')
@@ -85,7 +85,7 @@ router.beforeEach((to, from, next) => {
   }
   // 已登录状态；当路由到login时，跳转至home
   if (to.path === '/login') {
-    if (isLogin) {
+    if (groupid == 1) {
       router.push({path: '/label'})
     }
   }

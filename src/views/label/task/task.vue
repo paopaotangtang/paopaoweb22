@@ -23,6 +23,7 @@
 
     <a-modal
       title="新建任务"
+      width="600px"
       :visible="visible"
       @ok="handleOk"
       :confirmLoading="confirmLoading"
@@ -180,7 +181,7 @@ export default {
           this.data.forEach(item => {
             item.create_time = this.getTime(item.create_time)
           })
-          console.log(this.data)
+          // console.log(this.data)
         },
         error: function (err) {
           console.log('error!', err)
@@ -279,7 +280,7 @@ export default {
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
-      console.log(111, timestamp, time)
+      // console.log(111, timestamp, time)
       let y = time.getFullYear()
       let m = time.getMonth() + 1
       let d = time.getDate()

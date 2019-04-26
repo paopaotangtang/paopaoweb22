@@ -5,7 +5,11 @@
 </template>
 
 <script>
-
+window.onunload = function () {
+  localStorage.removeItem('groupid')
+  localStorage.removeItem('user_id')
+  localStorage.removeItem('nickname')
+}
 export default {
   name: 'App'
 }

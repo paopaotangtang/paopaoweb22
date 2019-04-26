@@ -12,10 +12,10 @@
     </a-radio-group>
     </div>
 
-      <a-table class="c-table" :columns="columns" :dataSource="currentData" v-if="currentData.length" size="middle">
+      <a-table class="c-table" :columns="columns" :dataSource="currentData" v-if="currentData.length">
         <span slot="prop_name" >prop_name</span>
         <span slot="action" slot-scope="text,record" @click="showModal(2,record.id)">
-           <a-button type="primary" >修改/删除</a-button>
+           <a-button type="primary" >修改/查看</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无数据</div>
@@ -116,10 +116,8 @@ export default {
       properties: [],
       propData: [],
       currentData: [],
-      allPropertyType: [],
       visible: false,
-      confirmLoading: false,
-      openKeys: []
+      confirmLoading: false
     }
   },
   beforeCreate () {
@@ -135,15 +133,6 @@ export default {
       this.currentData = this.properties.filter(item => {
         return item.label_type_name == this.mode
       })
-    },
-    onOpenChange (openKeys) {
-      console.log(openKeys)
-      const latestOpenKey = openKeys.find(key => this.openKeys.indexOf(key) == -1)
-      if (this.allPropertyType.indexOf(latestOpenKey) == -1) {
-        this.openKeys = openKeys
-      } else {
-        this.openKeys = latestOpenKey ? [latestOpenKey] : []
-      }
     },
     initModal () {
       this.modalObj = {
@@ -164,20 +153,11 @@ export default {
         url: this.baseUrl + '/show_property',
         dataType: 'json',
         contentType: 'application/json',
-        // contentType: false,
         data: JSON.stringify({}),
         success: (res) => {
-          this.allPropertyType = res.all_property_type
-          this.openKeys.push(this.allPropertyType[0])
           this.properties = res.properties
           this.onChange()
-          console.log('properties', res.properties)
-          // this.allPropertyType.forEach(item => { // 筛选不同分类下的属性，存在数组里
-          //   let diffData = this.properties.filter(item2 => {
-          //     return item2.label_type_name == item
-          //   })
-          //   this.propData.push(diffData)
-          // })
+          // console.log('properties', res.properties)
           // add之后获取数据完成之后关闭loading和modal
           if (this.confirmLoading || this.visible) {
             this.confirmLoading = false
@@ -186,8 +166,6 @@ export default {
             //   title: '创建成功',
             //   content: '您已添加新属性'
             // })
-            // this.$forceUpdate()
-            console.log('添加成功，重新赋值以后的数组', this.properties)
           }
         },
         error: function (err) {
@@ -228,7 +206,6 @@ export default {
             propId: res.prop_id
           }
           this.visible = true
-          console.log('查看了record一下', this.modalObj.recordValues)
         },
         error: function (err) {
           console.log('error!', err)
@@ -287,7 +264,6 @@ export default {
             title: '创建失败',
             content: err
           })
-          console.log('error!', err)
         }
       })
     },
@@ -297,7 +273,7 @@ export default {
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
-      console.log(111, timestamp, time)
+      // console.log(111, timestamp, time)
       let y = time.getFullYear()
       let m = time.getMonth() + 1
       let d = time.getDate()

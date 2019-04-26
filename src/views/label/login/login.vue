@@ -78,10 +78,11 @@ export default {
             }),
             success: (res) => {
               console.log('成功调用了ajax', res)
-              // if (res.data.code === 200) { // 如果账号密码正确
               if (res.code === 200) { // 如果账号密码正确
                 console.log('返回了', res)
-                window.localStorage.setItem('isLogin', true)
+                window.localStorage.setItem('groupid', res.groupid)
+                window.localStorage.setItem('user_id', res.user_id)
+                window.localStorage.setItem('nickname', res.nickname)
                 this.$success({
                   title: '登陆成功',
                   content: res.msg
