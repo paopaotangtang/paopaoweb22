@@ -4,7 +4,9 @@
       <span>任务列表</span><a-button type="primary" class="c-create" @click="showModal">新建任务</a-button>
     </div>
     <div class="c-table">
-      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.task_id" v-if="data.length">
+      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.task_id" v-if="data.length"
+               :pagination="pagination"
+               @change="handleTableChange">
         <span slot="task_name" >task_name</span>
         <span slot="task_id" >task_id</span>
         <span slot="label_type" >label_type</span>
@@ -49,7 +51,7 @@
           <span class="c-title">任务名称：</span><a-input placeholder="请输入任务名称" v-model="taskName" />
         </div>
         <div class="c-margin-b">
-          <span class="c-title">难度系数：</span><a-input-number  placeholder="请输入难度系数"  v-model="difficultNum" @blur="difficultNumChange" />
+          <span class="c-title">难度系数：</span><a-input-number  placeholder="请输入难度系数"  v-model="difficultNum" @blur="difficultNumChange"  style="width:70%;"/>
         </div>
         <!--属性配置-->
         <div class="c-margin-b">
@@ -121,6 +123,10 @@ export default {
   data () {
     return {
       data: [],
+      pagination: {
+        current: 1,
+        pageSize: 10
+      },
       columns: columns,
       allProps: [],
       allSources: [],
@@ -158,15 +164,18 @@ export default {
       this.propIds = []
       this.prop_ids = []
     },
-
     getData (e) {
       $.ajax({
-        type: 'GET',
-        url: this.baseUrl + '/task/admin?page=1&pagerows=10',
+        url: this.baseUrl + '/task/admin',
         dataType: 'json',
+        data: {
+          'page': this.pagination.current,
+          'pagerows': this.pagination.pageSize
+        },
         success: (res) => {
           console.log('这里是返回的真数据', res)
           // 假数据
+          this.pagination.total = res.total
           this.data = res.tasks
           this.data.forEach(item => {
             item.create_time = this.getTime(item.create_time)
@@ -202,7 +211,7 @@ export default {
               // this.allPropString.push(item.prop_name)// 给组件用的可选属性们
               this.propIds.push(item.prop_id)// 给组件用的可选属性们
               this.prop_ids.push(item.prop_id)// 给后台用的已选属性，默认全部
-              console.log(this.propIds)
+              // console.log(this.propIds)
             })
             this.step = 2
           },
@@ -299,6 +308,11 @@ export default {
           content: '请填写大于等于0的值'
         })
       }
+    },
+    handleTableChange (pagination, filters, sorter) {
+      this.pagination = pagination
+      console.log(pagination, this.pagination)
+      this.getData()
     }
 
   }

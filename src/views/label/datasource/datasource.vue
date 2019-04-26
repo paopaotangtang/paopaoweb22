@@ -5,7 +5,9 @@
       <span>数据源</span><a-button type="primary" class="c-create" @click="showModal">新建数据源</a-button>
     </div>
     <div class="c-table">
-      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.id" v-if="data.length">
+      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.id" v-if="data.length"
+               :pagination="pagination"
+               @change="handleTableChange">
         <span slot="source_name" >source_name</span>
         <span slot="label_type" >label_type</span>
         <span slot="count" >count</span>
@@ -26,8 +28,6 @@
       okText="确认"
       cancelText="取消"
       :maskClosable="false"
-      :pagination="pagination"
-      @change="handleTableChange"
     >
       <div class="c-flex">
         <span class="c-title">数据源名称：</span><a-input placeholder="请输入数据源名称" v-model="sourceName"/>
@@ -76,7 +76,10 @@ export default {
   name: 'datasource',
   data () {
     return {
-      pagination: {},
+      pagination: {
+        current: 1,
+        pageSize: 10
+      },
       data: [],
       columns: columns,
       sourceName: '', // 新建数据源名
@@ -111,17 +114,17 @@ export default {
         url: this.baseUrl + '/source',
         dataType: 'json',
         data: {
-          'page': 1,
-          'pagerows': 10
+          'page': this.pagination.current,
+          'pagerows': this.pagination.pageSize
         },
         success: (res) => {
           console.log('这里是返回的真数据', res)
           // 假数据
+          this.pagination.total = res.total
           this.data = res.sources
           this.data.forEach(item => {
             item.create_time = this.getTime(item.create_time)
           })
-          // console.log(this.data)
         },
         error: function (err) {
           this.$error({
@@ -182,7 +185,6 @@ export default {
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
-      console.log(111, timestamp, time)
       let y = time.getFullYear()
       let m = time.getMonth() + 1
       let d = time.getDate()
@@ -193,17 +195,9 @@ export default {
       this.labelTypeId = e.key
     },
     handleTableChange (pagination, filters, sorter) {
-      // console.log(pagination)
-      // const pager = { ...this.pagination }
-      // pager.current = pagination.current
-      // this.pagination = pager
-      // this.fetch({
-      //   results: pagination.pageSize,
-      //   page: pagination.current,
-      //   sortField: sorter.field,
-      //   sortOrder: sorter.order,
-      //   ...filters
-      // })
+      this.pagination = pagination
+      console.log(pagination, this.pagination)
+      this.getData()
     }
 
   }
