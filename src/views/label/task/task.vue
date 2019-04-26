@@ -324,7 +324,7 @@ export default {
     background: #65ae7e;
   }
   .c-table{
-    border: 1px solid paleturquoise;
+    border: 1px solid #cbcbcb;
     border-radius: 5px;
     width: 80%;
     margin: 0 auto;

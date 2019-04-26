@@ -10,8 +10,8 @@
         <span slot="label_type" >label_type</span>
         <span slot="count" >count</span>
         <span slot="create_time" >create_time</span>
-        <span slot="action" >
-           <a-button type="primary"  @click="look" >查看图片</a-button>
+        <span slot="action" slot-scope="text,record"   @click="look(record)" >
+           <a-button type="primary">查看图片</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无数据源信息</div>
@@ -229,7 +229,7 @@ export default {
     background: #65ae7e;
   }
  .c-table{
-   border: 1px solid paleturquoise;
+   border: 1px solid #cbcbcb;
    border-radius: 5px;
    width: 80%;
    margin: 0 auto;

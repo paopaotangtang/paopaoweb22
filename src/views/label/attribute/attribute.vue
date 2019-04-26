@@ -4,43 +4,24 @@
     <div class="c-bread">
       <span>属性设置</span><a-button type="primary" class="c-create" @click="showModal(1)">添加属性</a-button>
     </div>
-    <a-radio-group v-model="mode"  @change="onChange">
+    <div class="c-bread">
+      <span>当前类型：</span>
+      <a-radio-group v-model="mode"  @change="onChange">
       <a-radio-button value="人脸质量标注">人脸质量标注</a-radio-button>
       <a-radio-button value="行人">行人</a-radio-button>
     </a-radio-group>
-    <div class="c-table">
-      <a-table :columns="columns" :dataSource="currentData" :rowKey="item => item.id" v-if="currentData.length">
+    </div>
+
+      <a-table class="c-table" :columns="columns" :dataSource="currentData" v-if="currentData.length" size="middle">
         <span slot="prop_name" >prop_name</span>
-        <span slot="action" >
-           <a-button type="primary"  @click="showModal(2,item.id)" >待定</a-button>
+        <span slot="action" slot-scope="text,record" @click="showModal(2,record.id)">
+           <a-button type="primary" >修改/删除</a-button>
         </span>
       </a-table>
-      <div  v-else style="padding: 20px;">暂无任务信息</div>
-    </div>
-    <!--<div class="c-menu-table">-->
-      <!--<a-menu-->
-        <!--mode="inline"-->
-        <!--:openKeys="openKeys"-->
-        <!--@openChange="onOpenChange"-->
-        <!--style="width: 100%"-->
-        <!--v-if="allPropertyType.length"-->
-      <!--&gt;-->
-        <!--<a-sub-menu v-for="(item1,index1) in allPropertyType" :key="item1" >-->
-          <!--<span slot="title"><a-icon type="deployment-unit" /><span>{{item1}}</span></span>-->
-          <!--<a-menu-item  class="c-item" v-for="item2 in propData[index1]" :key="item2.id">-->
-            <!--<span > {{item2.prop_name}}</span>-->
-            <!--<span>-->
-              <!--<a-button type="primary"  @click="showModal(2,item2.id)" >查看/修改</a-button>-->
-              <!--</span>-->
-          <!--</a-menu-item>-->
-        <!--</a-sub-menu>-->
-
-      <!--</a-menu>-->
-      <!--<div v-else style="padding: 20px;">您还未设置属性</div>-->
-    <!--</div>-->
+      <div  v-else style="padding: 20px;">暂无数据</div>
 
     <a-modal
-      :title="this.modalType===1?'添加属性':'属性详情'"
+      :title="this.modalType==1?'添加属性':'属性详情'"
       :visible="visible"
       @ok="handleOk"
       :confirmLoading="confirmLoading"
@@ -52,7 +33,7 @@
     >
       <div class="c-flex">
         <span class="c-title">属性名称：</span><a-input
-        placeholder="请输入属性名称" v-model="modalObj.propName" :disabled="modalType===1?false:true"/>
+        placeholder="请输入属性名称" v-model="modalObj.propName" :disabled="modalType==1?false:true"/>
       </div>
 
       <div class="c-flex">
@@ -111,7 +92,8 @@ var columns = [{
 }, {
   title: '操作',
   dataIndex: 'action',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action' },
+  width: '25%'
 }]
 export default {
   name: 'attribute',
@@ -156,8 +138,8 @@ export default {
     },
     onOpenChange (openKeys) {
       console.log(openKeys)
-      const latestOpenKey = openKeys.find(key => this.openKeys.indexOf(key) === -1)
-      if (this.allPropertyType.indexOf(latestOpenKey) === -1) {
+      const latestOpenKey = openKeys.find(key => this.openKeys.indexOf(key) == -1)
+      if (this.allPropertyType.indexOf(latestOpenKey) == -1) {
         this.openKeys = openKeys
       } else {
         this.openKeys = latestOpenKey ? [latestOpenKey] : []
@@ -182,6 +164,7 @@ export default {
         url: this.baseUrl + '/show_property',
         dataType: 'json',
         contentType: 'application/json',
+        // contentType: false,
         data: JSON.stringify({}),
         success: (res) => {
           this.allPropertyType = res.all_property_type
@@ -191,7 +174,7 @@ export default {
           console.log('properties', res.properties)
           // this.allPropertyType.forEach(item => { // 筛选不同分类下的属性，存在数组里
           //   let diffData = this.properties.filter(item2 => {
-          //     return item2.label_type_name === item
+          //     return item2.label_type_name == item
           //   })
           //   this.propData.push(diffData)
           // })
@@ -216,15 +199,14 @@ export default {
         }
       })
     },
-    showModal (modalType, propId) { // modalType:1创建属性2查看修改
-      console.log('点击的属性的id', propId)
+    showModal (modalType, recordId) { // modalType:1创建属性2查看修改
       this.modalType = modalType
-      if (this.modalType === 1) {
+      if (this.modalType == 1) {
         this.initModal()// 新建需要清除modal脏数据
         this.visible = true
         this.confirmLoading = false
       } else {
-        this.getPropertyValue(propId)
+        this.getPropertyValue(recordId)
       }
     },
     getPropertyValue (propId) {
@@ -276,14 +258,14 @@ export default {
       }
       this.confirmLoading = true
       let modalData
-      if (this.modalType === 1) { // 新建属性的参数
+      if (this.modalType == 1) { // 新建属性的参数
         modalData = {
           'prop_name': this.modalObj.propName, // 属性名
           'label_type_id': this.modalObj.labelTypeId, // 标注类型
           'prop_type': this.modalObj.propType,
           'property_value': this.modalObj.propertyValues
         }
-      } else if (this.modalType === 2) { // 修改属性的参数
+      } else if (this.modalType == 2) { // 修改属性的参数
         modalData = {
           'prop_id': this.modalObj.propId, // 属性名
           'property_value': this.modalObj.recordValues // 记录的values
@@ -296,7 +278,7 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify(modalData),
         success: (res) => {
-          if (res.status === 'success') {
+          if (res.status == 'success') {
             this.getProperty()
           }
         },
@@ -347,7 +329,7 @@ export default {
 
     deleteValue (item, index) {
       console.log(item, index, this.propertyValues)
-      if (this.modalObj.propertyValues.length === 1) {
+      if (this.modalObj.propertyValues.length == 1) {
         this.$warning({
           title: '删除失败',
           content: '至少有一项选项'
@@ -363,7 +345,7 @@ export default {
           this.modalObj.propertyValues = this.modalObj.propertyValues.filter(oldItem => oldItem.id !== item.id)
           if (this.modalObj.recordValues) {
             this.modalObj.recordValues.forEach(recordTtem => {
-              if (recordTtem.id === item.id) {
+              if (recordTtem.id == item.id) {
                 recordTtem['delete'] = 1
                 console.log('test')
               }
@@ -375,7 +357,7 @@ export default {
     changeValue (item) {
       if (this.modalObj.recordValues) {
         this.modalObj.recordValues.map(recordTtem => {
-          if (recordTtem.id === item.id) {
+          if (recordTtem.id == item.id) {
             recordTtem = item
           }
         })
@@ -401,11 +383,9 @@ export default {
     text-align: left;
   }
   .c-table{
-    border: 1px solid paleturquoise;
-    border-radius: 5px;
+    border: 1px solid #cbcbcb;
     width: 80%;
     margin: 0 auto;
-    color: rgba(0, 0, 0, 0.65);
   }
 
   .c-bread{
