@@ -57,7 +57,7 @@
             <a-menu-item key="2" class="c-item" title="画框">画框</a-menu-item>
           </a-menu>
           <a-button :disabled="modalType==1?false:true">
-            {{modalObj.propType==1?'单选':'画框'}}<a-icon type="down" />
+            {{modalObj.propType}}<a-icon type="down" />
           </a-button>
         </a-dropdown>
       </div>
@@ -106,7 +106,8 @@ export default {
         propName: '', // 新建数据源名
         labelType: '人脸质量标注',
         labelTypeId: 1,
-        propType: 1,
+        propType: '单选',
+        propTypeId: 1,
         propertyValues: [{
           'option_name': '', // 选项名字
           'option_value': '', // 选项id
@@ -139,7 +140,7 @@ export default {
         propName: '', // 新建数据源名
         labelType: '人脸质量标注',
         labelTypeId: 1,
-        propType: 1,
+        propType: '单选',
         propertyValues: [{
           'option_name': '', // 选项名字
           'option_value': '', // 选项id
@@ -239,7 +240,7 @@ export default {
         modalData = {
           'prop_name': this.modalObj.propName, // 属性名
           'label_type_id': this.modalObj.labelTypeId, // 标注类型
-          'prop_type': this.modalObj.propType,
+          'prop_type_id': this.modalObj.propTypeId,
           'property_value': this.modalObj.propertyValues
         }
       } else if (this.modalType == 2) { // 修改属性的参数
@@ -286,7 +287,8 @@ export default {
     },
     propTypeChange (e) { // 修改属性类别
       // console.log('proptypr',e)
-      this.modalObj.propType = e.key // 修改数据类型
+      this.modalObj.propType = e.item.title // 修改数据类型
+      this.modalObj.propTypeId = e.key
     },
     addValue () {
       let localId = new Date().getTime() + this.modalObj.propertyValues.length
