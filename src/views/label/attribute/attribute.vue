@@ -170,10 +170,10 @@ export default {
           }
         },
         error: function (err) {
-          this.$error({
-            title: '失败',
-            content: err
-          })
+          // this.$error({
+          //   title: '失败',
+          //   content: err
+          // })
           console.log('error!', err)
         }
       })
@@ -236,11 +236,12 @@ export default {
       }
       this.confirmLoading = true
       let modalData
+      console.log('看这里', this.modalObj)
       if (this.modalType == 1) { // 新建属性的参数
         modalData = {
           'prop_name': this.modalObj.propName, // 属性名
           'label_type_id': this.modalObj.labelTypeId, // 标注类型
-          'prop_type_id': this.modalObj.propTypeId,
+          'prop_type': this.modalObj.propTypeId,
           'property_value': this.modalObj.propertyValues
         }
       } else if (this.modalType == 2) { // 修改属性的参数
@@ -260,10 +261,10 @@ export default {
             this.getProperty()
           }
         },
-        error: function (err) {
+        error: (err) => {
           this.$error({
             title: '创建失败',
-            content: err
+            content: err.statusText
           })
         }
       })
@@ -289,6 +290,7 @@ export default {
       // console.log('proptypr',e)
       this.modalObj.propType = e.item.title // 修改数据类型
       this.modalObj.propTypeId = e.key
+      console.log('选择了proptype:', this.modalObj.propTypeId)
     },
     addValue () {
       let localId = new Date().getTime() + this.modalObj.propertyValues.length

@@ -42,6 +42,13 @@ const router = new Router({
           groupid: 1
         }
       }, {
+        path: 'task', // 默认子路由
+        name: 'task',
+        component: Task,
+        meta: {
+          groupid: 1
+        }
+      }, {
         path: 'datasource',
         name: 'datasource',
         component: DataSource,
