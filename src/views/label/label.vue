@@ -2,19 +2,20 @@
   <div class="hello">
     <header>meto糖糖自用标注系统</header>
     <ul class="c-label-nav">
-      <template v-if="groupId==1">//1.管理员2.标注员2.质检员
+      <!--1.管理员2.标注员2.质检员-->
+      <template v-if="groupId==1">
         <li class="c-user">当前用户：管理员</li>
         <router-link exact to="/label/task" tag="li">任务</router-link>
         <router-link exact to="/label/datasource" tag="li">数据源</router-link>
         <router-link exact to="/label/attribute" tag="li">属性设置</router-link>
       </template>
-      <template v-if="groupId==2">//1.管理员2.标注员2.质检员
+      <template v-if="groupId==2">
         <li class="c-user">当前用户：标注员</li>
         <router-link exact to="/label/task2" tag="li">任务</router-link>
         <router-link exact to="/label/history" tag="li">历史</router-link>
         <router-link exact to="/label/performance" tag="li">绩效</router-link>
       </template>
-      <template v-if="groupId==3">//1.管理员2.标注员2.质检员
+      <template v-if="groupId==3">
         <li class="c-user">当前用户：质检员</li>
         <router-link exact to="/label/task" tag="li">任务</router-link>
         <!--<router-link exact to="/label/datasource" tag="li">数据源</router-link>-->
@@ -27,14 +28,17 @@
 </template>
 
 <script>
-let groupId = localStorage.getItem('groupid')
 
 export default {
   name: 'label',
   data () {
     return {
-      groupId
+      groupId: -1
     }
+  },
+  beforeMount () {
+    this.groupId = localStorage.getItem('groupid')
+    console.log('获取用户groupid', this.groupId)
   },
   methods: {
     quit () {

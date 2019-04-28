@@ -34,9 +34,6 @@ const router = new Router({
       path: '/label',
       name: 'label',
       component: Label,
-      meta: {
-        groupid: 1
-      },
       children: [{
         path: '', // 默认子路由
         name: 'task',
@@ -59,21 +56,21 @@ const router = new Router({
           groupid: 1
         }
       }, {
-        path: '', // 默认子路由
+        path: 'task2', // 默认子路由
         name: 'task2',
         component: Task2,
         meta: {
           groupid: 2
         }
       }, {
-        path: '', // 默认子路由
+        path: 'history', // 默认子路由
         name: 'history',
         component: History,
         meta: {
           groupid: 2
         }
       }, {
-        path: '', // 默认子路由
+        path: 'performance', // 默认子路由
         name: 'performance',
         component: Performance,
         meta: {
