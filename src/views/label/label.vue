@@ -2,10 +2,24 @@
   <div class="hello">
     <header>meto糖糖自用标注系统</header>
     <ul class="c-label-nav">
-      <li class="c-user">当前用户：管理员</li>
-      <router-link exact to="/label/task" tag="li">首页</router-link>
-      <router-link exact to="/label/datasource" tag="li">数据源</router-link>
-      <router-link exact to="/label/attribute" tag="li">属性设置</router-link>
+      <template v-if="groupId==1">//1.管理员2.标注员2.质检员
+        <li class="c-user">当前用户：管理员</li>
+        <router-link exact to="/label/task" tag="li">任务</router-link>
+        <router-link exact to="/label/datasource" tag="li">数据源</router-link>
+        <router-link exact to="/label/attribute" tag="li">属性设置</router-link>
+      </template>
+      <template v-if="groupId==2">//1.管理员2.标注员2.质检员
+        <li class="c-user">当前用户：标注员</li>
+        <router-link exact to="/label/task2" tag="li">任务</router-link>
+        <router-link exact to="/label/history" tag="li">历史</router-link>
+        <router-link exact to="/label/performance" tag="li">绩效</router-link>
+      </template>
+      <template v-if="groupId==3">//1.管理员2.标注员2.质检员
+        <li class="c-user">当前用户：质检员</li>
+        <router-link exact to="/label/task" tag="li">任务</router-link>
+        <!--<router-link exact to="/label/datasource" tag="li">数据源</router-link>-->
+        <!--<router-link exact to="/label/attribute" tag="li">属性设置</router-link>-->
+      </template>
       <li @click="quit">退出系统</li>
     </ul>
     <router-view></router-view>
@@ -13,11 +27,13 @@
 </template>
 
 <script>
+let groupId = localStorage.getItem('groupid')
 
 export default {
   name: 'label',
   data () {
     return {
+      groupId
     }
   },
   methods: {

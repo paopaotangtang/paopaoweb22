@@ -66,11 +66,11 @@
 
         <div class="c-card" v-for="(item,index) in modalObj.propertyValues" v-bind:key="index">
           <div class="c-flex">
-            <span class="c-title">选项名称：</span><a-input placeholder="请输入属性名称" v-model="item.value_name" @change="changeValue(item)"/>
+            <span class="c-title">选项名称：</span><a-input placeholder="请输入选项名称" v-model="item.option_name" @change="changeValue(item)"/>
             <a-button type="danger" icon="minus" @click="deleteValue(item,index)">删除此项</a-button>
           </div>
           <div class="c-flex">
-            <span class="c-title">选项值：</span><a-input placeholder="请输入选项的值"  v-model="item.value_id"/>
+            <span class="c-title">选项值：</span><a-input placeholder="请输入选项的值"  v-model="item.option_value"/>
           </div>
         </div>
         <div style="text-align: center;padding: 10px 0;">
@@ -108,8 +108,8 @@ export default {
         labelTypeId: 1,
         propType: 1,
         propertyValues: [{
-          'value_name': '', // 选项名字
-          'value_id': '', // 选项id
+          'option_name': '', // 选项名字
+          'option_value': '', // 选项id
           'localId': new Date().getTime() + 'first'
         }]
       },
@@ -141,8 +141,8 @@ export default {
         labelTypeId: 1,
         propType: 1,
         propertyValues: [{
-          'value_name': '', // 选项名字
-          'value_id': '', // 选项id
+          'option_name': '', // 选项名字
+          'option_value': '', // 选项id
           'localId': new Date().getTime() + 'first'
         }]
       }
@@ -225,7 +225,7 @@ export default {
           content: '请填写属性选项'
         })
         return
-      } else if (this.modalObj.propertyValues.some(item => { return !item.value_id || !item.value_name })) {
+      } else if (this.modalObj.propertyValues.some(item => { return !item.option_value || !item.option_name })) {
         // propertyValues
         this.$warning({
           title: '有的选项不完整',
@@ -292,8 +292,8 @@ export default {
       let localId = new Date().getTime() + this.modalObj.propertyValues.length
       // 增加选项
       let newValue = {
-        'value_name': '', // 选项名字
-        'value_id': '', // 选项id
+        'option_name': '', // 选项名字
+        'option_value': '', // 选项id
         'localId': localId
       }
       this.modalObj.propertyValues.push(newValue)
@@ -312,16 +312,16 @@ export default {
         })
       } else {
         // 删除选项,
-        if (!item.id) { // 如果没有远程id,就是要删除新增的选项，那record里就删除
+        if (!item.option_id) { // 如果没有远程option_id,就是要删除新增的选项，那record里就删除
           this.modalObj.propertyValues = this.modalObj.propertyValues.filter(oldItem => oldItem.localId !== item.localId)
           if (this.modalObj.recordValues) {
             this.modalObj.recordValues = this.modalObj.recordValues.filter(recordTtem => recordTtem.localId !== item.localId)
           }
-        } else { // 如果有prop_id，就是要删除已存在的选项，record里记录delete
-          this.modalObj.propertyValues = this.modalObj.propertyValues.filter(oldItem => oldItem.id !== item.id)
+        } else { // 如果有option_id，就是要删除已存在的选项，record里记录delete
+          this.modalObj.propertyValues = this.modalObj.propertyValues.filter(oldItem => oldItem.option_id !== item.option_id)
           if (this.modalObj.recordValues) {
             this.modalObj.recordValues.forEach(recordTtem => {
-              if (recordTtem.id == item.id) {
+              if (recordTtem.option_id == item.option_id) {
                 recordTtem['delete'] = 1
                 console.log('test')
               }
@@ -333,7 +333,7 @@ export default {
     changeValue (item) {
       if (this.modalObj.recordValues) {
         this.modalObj.recordValues.map(recordTtem => {
-          if (recordTtem.id == item.id) {
+          if (recordTtem.option_id == item.option_id) {
             recordTtem = item
           }
         })

@@ -4,9 +4,15 @@ import Home from '@/views/home/home'
 import Label from '@/views/label/label'
 import Login from '@/views/label/login/login'
 import Register from '@/views/register/register'
-import DataSource from '@/views/label/datasource/datasource'
+
 import Task from '@/views/label/task/task'
+import DataSource from '@/views/label/datasource/datasource'
 import Attribute from '@/views/label/attribute/attribute'
+
+import Task2 from '@/views/label/task2/task2'
+import History from '@/views/label/history/history'
+import Performance from '@/views/label/performance/performance'
+
 Vue.use(Router)
 
 const router = new Router({
@@ -53,8 +59,26 @@ const router = new Router({
           groupid: 1
         }
       }, {
-        path: '*', // 默认子路由
-        component: Task
+        path: '', // 默认子路由
+        name: 'task2',
+        component: Task2,
+        meta: {
+          groupid: 2
+        }
+      }, {
+        path: '', // 默认子路由
+        name: 'history',
+        component: History,
+        meta: {
+          groupid: 2
+        }
+      }, {
+        path: '', // 默认子路由
+        name: 'performance',
+        component: Performance,
+        meta: {
+          groupid: 2
+        }
       } ]
     },
     {
