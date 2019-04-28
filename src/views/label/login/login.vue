@@ -87,7 +87,11 @@ export default {
                   title: '登陆成功',
                   content: res.msg
                 })
-                this.$router.push('/label')
+                if (res.groupid == 1) {
+                  this.$router.push('/label/task')
+                } else if (res.groupid == 2) {
+                  this.$router.push('/label/task2')
+                }
               } else if (res.code === 250) {
                 this.$error({
                   title: '登录失败',

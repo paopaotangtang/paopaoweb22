@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     toLabelHome () {
-      this.$router.push({path: '/label/labelhome'})
+      this.$router.push({path: '/label'})
     },
     handleSource (value) {
       console.log(`Selected: ${value}`)

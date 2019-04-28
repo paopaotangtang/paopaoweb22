@@ -34,15 +34,8 @@ const router = new Router({
       path: '/label',
       name: 'label',
       component: Label,
-      children: [{
-        path: '', // 默认子路由
-        name: 'task',
-        component: Task,
-        meta: {
-          groupid: 1
-        }
-      }, {
-        path: 'task', // 默认子路由
+      children: [ {
+        path: 'task',
         name: 'task',
         component: Task,
         meta: {
@@ -63,21 +56,21 @@ const router = new Router({
           groupid: 1
         }
       }, {
-        path: 'task2', // 默认子路由
+        path: 'task2',
         name: 'task2',
         component: Task2,
         meta: {
           groupid: 2
         }
       }, {
-        path: 'history', // 默认子路由
+        path: 'history',
         name: 'history',
         component: History,
         meta: {
           groupid: 2
         }
       }, {
-        path: 'performance', // 默认子路由
+        path: 'performance',
         name: 'performance',
         component: Performance,
         meta: {
@@ -100,10 +93,11 @@ router.beforeEach((to, from, next) => {
   // to: Route: 即将要进入的目标 路由对象
   // from: Route: 当前导航正要离开的路由
   // next: Function: 一定要调用该方法来 resolve 这个钩子。执行效果依赖 next 方法的调用参数。
-  let isManage = to.matched.some(item => item.meta.groupid == 1)// 有要求先登录,且groupid==1管理员,的话就是true
+  let needLogin = to.matched.some(item => item.meta.groupid)// 有要求先登录,且groupid==1管理员,的话就是true
   let groupid = localStorage.getItem('groupid')
-  if (isManage) { // 是管理员就是已登录
-    if (groupid == 1) { // 如果是管理员就继续访问，否则去登录
+  if (needLogin) { // 如果这个路由需要特定身份
+    console.log(to)
+    if (groupid == to.meta.groupid) { // 如果是管理员就继续访问，否则去登录
       next()
     } else {
       router.push('/login')
@@ -111,10 +105,12 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
-  // 已登录状态；当路由到login时，跳转至home
+  // 已登录状态；当路由到login时，跳转到对应页面
   if (to.path === '/login') {
     if (groupid == 1) {
-      router.push({path: '/label'})
+      router.push({path: '/label/task'})
+    } else if (groupid == 2) {
+      router.push({path: '/label/task2'})
     }
   }
 })
