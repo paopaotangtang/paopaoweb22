@@ -141,6 +141,7 @@ export default {
         labelType: '人脸质量标注',
         labelTypeId: 1,
         propType: '单选',
+        propTypeId: 1,
         propertyValues: [{
           'option_name': '', // 选项名字
           'option_value': '', // 选项id
