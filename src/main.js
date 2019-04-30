@@ -7,6 +7,7 @@ import antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 /* eslint-disable no-unused-vars */
 import $ from 'jquery'
+import '@/assets/js/jquery.mousewheel.min'
 
 Vue.use(antd)
 

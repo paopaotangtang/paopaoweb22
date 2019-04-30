@@ -8,12 +8,13 @@ import Register from '@/views/register/register'
 import Task from '@/views/label/task/task'
 import DataSource from '@/views/label/datasource/datasource'
 import Attribute from '@/views/label/attribute/attribute'
-
+import Detail from '@/views/label/detail/detail'
 import Task2 from '@/views/label/task2/task2'
 import History from '@/views/label/history/history'
 import Performance from '@/views/label/performance/performance'
 
 Vue.use(Router)
+
 
 const router = new Router({
   mode: 'history',
@@ -32,7 +33,7 @@ const router = new Router({
       }
     }, {
       path: '/label',
-      name: 'label',
+      name: 'clabel',
       component: Label,
       children: [ {
         path: 'task',
@@ -73,6 +74,13 @@ const router = new Router({
         path: 'performance',
         name: 'performance',
         component: Performance,
+        meta: {
+          groupid: 2
+        }
+      }, {
+        path: 'detail',
+        name: 'detail',
+        component: Detail,
         meta: {
           groupid: 2
         }

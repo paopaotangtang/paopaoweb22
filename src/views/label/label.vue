@@ -30,7 +30,7 @@
 <script>
 
 export default {
-  name: 'label',
+  name: 'clabel',
   data () {
     return {
       groupId: -1

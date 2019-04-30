@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="c-bread">
-      <span>任务列表</span><a-button type="primary" class="c-create" @click="showModal">新建任务</a-button>
+      <span>任务列表</span>
     </div>
     <div class="c-table">
       <a-table :columns="columns" :dataSource="data" :rowKey="item => item.task_id" v-if="data.length"
@@ -10,83 +10,16 @@
         <span slot="task_name" >task_name</span>
         <span slot="task_id" >task_id</span>
         <span slot="label_type" >label_type</span>
-        <span slot="count" >count</span>
-        <span slot="create_time" >create_time</span>
-        <span slot="difficult_num" >difficult_num</span>
-        <span slot="is_complete" >is_complete</span>
+        <span slot="all_count" >图片数量</span>
+        <span slot="completed_count" >已完成数量</span>
+        <span slot="my_label_count" >我的标注量</span>
+        <span slot="my_frame_count" >我的框数</span>
         <span slot="action" >
-           <a-button type="primary"  @click="look" >待定</a-button>
+           <a-button type="primary"  @click="toDetail" >标注</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
     </div>
-
-    <a-modal
-      title="新建任务"
-      width="600px"
-      :visible="visible"
-      @ok="handleOk"
-      :confirmLoading="confirmLoading"
-      @cancel="handleCancel"
-      :okText="step===1?'下一步':'确认'"
-      :maskClosable="false"
-      cancelText="取消"
-    >
-      <!--step==1-->
-      <div class="c-margin-b" v-if="step==1">
-        <span class="c-title">图像分类：</span>
-        <a-dropdown style="width: 200px;" :trigger="['click']">
-          <a-menu slot="overlay" overlayClassName="c-menu" @click="handleButtonClick">
-            <a-menu-item key="1" class="c-item" title="人脸质量标注">人脸质量标注</a-menu-item>
-            <a-menu-item key="2" class="c-item" title="人车混合">人车混合</a-menu-item>
-          </a-menu>
-          <a-button>
-            {{labelType}}<a-icon type="down" />
-          </a-button>
-        </a-dropdown>
-      </div>
-
-      <!--step==2 & label_type==人脸质量标注-->
-      <div v-if="step==2">
-        <div class="c-margin-b">
-          <span class="c-title">任务名称：</span><a-input placeholder="请输入任务名称" v-model="taskName" />
-        </div>
-        <div class="c-margin-b">
-          <span class="c-title">难度系数：</span><a-input-number  placeholder="请输入难度系数"  v-model="difficultNum" @blur="difficultNumChange"  style="width:70%;"/>
-        </div>
-        <!--属性配置-->
-        <div class="c-margin-b">
-          <span class="c-title">配置属性：</span>
-            <a-select
-              mode="multiple"
-              :size="'default'"
-              placeholder="请选择属性"
-              :defaultValue="propIds"
-              style="width: 70%"
-              @change="handleProp"
-            >
-              <a-select-option v-for="item in allProps" :key="item.prop_id" >
-                {{item.prop_name}}
-              </a-select-option>
-            </a-select>
-        </div>
-        <!--选择数据源-->
-        <div class="c-margin-b">
-          <span class="c-title">选择数据源：</span>
-          <a-select
-            :size="'default'"
-            :defaultValue="sourceChecked"
-            style="width: 70%"
-            @change="handleSource"
-          >
-            <a-select-option v-for="item in allSources" :key="item.source_name">
-              {{item.source_name}}
-            </a-select-option>
-          </a-select>
-        </div>
-      </div>
-
-    </a-modal>
 
   </div>
 </template>
@@ -103,16 +36,16 @@ var columns = [{
   dataIndex: 'label_type'
 }, {
   title: '图片数量',
-  dataIndex: 'count'
+  dataIndex: 'all_count'
 }, {
-  title: '导入时间',
-  dataIndex: 'create_time'
+  title: '已完成数量',
+  dataIndex: 'completed_count'
 }, {
-  title: '难度系数',
-  dataIndex: 'difficult_num'
+  title: '当前用户标注量',
+  dataIndex: 'my_label_count'
 }, {
-  title: '状态',
-  dataIndex: 'is_complete'
+  title: '当前用户框数',
+  dataIndex: 'my_frame_count'
 }, {
   title: '操作',
   dataIndex: 'action',
@@ -135,7 +68,6 @@ export default {
       prop_ids: [],
       source_id: undefined,
       sourceChecked: undefined,
-      step: 1,
       taskName: '', // 新建任务
       difficultNum: undefined, // 难度系数
       labelType: '人脸质量标注',
@@ -154,39 +86,40 @@ export default {
   mounted () {
   },
   methods: {
-    look (e) {
-    },
-    initModal () {
-      this.step = 1
-      this.labelType = '人脸质量标注'
-      this.labelTypeId = 1
-      this.taskName = ''
-      this.difficultNum = undefined
-      this.propIds = []
-      this.prop_ids = []
+    toDetail (e) {
+      this.$router.push({path: '/label/detail'})
     },
     getData (e) {
-      $.ajax({
-        url: this.baseUrl + '/task/admin',
-        dataType: 'json',
-        data: {
-          'page': this.pagination.current,
-          'pagerows': this.pagination.pageSize
-        },
-        success: (res) => {
-          console.log('这里是返回的真数据', res)
-          // 假数据
-          this.pagination.total = res.total
-          this.data = res.tasks
-          this.data.forEach(item => {
-            item.create_time = this.getTime(item.create_time)
-          })
-          // console.log(this.data)
-        },
-        error: function (err) {
-          console.log('error!', err)
-        }
-      })
+      this.data = [{
+        task_name: '任务演示',
+        task_id: 1,
+        label_type: '人脸',
+        all_count: 100,
+        completed_count: 50,
+        my_label_count: 12,
+        my_frame_count: 5
+      }]
+      // $.ajax({
+      //   url: this.baseUrl + '/task/labeler',
+      //   dataType: 'json',
+      //   data: {
+      //     'page': this.pagination.current,
+      //     'pagerows': this.pagination.pageSize
+      //   },
+      //   success: (res) => {
+      //     console.log('这里是返回的真数据', res)
+      //     // 假数据
+      //     this.pagination.total = res.total
+      //     this.data = res.tasks
+      //     this.data.forEach(item => {
+      //       item.create_time = this.getTime(item.create_time)
+      //     })
+      //     // console.log(this.data)
+      //   },
+      //   error: function (err) {
+      //     console.log('error!', err)
+      //   }
+      // })
     },
     showModal () {
       this.initModal()
