@@ -15,7 +15,6 @@ import Performance from '@/views/label/performance/performance'
 
 Vue.use(Router)
 
-
 const router = new Router({
   mode: 'history',
   linkActiveClass: 'c-isActive',
