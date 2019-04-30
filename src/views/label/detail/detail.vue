@@ -53,18 +53,14 @@ export default {
   },
   mounted () {
     $('.img-box').on('mousewheel', function (e, delta) {
-      console.log(1111, e, 222, delta)
+      // console.log(1111, e, 222, delta)
       // var del = ev.detail ? ev.detail > 0 : ev.wheelDelta < 0
       // console.log(del)
       // let ev = window.event || e // old IE support
       // var delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)))
       var imgWidth = $('#myimg').width()
       var newWidth = imgWidth + 30 * delta
-      var imgPosition = $('#myimg').position()
-
       $('#myimg').width(newWidth)
-      $('#myimg').offset({ top: imgPosition.top() + 15 * delta, left: imgPosition.left() + 15 * delta})
-      // $('#myimg').style.width = Math.max(50, Math.min(800, $('#myimg').width + (30 * delta))) + 'px'
       return false
     })
   },
