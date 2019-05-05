@@ -1,7 +1,7 @@
 <template>
     <div class="wrap">
       <div class="img-box">
-        <img id="myimg" src="../../../assets/image/homebg.jpg" alt="图片加载失败">
+        <img id="myimg" :src="photo_path" alt="图片加载失败">
       </div>
       <div class="right">
         <table class="c-table" border="1">
@@ -9,33 +9,41 @@
             <th width="20%">属性名</th>
             <th width="80%">属性值</th>
           </tr>
-          <tr>
-            <td>衣服</td>
+          <tr v-for="item in props" :key="item.prop_id">
+            <td>{{item.prop_name}}</td>
             <td>
-              <a-radio-group @change="onChange" v-model="value">
-                <a-radio :value="1">A</a-radio>
-                <a-radio :value="2">B</a-radio>
-                <a-radio :value="3">C</a-radio>
-                <a-radio :value="4">D</a-radio>
+              <a-radio-group @change="onChange" v-model="propCheck[item.prop_name]">
+                <a-radio v-for="it in item.property_values" :key="it.option_value" :value="it.option_value">{{it.option_name}}</a-radio>
               </a-radio-group>
             </td>
           </tr>
-          <tr>
-            <td>肤色</td>
-            <td>
-              <a-radio-group @change="onChange2" v-model="value2">
-                <a-radio :value="1">AA</a-radio>
-                <a-radio :value="2">BB</a-radio>
-                <a-radio :value="3">CC</a-radio>
-                <a-radio :value="4">DD</a-radio>
-              </a-radio-group>
-            </td>
-          </tr>
+          <!--<tr>-->
+            <!--<td>衣服</td>-->
+            <!--<td>-->
+              <!--<a-radio-group @change="onChange" v-model="value">-->
+                <!--<a-radio :value="1">A</a-radio>-->
+                <!--<a-radio :value="2">B</a-radio>-->
+                <!--<a-radio :value="3">C</a-radio>-->
+                <!--<a-radio :value="4">D</a-radio>-->
+              <!--</a-radio-group>-->
+            <!--</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+            <!--<td>肤色</td>-->
+            <!--<td>-->
+              <!--<a-radio-group @change="onChange2" v-model="value2">-->
+                <!--<a-radio :value="1">AA</a-radio>-->
+                <!--<a-radio :value="2">BB</a-radio>-->
+                <!--<a-radio :value="3">CC</a-radio>-->
+                <!--<a-radio :value="4">DD</a-radio>-->
+              <!--</a-radio-group>-->
+            <!--</td>-->
+          <!--</tr>-->
         </table>
         <div>
           <a-button type="primary"  @click="getDetail" >确认修改</a-button>
           <a-button type="primary"  @click="getDetail" >上一张</a-button>
-          <a-button type="primary"  @click="getDetail" >下一章</a-button>
+          <a-button type="primary"  @click="getDetail" >下一张</a-button>
           <a-button type="primary"  @click="getDetail" >尾页</a-button>
         </div>
       </div>
@@ -47,9 +55,13 @@ export default {
   name: 'detail',
   data () {
     return {
-      value: 1,
-      value2: 2
+      photo_path: '',
+      props: [],
+      propCheck: {}
     }
+  },
+  beforeMount () {
+    this.getDetail()
   },
   mounted () {
     $('.img-box').on('mousewheel', function (e, delta) {
@@ -61,18 +73,37 @@ export default {
       var imgWidth = $('#myimg').width()
       var newWidth = imgWidth + 30 * delta
       $('#myimg').width(newWidth)
+      // console.log($('#myimg').offset().left)
+
       return false
     })
   },
   methods: {
     onChange (e) {
       console.log('radio checked', e.target.value)
-    },
-    onChange2 (e) {
-      console.log('radio checked', e.target.value)
+      console.log(this.propCheck)
     },
     getDetail () {
-      console.log('click')
+      console.log('click', this.$route.query)
+      $.ajax({
+        type: 'POST',
+        url: this.baseUrl + '/task/show_task_detail',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'nickname': window.localStorage.getItem('nickname'),
+          'task_id': this.$route.query.task_id,
+          'type': this.$route.query.type
+        }),
+        success: (res) => {
+          console.log('这里是返回的详情', res)
+          this.photo_path = res.photo_path
+          this.props = res.props
+        },
+        error: function (err) {
+          console.log('error!', err)
+        }
+      })
     }
 
   }

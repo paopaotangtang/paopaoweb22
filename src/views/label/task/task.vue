@@ -79,7 +79,7 @@
             style="width: 70%"
             @change="handleSource"
           >
-            <a-select-option v-for="item in allSources" :key="item.source_name">
+            <a-select-option v-for="item in allSources" :key="item.source_id">
               {{item.source_name}}
             </a-select-option>
           </a-select>
@@ -296,11 +296,8 @@ export default {
       console.log(`Selected: ${value}`)
     },
     handleSource (value) {
-      console.log(`Selected: ${value}`)
-      // sourceChecked
-      let filterArray = this.allSources.filter(item => item.source_name === value)
-      this.source_id = filterArray[0].source_id
-      console.log(this.sourceChecked, this.source_id)
+      console.log(`SourceSelected: ${value}`)
+      this.source_id = value
     },
     difficultNumChange (e) {
       if (e.target.value <= 0) {
