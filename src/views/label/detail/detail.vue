@@ -1,6 +1,6 @@
 <template>
     <div class="wrap">
-      <div class="img-box">
+      <div class="img-box" ondragstart="window.event.returnValue=false;return false;">
         <!--<img id="myimg" :src="photo_path" alt="图片加载失败">-->
         <img id="myimg" :src="photo_path" alt="图片加载失败">
       </div>
@@ -66,6 +66,7 @@ export default {
   },
   mounted () {
     $('.img-box').on('mousewheel', function (e, delta) {
+      e.preventDefault()
       // console.log(1111, e, 222, delta)
       // var del = ev.detail ? ev.detail > 0 : ev.wheelDelta < 0
       // console.log(del)
