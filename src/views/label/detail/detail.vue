@@ -1,6 +1,7 @@
 <template>
     <div class="wrap">
       <div class="img-box">
+        <!--<img id="myimg" :src="photo_path" alt="图片加载失败">-->
         <img id="myimg" :src="photo_path" alt="图片加载失败">
       </div>
       <div class="right">
@@ -96,8 +97,8 @@ export default {
           'type': this.$route.query.type
         }),
         success: (res) => {
-          console.log('这里是返回的详情', res)
-          this.photo_path = res.photo_path
+          console.log('这里是返回的详情', res.photo_path)
+          this.photo_path = 'data:image/*;base64,' + res.photo_path
           this.props = res.props
         },
         error: function (err) {
