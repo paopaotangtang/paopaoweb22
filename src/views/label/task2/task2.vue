@@ -80,8 +80,7 @@ export default {
       this.$router.push({
         path: '/label/detail',
         query: {
-          'task_id': record.task_id,
-          'type': 1}})
+          'task_id': record.task_id}})
     },
     getData (e) {
       this.loading = true
