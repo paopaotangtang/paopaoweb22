@@ -120,6 +120,14 @@ router.beforeEach((to, from, next) => {
       router.push({path: '/label/task2'})
     }
   }
+  // 已登录状态，当路由到label时进行跳转
+  if (to.path === '/label') {
+    if (groupid == 1) {
+      router.push({path: '/label/task'})
+    } else if (groupid == 2) {
+      router.push({path: '/label/task2'})
+    }
+  }
 })
 
 export default router

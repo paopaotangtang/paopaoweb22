@@ -60,6 +60,9 @@
 
 export default {
   beforeCreate () {
+    // this.form = this.$form.createForm(this)
+  },
+  beforeMount(){
     this.form = this.$form.createForm(this)
   },
   methods: {

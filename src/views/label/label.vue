@@ -18,8 +18,6 @@
       <template v-if="groupId==3">
         <li class="c-user">当前用户：质检员</li>
         <router-link exact to="/label/task" tag="li">任务</router-link>
-        <!--<router-link exact to="/label/datasource" tag="li">数据源</router-link>-->
-        <!--<router-link exact to="/label/attribute" tag="li">属性设置</router-link>-->
       </template>
       <li @click="quit">退出系统</li>
     </ul>
