@@ -59,11 +59,11 @@
 // var baseUrl = 'http://localhost:81'
 
 export default {
-  beforeCreate () {
-    // this.form = this.$form.createForm(this)
-  },
-  beforeMount(){
-    this.form = this.$form.createForm(this)
+  name: 'login',
+  data () {
+    return {
+      form: this.$form.createForm(this)
+    }
   },
   methods: {
     handleSubmit (e) {
@@ -110,11 +110,6 @@ export default {
       })
     }
 
-  },
-  name: 'login',
-  data () {
-    return {
-    }
   }
 }
 </script>

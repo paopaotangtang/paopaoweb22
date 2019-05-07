@@ -10,13 +10,13 @@
         <router-link exact to="/label/attribute" tag="li">属性设置</router-link>
       </template>
       <template v-if="groupId==2">
-        <li class="c-user">当前用户：{{nickname}}(标注员)</li>
+        <li class="c-user">当前用户：{{nickname}}（标注员）</li>
         <router-link exact to="/label/task2" tag="li">任务</router-link>
         <router-link exact to="/label/history" tag="li">历史</router-link>
         <router-link exact to="/label/performance" tag="li">绩效</router-link>
       </template>
       <template v-if="groupId==3">
-        <li class="c-user">当前用户：{{nickname}}(质检员)</li>
+        <li class="c-user">当前用户：{{nickname}}（质检员）</li>
         <router-link exact to="/label/task" tag="li">任务</router-link>
       </template>
       <li @click="quit">退出系统</li>
