@@ -14,7 +14,7 @@
             <a-button type="primary"  @click="getDetail(3)" >下一张</a-button>
           </div>
           <div>
-            <a-button type="primary"  @click="getDetail(1)" >新的一张</a-button>
+            <a-button type="primary"  @click="saveData(1)" >新的一张</a-button>
           </div>
         </div>
       </div>
@@ -25,16 +25,15 @@
             <th width="20%">属性名</th>
             <th width="80%">属性值</th>
           </tr>
-          <tr v-for="item in props" :key="item.prop_id">
+          <tr v-for="item in props" :key="item.prop_id" >
             <td>{{item.prop_name}}</td>
             <td>
-              <a-radio-group @change="onChange" v-model="propCheck[item.prop_name]" :defaultValue="0">
+              <a-radio-group @change="onChange" v-model="radioCheck[item.prop_id]" :defaultValue="0" >
                 <a-radio v-for="it in item.property_values" :key="it.option_value" :value="it.option_value">{{it.option_name}}</a-radio>
               </a-radio-group>
             </td>
           </tr>
         </table>
-
       </div>
     </div>
 </template>
@@ -44,9 +43,12 @@ export default {
   name: 'detail',
   data () {
     return {
+      task_id: this.$route.query.task_id,
       photo_path: '',
-      props: [],
-      propCheck: {},
+      task_detail_id: -1,
+      props: [], // 传来的
+      propsCheck: [], // 传给后台的
+      radioCheck: {},
       open: false
     }
   },
@@ -128,11 +130,9 @@ export default {
   },
   methods: {
     onChange (e) {
-      console.log('radio checked', e.target.value)
-      console.log(this.propCheck)
+      console.log(e.target.value)
     },
     getDetail (detailType) {
-      console.log('click', this.$route.query)
       $.ajax({
         type: 'POST',
         url: this.baseUrl + '/task/show_task_detail',
@@ -140,20 +140,67 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({
           'nickname': window.localStorage.getItem('nickname'),
-          'task_id': this.$route.query.task_id,
-          'detail_type': detailType
+          'task_id': this.task_id,
+          'detail_type': detailType,
+          'task_detail_id': this.task_detail_id
         }),
         success: (res) => {
           console.log('这里是返回的详情', res.photo_path)
           // this.photo_path = 'data:image/*;base64,' + res.photo_path
           this.photo_path = res.photo_path
-          console.log(this.photo_path)
-          this.props = res.props
+          this.task_detail_id = res.task_detail_id
+          this.props = res.props.concat()
+          this.propsCheck = res.props.concat()
         },
         error: function (err) {
           console.log('error!', err)
         }
       })
+    },
+    saveData (detailType) {
+      console.log('y已选数据', this.radioCheck)
+      // let arr = [1,2]
+      // arr.forEach(item=>{
+      //   console.log(123,item)
+      // })
+      console.log(this.propsCheck)
+
+      this.propsCheck = this.propsCheck.forEach(item => {
+        for (var i in this.radioCheck) {
+          console.log('i:', i, 'prod_id:', item.prop_id)
+          if (item.prop_id == i) {
+            item['prop_option_value'] = this.radioCheck[i]
+          } else {
+            item['prop_option_value'] = 0
+          }
+          delete item['property_values']
+        }
+      })
+      console.log(this.props)
+
+      // $.ajax({
+      //   type: 'POST',
+      //   url: this.baseUrl + '/task/save_data',
+      //   dataType: 'json',
+      //   contentType: 'application/json',
+      //   data: JSON.stringify({
+      //     'create_user': window.localStorage.getItem('nickname'),
+      //     'photo_path': this.photo_path,
+      //     'task_id': this.task_id,
+      //     'task_detail_id': this.task_detail_id,
+      //     'props': this.radioCheck
+      //   }),
+      //   success: (res) => {
+      //     console.log('这里是返回的详情', res)
+      //     // this.photo_path = 'data:image/*;base64,' + res.photo_path
+      //     // this.photo_path = res.photo_path
+      //     // this.task_detail_id = res.task_detail_id
+      //     // this.props = res.props
+      //   },
+      //   error: function (err) {
+      //     console.log('error!', err)
+      //   }
+      // })
     }
 
   }

@@ -69,6 +69,7 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       this.form.validateFields((err, values) => {
+        console.log('form:', values)
         if (!err) {
           $.ajax({
             type: 'POST',
