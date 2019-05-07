@@ -28,7 +28,7 @@
           <tr v-for="item in props" :key="item.prop_id" >
             <td>{{item.prop_name}}</td>
             <td>
-              <a-radio-group @change="onChange" v-model="radioCheck[item.prop_id]" :defaultValue="0" >
+              <a-radio-group @change="onChange" v-model="radioCheck[item.prop_id]" :defaultValue="item.prop_option_value" >
                 <a-radio v-for="it in item.property_values" :key="it.option_value" :value="it.option_value">{{it.option_name}}</a-radio>
               </a-radio-group>
             </td>
