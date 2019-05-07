@@ -4,19 +4,19 @@
     <ul class="c-label-nav">
       <!--1.管理员2.标注员2.质检员-->
       <template v-if="groupId==1">
-        <li class="c-user">当前用户：管理员</li>
+        <li class="c-user">当前用户：{{nickname}}（管理员）</li>
         <router-link exact to="/label/task" tag="li">任务</router-link>
         <router-link exact to="/label/datasource" tag="li">数据源</router-link>
         <router-link exact to="/label/attribute" tag="li">属性设置</router-link>
       </template>
       <template v-if="groupId==2">
-        <li class="c-user">当前用户：标注员</li>
+        <li class="c-user">当前用户：{{nickname}}(标注员)</li>
         <router-link exact to="/label/task2" tag="li">任务</router-link>
         <router-link exact to="/label/history" tag="li">历史</router-link>
         <router-link exact to="/label/performance" tag="li">绩效</router-link>
       </template>
       <template v-if="groupId==3">
-        <li class="c-user">当前用户：质检员</li>
+        <li class="c-user">当前用户：{{nickname}}(质检员)</li>
         <router-link exact to="/label/task" tag="li">任务</router-link>
       </template>
       <li @click="quit">退出系统</li>
@@ -31,12 +31,13 @@ export default {
   name: 'clabel',
   data () {
     return {
-      groupId: -1
+      groupId: -1,
+      nickname: ''
     }
   },
   beforeMount () {
     this.groupId = localStorage.getItem('groupid')
-    console.log('获取用户groupid', this.groupId)
+    this.nickname = localStorage.getItem('nickname')
   },
   methods: {
     quit () {
@@ -80,10 +81,10 @@ export default {
   .c-label-nav li:hover{
     background: #65ae7e;
   }
-  .c-user{
+  .c-label-nav .c-user{
     color: gray;
   }
-  .c-user:hover{
+  .c-label-nav .c-user:hover{
     background: none;
   }
   .c-isActive{
