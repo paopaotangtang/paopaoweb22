@@ -9,7 +9,7 @@
       <a class="c-li" href="https://blog.csdn.net/paopaosama" target="_blank">
         博客
       </a>
-      <router-link class="c-li" to="/label">
+      <router-link class="c-li" to="/login">
         标注
       </router-link>
       <router-link class="c-li" to="/register">

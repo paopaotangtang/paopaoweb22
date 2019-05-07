@@ -112,8 +112,8 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
-  // 已登录状态；当路由到login时，跳转到对应页面
-  if (to.path === '/login') {
+  // 已登录状态；当路由到login时，已有身份就跳转到对应页面
+  if (to.path == '/login') {
     if (groupid == 1) {
       router.push({path: '/label/task'})
     } else if (groupid == 2) {
