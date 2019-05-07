@@ -75,6 +75,9 @@
             class="login-form-button"
           > 注册
           </a-button>
+          <router-link class="back-login" to="/login">
+            返回登录
+          </router-link>
         </a-form-item>
       </a-form>
     </div>
@@ -176,5 +179,7 @@ export default {
     margin: 50px auto 0;
     padding: 30px;
   }
-
+.back-login{
+  margin-left: 20px;
+}
 </style>

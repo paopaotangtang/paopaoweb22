@@ -109,8 +109,8 @@ export default {
         propType: '单选',
         propTypeId: 1,
         propertyValues: [{
-          'option_name': '', // 选项名字
-          'option_value': '', // 选项id
+          'option_name': '未知', // 选项名字
+          'option_value': '0', // 选项id
           'localId': new Date().getTime() + 'first'
         }]
       },
@@ -143,8 +143,8 @@ export default {
         propType: '单选',
         propTypeId: 1,
         propertyValues: [{
-          'option_name': '', // 选项名字
-          'option_value': '', // 选项id
+          'option_name': '未知', // 选项名字
+          'option_value': '0', // 选项id
           'localId': new Date().getTime() + 'first'
         }]
       }
