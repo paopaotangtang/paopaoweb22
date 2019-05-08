@@ -3,8 +3,7 @@
       <div class="left">
         <div class="img-box" ondragstart="window.event.returnValue=false;return false;">
           <!--<img id="myimg" :src="photo_path" alt="图片加载失败">-->
-          <img id="myimg" :src="photo_path" alt="图片加载失败">
-
+        <img id="myimg" :src="photo_path" alt="图片加载失败">
         </div>
         <div class="wrap-bottom">
           <div class="left-bottom">
@@ -25,10 +24,10 @@
             <th width="20%">属性名</th>
             <th width="80%">属性值</th>
           </tr>
-          <tr v-for="item in props" :key="item.prop_id" >
+          <tr v-for="item in props" :key="item.prop_id" :item="item" >
             <td>{{item.prop_name}}</td>
             <td>
-              <a-radio-group @change="onChange" v-model="radioCheck[item.prop_id]" :defaultValue="item.prop_option_value" >
+              <a-radio-group  @change="onChange" v-model="radioCheck[item.prop_id]" :defaultValue="item.prop_option_value" >
                 <a-radio v-for="it in item.property_values" :key="it.option_value" :value="it.option_value">{{it.option_name}}</a-radio>
               </a-radio-group>
             </td>
@@ -46,8 +45,7 @@ export default {
       task_id: this.$route.query.task_id,
       photo_path: '',
       task_detail_id: -1,
-      props: [], // 传来的
-      propsCheck: [], // 传给后台的
+      props: [], // 传来的并传回去
       radioCheck: {},
       open: false
     }
@@ -80,7 +78,7 @@ export default {
       return false
     })
     $(document).on('keydown', function (event) {
-      event.preventDefault()
+      // event.preventDefault()
       if (event.keyCode == 32) {
         this.open = !this.open
         console.log(this.open)
@@ -91,7 +89,7 @@ export default {
       if (!this.open) {
         return false
       }
-      event.preventDefault()
+      // event.preventDefault()
       var startP = {
         x: e.clientX,
         y: e.clientY
@@ -145,12 +143,22 @@ export default {
           'task_detail_id': this.task_detail_id
         }),
         success: (res) => {
-          console.log('这里是返回的详情', res.photo_path)
-          // this.photo_path = 'data:image/*;base64,' + res.photo_path
-          this.photo_path = res.photo_path
-          this.task_detail_id = res.task_detail_id
-          this.props = res.props.concat()
-          this.propsCheck = res.props.concat()
+          if (res.status == '该任务已结束') {
+            this.$warning({
+              title: '此任务已完成：',
+              content: '已经没有图片了。'
+            })
+            this.$router.push({path: '/label/task2'})
+          } else {
+            // 保存之后重置用户的选择列表，使新的radio干净
+            for (var i in this.radioCheck) {
+              this.radioCheck[i] = 0
+            }
+            console.log(this.radioCheck)
+            this.photo_path = res.photo_path
+            this.task_detail_id = res.task_detail_id
+            this.props = res.props
+          }
         },
         error: function (err) {
           console.log('error!', err)
@@ -158,49 +166,36 @@ export default {
       })
     },
     saveData (detailType) {
-      console.log('y已选数据', this.radioCheck)
-      // let arr = [1,2]
-      // arr.forEach(item=>{
-      //   console.log(123,item)
-      // })
-      console.log(this.propsCheck)
-
-      this.propsCheck = this.propsCheck.forEach(item => {
-        for (var i in this.radioCheck) {
-          console.log('i:', i, 'prod_id:', item.prop_id)
+      for (var i in this.radioCheck) {
+        this.props.forEach(item => {
           if (item.prop_id == i) {
             item['prop_option_value'] = this.radioCheck[i]
-          } else {
-            item['prop_option_value'] = 0
           }
-          delete item['property_values']
+        })
+      }
+      $.ajax({
+        type: 'POST',
+        url: this.baseUrl + '/task/save_data',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'create_user': window.localStorage.getItem('nickname'),
+          'photo_path': this.photo_path,
+          'task_id': this.task_id,
+          'task_detail_id': this.task_detail_id,
+          'props': this.props
+        }),
+        success: (res) => {
+          if (res.status == 'success') {
+            console.log('刷新')
+            // window.location.reload()
+            this.getDetail(1)
+          }
+        },
+        error: function (err) {
+          console.log('error!', err)
         }
       })
-      console.log(this.props)
-
-      // $.ajax({
-      //   type: 'POST',
-      //   url: this.baseUrl + '/task/save_data',
-      //   dataType: 'json',
-      //   contentType: 'application/json',
-      //   data: JSON.stringify({
-      //     'create_user': window.localStorage.getItem('nickname'),
-      //     'photo_path': this.photo_path,
-      //     'task_id': this.task_id,
-      //     'task_detail_id': this.task_detail_id,
-      //     'props': this.radioCheck
-      //   }),
-      //   success: (res) => {
-      //     console.log('这里是返回的详情', res)
-      //     // this.photo_path = 'data:image/*;base64,' + res.photo_path
-      //     // this.photo_path = res.photo_path
-      //     // this.task_detail_id = res.task_detail_id
-      //     // this.props = res.props
-      //   },
-      //   error: function (err) {
-      //     console.log('error!', err)
-      //   }
-      // })
     }
 
   }

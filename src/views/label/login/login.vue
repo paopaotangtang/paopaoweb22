@@ -55,8 +55,6 @@
 </template>
 
 <script>
-// var baseUrl = 'https://www.easy-mock.com/mock/5c931ac12418a911d0e22aa7/paopaoweb'
-// var baseUrl = 'http://localhost:81'
 
 export default {
   name: 'login',
@@ -64,6 +62,9 @@ export default {
     return {
       form: this.$form.createForm(this)
     }
+  },
+  beforeCreate () {
+    this.form = this.$form.createForm(this)
   },
   methods: {
     handleSubmit (e) {
