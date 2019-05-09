@@ -8,12 +8,12 @@
         <div class="wrap-bottom">
           <div class="left-bottom">
             历史记录：
-            <a-button type="primary"  v-if="detail_type!=1" @click="modifyDetail()" >确认修改</a-button>
-            <a-button type="primary"  @click="getDetail(2)" >上一张</a-button>
-            <a-button type="primary"  @click="getDetail(3)" >下一张</a-button>
+            <a-button type="primary"  v-if="detail_type!=1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
+            <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
           </div>
           <div>
-            <a-button type="primary"  @click="saveData(1)" >新的一张</a-button>
+            <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
           </div>
         </div>
       </div>
@@ -46,7 +46,11 @@ export default {
       props: [], // 传来的并传回去
       radioCheck: {},
       open: false,
-      detail_type: 1
+      detail_type: 1,
+      modifyLoading: false,
+      lastLoading: false,
+      nextLoading: false,
+      saveLoading: false
     }
   },
   beforeMount () {
@@ -134,6 +138,11 @@ export default {
       return options
     },
     getDetail (detailType) {
+      if (detailType == 2) {
+        this.lastLoading = true
+      } else if (detailType == 3) {
+        this.nextLoading = true
+      }
       $.ajax({
         type: 'POST',
         url: this.baseUrl + '/task/show_task_detail',
@@ -174,6 +183,8 @@ export default {
               })
             }
           }
+          this.lastLoading = false
+          this.nextLoading = false
         },
         error: function (err) {
           console.log('error!', err)
@@ -181,6 +192,14 @@ export default {
       })
     },
     modifyDetail () {
+      this.modifyLoading = true
+      for (var i in this.radioCheck) {
+        this.props.forEach(item => {
+          if (item.prop_id == i) {
+            item['prop_option_value'] = this.radioCheck[i]
+          }
+        })
+      }
       $.ajax({
         type: 'POST',
         url: this.baseUrl + '/task/modify_data',
@@ -188,11 +207,15 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({
           'create_user': window.localStorage.getItem('nickname'),
+          'photo_path': this.photo_path,
           'task_id': this.task_id,
-          'detail_type': this.detail_type,
-          'task_detail_id': this.task_detail_id
+          'task_detail_id': this.task_detail_id,
+          'props': this.props,
+          'detail_type': this.detail_type
+
         }),
         success: (res) => {
+          this.modifyLoading = false
           if (res.status == 'success') {
             this.$success({
               title: '修改成功：',
@@ -213,6 +236,7 @@ export default {
       })
     },
     saveData (detailType) {
+      this.saveLoading = true
       for (var i in this.radioCheck) {
         this.props.forEach(item => {
           if (item.prop_id == i) {
@@ -234,7 +258,7 @@ export default {
         }),
         success: (res) => {
           if (res.status == 'success') {
-            console.log('刷新')
+            this.saveLoading = false
             this.getDetail(1)
           }
         },
