@@ -8,9 +8,9 @@
         <div class="wrap-bottom">
           <div class="left-bottom">
             历史记录：
-            <a-button type="primary"  v-if="detail_type!=1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
+            <a-button type="primary"  v-if="detail_type!=1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
           </div>
           <div>
             <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
@@ -28,6 +28,7 @@
             <td>{{item.prop_name}}</td>
             <td class="c-height">
               <a-radio-group
+                @change="onchange"
                 :options="getOptions(item.property_values)"
                 v-model="radioCheck[item.prop_id]"
                 :defaultValue="item.prop_option_value"
@@ -35,8 +36,6 @@
             </td>
           </tr>
         </table>
-
-
       </div>
     </div>
 </template>
@@ -136,6 +135,10 @@ export default {
     })
   },
   methods: {
+    onchange (e) {
+      console.log(e.target.value)
+      console.log(this.radioCheck)
+    },
     getOptions (propertyValues) {
       let options = []
       propertyValues.forEach(item => {
