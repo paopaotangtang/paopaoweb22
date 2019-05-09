@@ -10,7 +10,7 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <a-button type="primary"  v-if="detail_type!=1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  v-if="detail_type!==1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
           </div>
           <div>
             <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
@@ -140,6 +140,7 @@ export default {
       console.log(this.radioCheck)
     },
     getOptions (propertyValues) {
+      console.log('更新了option:')
       let options = []
       propertyValues.forEach(item => {
         options.push({ label: item.option_name, value: item.option_value })
@@ -247,7 +248,7 @@ export default {
     },
     saveData (detailType) {
       this.saveLoading = true
-      if (this.detailType != 1) {
+      if (this.detail_type !== 1) {
         this.getDetail(1)
         return
       }
