@@ -26,11 +26,17 @@
           </tr>
           <tr v-for="item in props" :key="item.prop_id" :item="item" >
             <td>{{item.prop_name}}</td>
-            <td>
-              <a-radio-group  :options="getOptions(item.property_values)" v-model="radioCheck[item.prop_id]" :defaultValue="item.prop_option_value" ></a-radio-group>
+            <td class="c-height">
+              <a-radio-group
+                :options="getOptions(item.property_values)"
+                v-model="radioCheck[item.prop_id]"
+                :defaultValue="item.prop_option_value"
+                style="line-height:50px;"></a-radio-group>
             </td>
           </tr>
         </table>
+
+
       </div>
     </div>
 </template>
@@ -185,6 +191,7 @@ export default {
           }
           this.lastLoading = false
           this.nextLoading = false
+          this.saveLoading = false
         },
         error: function (err) {
           console.log('error!', err)
@@ -237,6 +244,10 @@ export default {
     },
     saveData (detailType) {
       this.saveLoading = true
+      if (this.detailType != 1) {
+        this.getDetail(1)
+        return
+      }
       for (var i in this.radioCheck) {
         this.props.forEach(item => {
           if (item.prop_id == i) {
@@ -273,6 +284,9 @@ export default {
 </script>
 
 <style scoped>
+  label.ant-radio-wrapper{
+    line-height: 50px;
+  }
   .wrap{
     display: flex;
   }
@@ -283,6 +297,10 @@ export default {
   .c-table tr{
     height: 50px;
   }
+  .ant-radio-group.ant-radio-group-outline.ant-radio-group-default span{
+    line-height: 50px !important;
+  }
+
   .img-box{
     border: 1px solid rgba(85, 85, 85, 0.33);
     width: 100%;
