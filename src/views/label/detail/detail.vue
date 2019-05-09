@@ -27,9 +27,7 @@
           <tr v-for="item in props" :key="item.prop_id" :item="item" >
             <td>{{item.prop_name}}</td>
             <td>
-              <a-radio-group  @change="onChange" v-model="radioCheck[item.prop_id]" :defaultValue="item.prop_option_value" >
-                <a-radio v-for="it in item.property_values" :key="it.option_value" :value="it.option_value">{{it.option_name}}</a-radio>
-              </a-radio-group>
+              <a-radio-group  :options="getOptions(item.property_values)" v-model="radioCheck[item.prop_id]" :defaultValue="item.prop_option_value" ></a-radio-group>
             </td>
           </tr>
         </table>
@@ -128,9 +126,12 @@ export default {
     })
   },
   methods: {
-    onChange (e) {
-      console.log(e.target.value)
-      console.log(this.radioCheck)
+    getOptions (propertyValues) {
+      let options = []
+      propertyValues.forEach(item => {
+        options.push({ label: item.option_name, value: item.option_value })
+      })
+      return options
     },
     getDetail (detailType) {
       $.ajax({
