@@ -8,7 +8,7 @@
         <div class="wrap-bottom">
           <div class="left-bottom">
             历史记录：
-            <a-button type="primary"  @click="getDetail(4)" >确认修改</a-button>
+            <a-button type="primary"  v-if="detail_type!=1" @click="modifyDetail()" >确认修改</a-button>
             <a-button type="primary"  @click="getDetail(2)" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" >下一张</a-button>
           </div>
@@ -47,7 +47,8 @@ export default {
       task_detail_id: -1,
       props: [], // 传来的并传回去
       radioCheck: {},
-      open: false
+      open: false,
+      detail_type: 1
     }
   },
   beforeMount () {
@@ -129,6 +130,7 @@ export default {
   methods: {
     onChange (e) {
       console.log(e.target.value)
+      console.log(this.radioCheck)
     },
     getDetail (detailType) {
       $.ajax({
@@ -149,15 +151,59 @@ export default {
               content: '已经没有图片了。'
             })
             this.$router.push({path: '/label/task2'})
+          } else if (res.msg) {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg
+            })
           } else {
-            // 保存之后重置用户的选择列表，使新的radio干净
-            for (var i in this.radioCheck) {
-              this.radioCheck[i] = 0
-            }
-            console.log(this.radioCheck)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
+            this.detail_type = res.detail_type
+            if (this.detail_type == 1) {
+              // 如果是新的一张，保存之后重置用户的选择列表，使新的radio干净
+              for (var i in this.radioCheck) {
+                this.radioCheck[i] = 0
+              }
+            } else {
+              // 如果是2/3历史记录，使新的radio展示原来的数据
+              this.props.forEach(item => {
+                this.radioCheck[item.prop_id] = parseInt(item.prop_option_value)
+              })
+            }
+          }
+        },
+        error: function (err) {
+          console.log('error!', err)
+        }
+      })
+    },
+    modifyDetail () {
+      $.ajax({
+        type: 'POST',
+        url: this.baseUrl + '/task/modify_data',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'create_user': window.localStorage.getItem('nickname'),
+          'task_id': this.task_id,
+          'detail_type': this.detail_type,
+          'task_detail_id': this.task_detail_id
+        }),
+        success: (res) => {
+          if (res.status == 'success') {
+            this.$success({
+              title: '修改成功：',
+              content: '此数据已保存。',
+              maskClosable: true
+            })
+          } else if (res.msg) {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg,
+              maskClosable: true
+            })
           }
         },
         error: function (err) {
@@ -188,7 +234,6 @@ export default {
         success: (res) => {
           if (res.status == 'success') {
             console.log('刷新')
-            // window.location.reload()
             this.getDetail(1)
           }
         },
