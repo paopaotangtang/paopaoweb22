@@ -26,13 +26,19 @@
           </tr>
           <tr v-for="item in props" :key="item.prop_id" :item="item" >
             <td>{{item.prop_name}}</td>
-            <td class="c-height">
-              <a-radio-group
-                @change="onchange"
-                :options="getOptions(item.property_values)"
-                v-model="radioCheck[item.prop_id]"
-                :defaultValue="item.prop_option_value"
-                style="line-height:50px;"></a-radio-group>
+            <td class="c-left-td">
+              <a-radio-group  @change="onchange(item.prop_id)"
+                              :value="parseInt(item.prop_option_value)"
+                              buttonStyle="solid"
+                              size="large">
+                <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value">{{option.option_name}}</a-radio-button>
+              </a-radio-group>
+              <!--<a-radio-group-->
+                <!--@change="onchange"-->
+                <!--:options="getOptions(item.property_values)"-->
+                <!--v-model="radioCheck[item.prop_id]"-->
+                <!--:defaultValue="item.prop_option_value"-->
+                <!--style="line-height:50px;"></a-radio-group>-->
             </td>
           </tr>
         </table>
@@ -49,7 +55,6 @@ export default {
       photo_path: '',
       task_detail_id: -1,
       props: [], // 传来的并传回去
-      radioCheck: {},
       open: false,
       detail_type: 1,
       modifyLoading: false,
@@ -135,17 +140,13 @@ export default {
     })
   },
   methods: {
-    onchange (e) {
-      console.log(e.target.value)
-      console.log(this.radioCheck)
-    },
-    getOptions (propertyValues) {
-      console.log('更新了option:')
-      let options = []
-      propertyValues.forEach(item => {
-        options.push({ label: item.option_name, value: item.option_value })
+    onchange (id) {
+      console.log(event.target.value, id)
+      this.props.forEach(item => {
+        if (item.prop_id == id) {
+          item.prop_option_value = parseInt(event.target.value)
+        }
       })
-      return options
     },
     getDetail (detailType) {
       if (detailType == 2) {
@@ -181,17 +182,6 @@ export default {
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
-            if (this.detail_type == 1) {
-              // 如果是新的一张，保存之后重置用户的选择列表，使新的radio干净
-              for (var i in this.radioCheck) {
-                this.radioCheck[i] = 0
-              }
-            } else {
-              // 如果是2/3历史记录，使新的radio展示原来的数据
-              this.props.forEach(item => {
-                this.radioCheck[item.prop_id] = parseInt(item.prop_option_value)
-              })
-            }
           }
           this.lastLoading = false
           this.nextLoading = false
@@ -204,13 +194,6 @@ export default {
     },
     modifyDetail () {
       this.modifyLoading = true
-      for (var i in this.radioCheck) {
-        this.props.forEach(item => {
-          if (item.prop_id == i) {
-            item['prop_option_value'] = this.radioCheck[i]
-          }
-        })
-      }
       $.ajax({
         type: 'POST',
         url: this.baseUrl + '/task/modify_data',
@@ -251,13 +234,6 @@ export default {
       if (this.detail_type !== 1) {
         this.getDetail(1)
         return
-      }
-      for (var i in this.radioCheck) {
-        this.props.forEach(item => {
-          if (item.prop_id == i) {
-            item['prop_option_value'] = this.radioCheck[i]
-          }
-        })
       }
       $.ajax({
         type: 'POST',
@@ -304,7 +280,10 @@ export default {
   .ant-radio-group.ant-radio-group-outline.ant-radio-group-default span{
     line-height: 50px !important;
   }
-
+  .c-left-td{
+    padding: 0 20px;
+    text-align: left;
+  }
   .img-box{
     border: 1px solid rgba(85, 85, 85, 0.33);
     width: 100%;
