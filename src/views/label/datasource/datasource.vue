@@ -12,12 +12,25 @@
         <span slot="label_type" >label_type</span>
         <span slot="count" >count</span>
         <span slot="create_time" >create_time</span>
-        <span slot="action" slot-scope="text,record"   @click="look(record)" >
+        <span slot="action" slot-scope="text,record"   @click="look(record.id,1)" >
            <a-button type="primary">查看图片</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无数据源信息</div>
     </div>
+    <a-modal
+      title="数据源图片"
+      v-model="imgVisible"
+      width="800px"
+      :footer="null"
+    >
+     <div class="c-modal-content">
+       <a-icon class="c-icon-l" theme="filled" type="left-circle" @click="look(sourceId,2)"/>
+       <img v-if="imgSrc" :src="imgSrc" ondragstart="window.event.returnValue=false;return false;" >
+       <p v-if="imgNone" style="line-height: 500px;">已经没有了！</p>
+       <a-icon class="c-icon-r" theme="filled" type="right-circle"  @click="look(sourceId,3)"/>
+     </div>
+    </a-modal>
 
     <a-modal
       title="新建数据源"
@@ -49,7 +62,6 @@
         <span class="c-title">数据源地址：</span><a-input placeholder="请输入数据源地址" v-model="fileUrl"/>
       </div>
     </a-modal>
-
   </div>
 
 </template>
@@ -89,7 +101,13 @@ export default {
       fileUrl: '',
       checked: true,
       visible: false,
-      confirmLoading: false
+      confirmLoading: false,
+      imgVisible: false,
+      imgSrc: '',
+      imgType: 1,
+      imgId: -1,
+      sourceId: -1,
+      imgNone: false
     }
   },
   beforeCreate () {
@@ -101,8 +119,42 @@ export default {
   mounted () {
   },
   methods: {
-    look (e) {
-      console.log(3263262, e)
+    look (sourceId, imgType) {
+      if (!this.imgVisible) {
+        this.imgVisible = true
+      }
+      this.sourceId = sourceId
+      this.imgType = imgType
+      $.ajax({
+        type: 'post',
+        url: this.baseUrl + '/view_source_image',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'source_id': this.sourceId,
+          'source_img_type': this.imgType,
+          'source_image_id': this.imgId
+        }),
+        success: (res) => {
+          console.log('图片', res)
+          if (res.msg) {
+            this.imgSrc = ''
+            this.imgNone = true
+          } else {
+            this.imgNone = false
+            this.sourceId = res.source_id
+            this.imgId = res.source_image_id
+            this.imgSrc = res.image_url
+          }
+        },
+        error: function (err) {
+          this.$error({
+            title: '失败',
+            content: err
+          })
+          console.log('error!', err)
+        }
+      })
     },
     initModal () {
       this.sourceName = ''
@@ -256,5 +308,31 @@ export default {
   }
   .c-item{
     display: block;
+  }
+  .c-modal-content{
+    width: 100%;
+    height: 600px;
+    overflow: auto;
+    text-align: center;
+  }
+  .c-modal-content img{
+    height: 600px;
+  }
+  .c-icon-l{
+    position: absolute;
+    top: 350px;
+
+    left: 0;
+    font-size: 60px;
+    cursor: pointer;
+
+  }
+  .c-icon-r{
+    position: absolute;
+    top: 350px;
+    right: 0;
+    font-size: 60px;
+    cursor: pointer;
+
   }
 </style>
