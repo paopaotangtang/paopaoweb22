@@ -1,9 +1,15 @@
 <template>
     <div class="wrap">
       <div class="left">
+        <div class="c-done">
+          <span>删除（del/D）</span>
+          <span :class="openSpace? 'c-span-active': ''">拖拽（Space）</span>
+          <span>坐标线（X）</span>
+          <span >废弃</span>
+          <span>退出标注</span>
+        </div>
         <div class="img-box" ondragstart="window.event.returnValue=false;return false;">
-          <!--<img id="myimg" :src="photo_path" alt="图片加载失败">-->
-        <img id="myimg" :src="photo_path" alt="图片加载失败">
+        <img id="myimg" :src="photo_path" />
         </div>
         <div class="wrap-bottom">
           <div class="left-bottom">
@@ -55,7 +61,8 @@ export default {
       photo_path: '',
       task_detail_id: -1,
       props: [], // 传来的并传回去
-      open: false,
+      openSpace: false,
+      classActive: 'c-span-active',
       detail_type: 1,
       modifyLoading: false,
       lastLoading: false,
@@ -68,41 +75,35 @@ export default {
     this.getDetail(1)
   },
   mounted () {
+    var that = this
+    // 滚轮缩放
     $('.img-box').on('mousewheel', function (e, delta) {
       e.preventDefault()
       var oldWidth = $('#myimg').width()
+      var oldHeight = $('#myimg').height()
       var oldLeft = $('#myimg').offset().left
       var oldTop = $('#myimg').offset().top
-
-      console.log('原本宽度', oldWidth)
-      console.log('原本偏移量', oldLeft, oldTop)
       // 计算新值
       var newWidth = oldWidth + 30 * delta
+      var newHeight = oldHeight + 30 * delta
       var newLeft = oldLeft - 15 * delta
       var newTop = oldTop - 15 * delta
-
-      console.log('新宽度', newWidth)
-      console.log('新的偏移量', newLeft, newTop)
       // 最小宽度100,否则不赋值
       if (newWidth >= 100) {
         $('#myimg').width(newWidth)
+        $('#myimg').height(newHeight)
         $('#myimg').offset({left: newLeft, top: newTop})
       }
       return false
     })
+
     $(document).on('keydown', function (event) {
-      // event.preventDefault()
       if (event.keyCode == 32) {
-        this.open = !this.open
-        console.log(this.open)
+        that.openSpace = !that.openSpace
       }
     })
 
     $('#myimg').on('mousedown', function (e) {
-      if (!this.open) {
-        return false
-      }
-      // event.preventDefault()
       var startP = {
         x: e.clientX,
         y: e.clientY
@@ -112,7 +113,6 @@ export default {
       var startLeft = $('#myimg').offset().left
       var startTop = $('#myimg').offset().top
       // 计算新值
-
       $('.img-box').on('mousemove', function (e2) {
         endP = {
           x: e2.clientX,
@@ -122,25 +122,23 @@ export default {
           x: endP.x - startP.x,
           y: endP.y - startP.y
         }
-        console.log('移动了，', diff)
-        $('#myimg').offset({left: startLeft + diff.x, top: startTop + diff.y})
-        $('.img-box').on('mouseup', function () {
-          $('.img-box').off('mousemove')
-        })
-        $('.img-box').on('mouseleave', function () {
-          $('.img-box').off('mousemove')
-        })
+        if (that.openSpace) {
+          $('#myimg').offset({left: startLeft + diff.x, top: startTop + diff.y})
+          $('.img-box').on('mouseup', function () {
+            $('.img-box').off('mousemove')
+          })
+          $('.img-box').on('mouseleave', function () {
+            $('.img-box').off('mousemove')
+          })
+        }
       })
-
-      // console.log('新宽度', newWidth)
-      // console.log('新的偏移量', newLeft, newTop)
-      // 最小宽度100,否则不赋值
 
       return false
     })
   },
   methods: {
     onchange (id) {
+      console.log('change啦')
       console.log(event.target.value, id)
       this.props.forEach(item => {
         if (item.prop_id == id) {
@@ -284,6 +282,17 @@ export default {
     padding: 0 20px;
     text-align: left;
   }
+  .c-done{
+    text-align: left;
+    line-height: 50px;
+    cursor: pointer;
+  }
+  .c-done span{
+    margin-right: 20px;
+  }
+  .c-span-active{
+    color:blue;
+  }
   .img-box{
     border: 1px solid rgba(85, 85, 85, 0.33);
     width: 100%;
@@ -291,7 +300,6 @@ export default {
     overflow: hidden;
     position: relative;
     margin-bottom: 10px;
-
   }
   .left{
     width: 50%;
@@ -301,7 +309,7 @@ export default {
     width: 50%;
   }
   #myimg{
-    width: 100%;
+    height: 500px;
     position: absolute;
     top: 0;
     left: 0;
