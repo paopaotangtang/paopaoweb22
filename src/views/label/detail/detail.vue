@@ -62,7 +62,8 @@ export default {
       lastLoading: false,
       nextLoading: false,
       saveLoading: false,
-      isMove: false
+      isMove: false,
+      isDown: false
     }
   },
   beforeMount () {
@@ -100,8 +101,8 @@ export default {
     })
 
     $(document).on('mousedown', function (e) {
+      that.isDown = true
       if (!that.openSpace && e.target.id !== 'myimg') {
-        console.log('不符合:', !that.openSpace, e.target.id == 'myimg')
         return
       }
       var startP = {
@@ -114,7 +115,7 @@ export default {
       var startTop = $('#myimg').offset().top
       // 计算新值
       $(document).on('mousemove', function (e2) {
-        if (!that.openSpace) {
+        if (!that.openSpace || !that.isDown) {
           return
         }
         that.isMove = true
@@ -128,26 +129,24 @@ export default {
         var boxY2 = boxY1 + $('.img-box').height()
 
         if (endP.x < boxX1 || endP.x > boxX2 || endP.y < boxY1 || endP.y > boxY2) {
-          console.log('出去啦')
           that.isMove = false
         }
         diff = {
           x: endP.x - startP.x,
           y: endP.y - startP.y
         }
-        console.log(diff.x, diff.y)
         if (that.openSpace && that.isMove) {
           $('#myimg').offset({left: startLeft + diff.x, top: startTop + diff.y})
         }
-        $('.img-box').on('mouseup', function () {
+        $(document).on('mouseup', function () {
+          that.isDown = false
           that.isMove = false
           $(document).off('mousemove')
         })
       })
-      // $('.img-box').on('mouseup', function () {
-      //   console.log("up111")
-      //   that.isMove = false
-      // })
+      $('.img-box').on('mouseup', function () {
+        that.isDown = false
+      })
       return false
     })
   },
@@ -196,6 +195,7 @@ export default {
               content: res.msg
             })
           } else {
+            this.initImg()
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
@@ -276,9 +276,10 @@ export default {
         }
       })
     },
-    imitImg(){
+    initImg () {
+      $('#myimg').width('auto')
       $('#myimg').height('500px')
-      // $('#myimg').offset({left: newLeft, top: newTop})
+      $('#myimg').css({'left': '0', 'top': '0'})
     }
 
   }
@@ -333,6 +334,7 @@ export default {
     width: 50%;
   }
   #myimg{
+    width: auto;
     height: 500px;
     position: absolute;
     top: 0;
