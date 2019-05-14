@@ -39,12 +39,6 @@
                               size="large">
                 <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value">{{option.option_name}}</a-radio-button>
               </a-radio-group>
-              <!--<a-radio-group-->
-                <!--@change="onchange"-->
-                <!--:options="getOptions(item.property_values)"-->
-                <!--v-model="radioCheck[item.prop_id]"-->
-                <!--:defaultValue="item.prop_option_value"-->
-                <!--style="line-height:50px;"></a-radio-group>-->
             </td>
           </tr>
         </table>
@@ -67,7 +61,8 @@ export default {
       modifyLoading: false,
       lastLoading: false,
       nextLoading: false,
-      saveLoading: false
+      saveLoading: false,
+      isMove: false
     }
   },
   beforeMount () {
@@ -81,11 +76,12 @@ export default {
       e.preventDefault()
       var oldWidth = $('#myimg').width()
       var oldHeight = $('#myimg').height()
+      var retio = oldHeight / oldWidth
       var oldLeft = $('#myimg').offset().left
       var oldTop = $('#myimg').offset().top
       // 计算新值
       var newWidth = oldWidth + 30 * delta
-      var newHeight = oldHeight + 30 * delta
+      var newHeight = newWidth * retio
       var newLeft = oldLeft - 15 * delta
       var newTop = oldTop - 15 * delta
       // 最小宽度100,否则不赋值
@@ -103,7 +99,11 @@ export default {
       }
     })
 
-    $('#myimg').on('mousedown', function (e) {
+    $(document).on('mousedown', function (e) {
+      if (!that.openSpace && e.target.id !== 'myimg') {
+        console.log('不符合:', !that.openSpace, e.target.id == 'myimg')
+        return
+      }
       var startP = {
         x: e.clientX,
         y: e.clientY
@@ -113,29 +113,49 @@ export default {
       var startLeft = $('#myimg').offset().left
       var startTop = $('#myimg').offset().top
       // 计算新值
-      $('.img-box').on('mousemove', function (e2) {
+      $(document).on('mousemove', function (e2) {
+        if (!that.openSpace) {
+          return
+        }
+        that.isMove = true
         endP = {
           x: e2.clientX,
           y: e2.clientY
+        }
+        var boxX1 = $('.img-box').offset().left
+        var boxX2 = boxX1 + $('.img-box').width()
+        var boxY1 = $('.img-box').offset().top
+        var boxY2 = boxY1 + $('.img-box').height()
+
+        if (endP.x < boxX1 || endP.x > boxX2 || endP.y < boxY1 || endP.y > boxY2) {
+          console.log('出去啦')
+          that.isMove = false
         }
         diff = {
           x: endP.x - startP.x,
           y: endP.y - startP.y
         }
-        if (that.openSpace) {
+        console.log(diff.x, diff.y)
+        if (that.openSpace && that.isMove) {
           $('#myimg').offset({left: startLeft + diff.x, top: startTop + diff.y})
-          $('.img-box').on('mouseup', function () {
-            $('.img-box').off('mousemove')
-          })
-          $('.img-box').on('mouseleave', function () {
-            $('.img-box').off('mousemove')
-          })
         }
+        $('.img-box').on('mouseup', function () {
+          that.isMove = false
+          $(document).off('mousemove')
+        })
       })
-
+      // $('.img-box').on('mouseup', function () {
+      //   console.log("up111")
+      //   that.isMove = false
+      // })
       return false
     })
   },
+  destroyed () {
+    $(document).off('keydown')
+    $(document).off('mousedown')
+  },
+
   methods: {
     onchange (id) {
       console.log('change啦')
@@ -255,6 +275,10 @@ export default {
           console.log('error!', err)
         }
       })
+    },
+    imitImg(){
+      $('#myimg').height('500px')
+      // $('#myimg').offset({left: newLeft, top: newTop})
     }
 
   }
