@@ -56,6 +56,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+   .hello{
+    width: 100%;
+    height: 100%;
+  }
   header {
     height: 40px;
     font: 16px/40px "微软雅黑";

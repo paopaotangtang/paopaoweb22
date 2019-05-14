@@ -33,12 +33,14 @@
           <tr v-for="item in props" :key="item.prop_id" :item="item" >
             <td>{{item.prop_name}}</td>
             <td class="c-left-td">
-              <a-radio-group  @change="onchange(item.prop_id)"
+              <a-radio-group  v-if="item.prop_type==1"
+                              @change="onchange(item.prop_id)"
                               :value="parseInt(item.prop_option_value)"
                               buttonStyle="solid"
                               size="large">
                 <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value">{{option.option_name}}</a-radio-button>
               </a-radio-group>
+              <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
             </td>
           </tr>
         </table>
@@ -165,6 +167,13 @@ export default {
         }
       })
     },
+    onInput(id){
+      this.props.forEach(item => {
+        if (item.prop_id == id) {
+          item.prop_option_value = event.target.value
+        }
+      })
+    },
     getDetail (detailType) {
       if (detailType == 2) {
         this.lastLoading = true
@@ -277,8 +286,15 @@ export default {
       })
     },
     initImg () {
-      $('#myimg').width('auto')
-      $('#myimg').height('500px')
+      let wid = $('#myimg').width()
+      let hei = $('#myimg').height()
+      if (wid > hei) {
+        $('#myimg').width('100%')
+        $('#myimg').height('auto')
+      } else {
+        $('#myimg').width('auto')
+        $('#myimg').height('100%')
+      }
       $('#myimg').css({'left': '0', 'top': '0'})
     }
 
@@ -321,7 +337,7 @@ export default {
   .img-box{
     border: 1px solid rgba(85, 85, 85, 0.33);
     width: 100%;
-    height: 600px;
+    height: 800px;
     overflow: hidden;
     position: relative;
     margin-bottom: 10px;
@@ -335,7 +351,7 @@ export default {
   }
   #myimg{
     width: auto;
-    height: 500px;
+    height: 100%;
     position: absolute;
     top: 0;
     left: 0;
