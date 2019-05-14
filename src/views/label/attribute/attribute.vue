@@ -54,7 +54,7 @@
         <a-dropdown class="c-menu" :trigger="['click']" >
           <a-menu slot="overlay" overlayClassName="c-menu" @click="propTypeChange">
             <a-menu-item key="1" class="c-item" title="单选">单选</a-menu-item>
-            <a-menu-item key="2" class="c-item" title="画框">画框</a-menu-item>
+            <a-menu-item key="2" class="c-item" title="文本框">文本框</a-menu-item>
           </a-menu>
           <a-button :disabled="modalType==1?false:true">
             {{modalObj.propType}}<a-icon type="down" />
