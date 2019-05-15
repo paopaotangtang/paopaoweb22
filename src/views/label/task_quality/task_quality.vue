@@ -8,15 +8,12 @@
                :pagination="pagination"
                @change="handleTableChange"
                 :loading="loading">
+        <span slot="create_time" >create_time</span>
         <span slot="task_name" >task_name</span>
         <span slot="task_id" >task_id</span>
-        <span slot="label_type" >label_type</span>
-        <span slot="all_count" >图片数量</span>
-        <span slot="completed_count" >已完成数量</span>
-        <span slot="my_label_count" >我的标注量</span>
-        <span slot="my_frame_count" >我的框数</span>
+        <span slot="label_type" >label_type</span>>
         <span slot="action"  slot-scope="text,record">
-           <a-button type="primary"  @click="toDetail(record)" >标注</a-button>
+           <a-button type="primary"  @click="toDetail(record)" >查看任务</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
@@ -27,6 +24,9 @@
 
 <script>
 var columns = [{
+  title: '质检生成时间',
+  dataIndex: 'create_time'
+}, {
   title: '任务名称',
   dataIndex: 'task_name'
 }, {
@@ -36,25 +36,13 @@ var columns = [{
   title: '任务类型',
   dataIndex: 'label_type'
 }, {
-  title: '图片数量',
-  dataIndex: 'all_count'
-}, {
-  title: '已完成数量',
-  dataIndex: 'completed_count'
-}, {
-  title: '当前用户标注量',
-  dataIndex: 'my_label_count'
-}, {
-  title: '当前用户框数',
-  dataIndex: 'my_frame_count'
-}, {
   title: '操作',
   dataIndex: 'action',
   scopedSlots: { customRender: 'action' }
 }]
 
 export default {
-  name: 'task2',
+  name: 'task_quality',
   data () {
     return {
       data: [],
@@ -96,13 +84,34 @@ export default {
           console.log('这里是返回的真数据', res)
           // 假数据
           this.pagination.total = res.total
-          this.data = res.tasks
-          this.data.forEach(item => { item.my_frame_count = '--' })
+          // this.data = res.tasks
+          this.data = [{
+            create_time: 20170516,
+            task_id: 19,
+            task_name: '带文本框的任务',
+            label_type: 'label_type'
+          }, {
+            create_time: 20170516,
+            task_id: 20,
+            task_name: '带文本框的任务',
+            label_type: 'label_type'
+          }, {
+            create_time: 20170516,
+            task_id: 11,
+            task_name: '带文本框的任务',
+            label_type: 'label_type'
+          }, {
+            create_time: 20170516,
+            task_id: 12,
+            task_name: '带文本框的任务',
+            label_type: 'label_type'
+          }]
+
+          this.data.forEach(item => {
+            item.create_time = this.getTime(item.create_time)
+          })
           this.loading = false
-          // this.data.forEach(item => {
-          //   item.create_time = this.getTime(item.create_time)
-          // })
-          // console.log(this.data)
+
         },
         error: function (err) {
           console.log('error!', err)

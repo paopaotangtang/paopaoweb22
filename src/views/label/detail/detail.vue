@@ -167,7 +167,7 @@ export default {
         }
       })
     },
-    onInput(id){
+    onInput (id) {
       this.props.forEach(item => {
         if (item.prop_id == id) {
           item.prop_option_value = event.target.value
