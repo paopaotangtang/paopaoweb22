@@ -16,7 +16,8 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <a-button type="primary"  v-if="detail_type!==1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button>
           </div>
           <div>
             <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
@@ -38,7 +39,9 @@
                               :value="parseInt(item.prop_option_value)"
                               buttonStyle="solid"
                               size="large">
-                <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value">{{option.option_name}}</a-radio-button>
+                <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value"
+                                :class="item.prop_option_value!==item.prop_option_value_final&&option.option_value==item.prop_option_value_final?'red':''"
+                >{{option.option_name}}</a-radio-button>
               </a-radio-group>
               <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
             </td>
@@ -60,6 +63,7 @@ export default {
       openSpace: false,
       classActive: 'c-span-active',
       detail_type: 1,
+      qualityLock: false,
       modifyLoading: false,
       lastLoading: false,
       nextLoading: false,
@@ -211,6 +215,7 @@ export default {
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
+            this.qualityLock = res.quality_lock == 1 ? true : false
           }
           this.lastLoading = false
           this.nextLoading = false
@@ -230,6 +235,7 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({
           'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
@@ -271,6 +277,7 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({
           'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
@@ -369,5 +376,8 @@ export default {
     width: 50%;
     border-right:1px solid gray;
     text-align: left;
+  }
+  .red{
+    background: red;
   }
 </style>
