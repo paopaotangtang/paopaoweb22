@@ -218,20 +218,23 @@ export default {
       if (!this.modalObj.propName) {
         this.$warning({
           title: '属性名称不能为空',
-          content: '请填写属性名称'
+          content: '请填写属性名称',
+          maskClosable: true
         })
         return
       } else if (!this.modalObj.propertyValues.length) {
         this.$warning({
           title: '选项至少添加一项',
-          content: '请填写属性选项'
+          content: '请填写属性选项',
+          maskClosable: true
         })
         return
       } else if (this.modalObj.propertyValues.some(item => { return !item.option_value || !item.option_name })) {
         // propertyValues
         this.$warning({
           title: '有的选项不完整',
-          content: '请填写选项信息'
+          content: '请填写选项信息',
+          maskClosable: true
         })
         return
       }
@@ -313,7 +316,8 @@ export default {
       if (this.modalObj.propertyValues.length == 1) {
         this.$warning({
           title: '删除失败',
-          content: '至少有一项选项'
+          content: '至少有一项选项',
+          maskClosable: true
         })
       } else {
         // 删除选项,

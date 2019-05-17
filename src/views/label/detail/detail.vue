@@ -195,13 +195,15 @@ export default {
           if (res.status == '该任务已结束') {
             this.$warning({
               title: '此任务已完成：',
-              content: '已经没有图片了。'
+              content: '已经没有图片了。',
+              maskClosable: true
             })
             this.$router.push({path: '/label/task2'})
           } else if (res.msg) {
             this.$warning({
               title: '温馨提示：',
-              content: res.msg
+              content: res.msg,
+              maskClosable: true
             })
           } else {
             this.initImg()
