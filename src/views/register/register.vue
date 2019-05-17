@@ -115,6 +115,10 @@ export default {
               console.log('成功调用了ajax', res)
               if (res.status === 'success') {
                 console.log('返回了', res)
+                this.$success({
+                  title: '注册成功',
+                  content: '您已注册，请登录'
+                })
                 this.$router.push({path: '/login'})
               } else if (res.status === 'fail') {
                 this.$error({
