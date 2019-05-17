@@ -70,6 +70,7 @@ export default {
     this.form = this.$form.createForm(this)
   },
   beforeMount () {
+    console.log(this.$route)
     this.getData()
   },
   mounted () {
@@ -86,9 +87,14 @@ export default {
     getData (e) {
       this.loading = true
       $.ajax({
-        url: this.baseUrl + '/check_task',
+        type: 'POST',
+        url: this.baseUrl + '/check_task_user',
         dataType: 'json',
-        data: {},
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'task_id': this.$route.query.task_id,
+          'check_task_id': this.$route.query.check_task_id
+        }),
         success: (res) => {
           console.log('这里是返回的真数据', res)
           this.users = res.users

@@ -72,7 +72,7 @@ export default {
         path: '/label/quality_detail',
         query: {
           'task_id': record.task_id,
-          'check_task_id':record.check_task_id
+          'check_task_id': record.check_task_id
         }})
     },
     getData (e) {
