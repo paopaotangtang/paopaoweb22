@@ -9,9 +9,16 @@ import Task from '@/views/label/task/task'
 import DataSource from '@/views/label/datasource/datasource'
 import Attribute from '@/views/label/attribute/attribute'
 import Detail from '@/views/label/detail/detail'
-import Task2 from '@/views/label/task2/task2'
+import DetailCanvas from '@/views/label/detail_canvas/detail_canvas'
+
+import TaskLabel from '@/views/label/task_label/task_label'
 import History from '@/views/label/history/history'
 import Performance from '@/views/label/performance/performance'
+
+import TaskQuality from '@/views/label/task_quality/task_quality'
+import Handle from '@/views/label/handle/handle'
+import QualityHistory from '@/views/label/quality_history/quality_history'
+import QualityDetail from '@/views/label/quality_detail/quality_detail'
 
 Vue.use(Router)
 
@@ -56,9 +63,9 @@ const router = new Router({
           groupid: 1
         }
       }, {
-        path: 'task2',
-        name: 'task2',
-        component: Task2,
+        path: 'task_label',
+        name: 'task_label',
+        component: TaskLabel,
         meta: {
           groupid: 2
         }
@@ -82,6 +89,41 @@ const router = new Router({
         component: Detail,
         meta: {
           groupid: 2
+        }
+      }, {
+        path: 'detail_canvas',
+        name: 'detail_canvas',
+        component: DetailCanvas,
+        meta: {
+          groupid: 2
+        }
+      }, {
+        path: 'task_quality',
+        name: 'task_quality',
+        component: TaskQuality,
+        meta: {
+          groupid: 3
+        }
+      }, {
+        path: 'handle',
+        name: 'handle',
+        component: Handle,
+        meta: {
+          groupid: 3
+        }
+      }, {
+        path: 'quality_history',
+        name: 'quality_history',
+        component: QualityHistory,
+        meta: {
+          groupid: 3
+        }
+      }, {
+        path: 'quality_detail',
+        name: 'quality_detail',
+        component: QualityDetail,
+        meta: {
+          groupid: 3
         }
       } ]
     },
@@ -117,7 +159,9 @@ router.beforeEach((to, from, next) => {
     if (groupid == 1) {
       router.push({path: '/label/task'})
     } else if (groupid == 2) {
-      router.push({path: '/label/task2'})
+      router.push({path: '/label/task_label'})
+    } else if (groupid == 3) {
+      router.push({path: '/label/task_quality'})
     }
   }
   // 已登录状态，当路由到label时进行跳转
@@ -125,7 +169,9 @@ router.beforeEach((to, from, next) => {
     if (groupid == 1) {
       router.push({path: '/label/task'})
     } else if (groupid == 2) {
-      router.push({path: '/label/task2'})
+      router.push({path: '/label/task_label'})
+    } else if (groupid == 3) {
+      router.push({path: '/label/task_quality'})
     }
   }
 })

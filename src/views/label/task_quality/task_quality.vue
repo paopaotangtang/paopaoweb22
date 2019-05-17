@@ -4,19 +4,19 @@
       <span>任务列表</span>
     </div>
     <div class="c-table">
-      <a-table :columns="columns" :dataSource="data" :rowKey="item => item.task_id" v-if="data.length"
-               :pagination="pagination"
+      <a-table :columns="columns"
+               :dataSource="tableData"
+               :rowKey="item => item.task_id"
+               v-if="tableData.length"
+               :pagination="false"
                @change="handleTableChange"
-                :loading="loading">
-        <span slot="task_name" >task_name</span>
+               :loading="loading">
+        <span  slot="date">date</span>
         <span slot="task_id" >task_id</span>
-        <span slot="label_type" >label_type</span>
-        <span slot="all_count" >图片数量</span>
-        <span slot="completed_count" >已完成数量</span>
-        <span slot="my_label_count" >我的标注量</span>
-        <span slot="my_frame_count" >我的框数</span>
+        <span slot="task_name" >task_name</span>
+        <span slot="task_type" >task_type</span>>
         <span slot="action"  slot-scope="text,record">
-           <a-button type="primary"  @click="toDetail(record)" >标注</a-button>
+           <a-button type="primary"  @click="toDetail(record)" >查看任务</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
@@ -27,6 +27,9 @@
 
 <script>
 var columns = [{
+  title: '质检生成时间',
+  dataIndex: 'date'
+}, {
   title: '任务名称',
   dataIndex: 'task_name'
 }, {
@@ -34,19 +37,7 @@ var columns = [{
   dataIndex: 'task_id'
 }, {
   title: '任务类型',
-  dataIndex: 'label_type'
-}, {
-  title: '图片数量',
-  dataIndex: 'all_count'
-}, {
-  title: '已完成数量',
-  dataIndex: 'completed_count'
-}, {
-  title: '当前用户标注量',
-  dataIndex: 'my_label_count'
-}, {
-  title: '当前用户框数',
-  dataIndex: 'my_frame_count'
+  dataIndex: 'task_type'
 }, {
   title: '操作',
   dataIndex: 'action',
@@ -54,10 +45,11 @@ var columns = [{
 }]
 
 export default {
-  name: 'task2',
+  name: 'task_quality',
   data () {
     return {
-      data: [],
+      tableData: [],
+      quality_data: [],
       pagination: {
         current: 1,
         pageSize: 10
@@ -76,33 +68,70 @@ export default {
   },
   methods: {
     toDetail (record) {
-      console.log('去标注', record)
       this.$router.push({
-        path: '/label/detail',
+        path: '/label/quality_detail',
         query: {
-          'task_id': record.task_id}})
+          'task_id': record.task_id,
+          'check_task_id':record.check_task_id
+        }})
     },
     getData (e) {
       this.loading = true
       $.ajax({
-        url: this.baseUrl + '/task/labeler',
+        url: this.baseUrl + '/check_task',
         dataType: 'json',
-        data: {
-          'page': this.pagination.current,
-          'pagerows': this.pagination.pageSize,
-          'nickname': window.localStorage.getItem('nickname')
-        },
+        data: {},
         success: (res) => {
           console.log('这里是返回的真数据', res)
+          this.quality_data = res.quality_data
           // 假数据
-          this.pagination.total = res.total
-          this.data = res.tasks
-          this.data.forEach(item => { item.my_frame_count = '--' })
+          // this.quality_data = [
+          //   {
+          //     'date': '2019-05-14',
+          //     'check_task_id': 6,
+          //     'tasks': [
+          //       {
+          //         'check_task_id': 6,
+          //         'date': '2019-05-14',
+          //         'task_name': '完整的标注测试',
+          //         'task_id': 8,
+          //         'task_type': '人脸质量标注'
+          //       },
+          //       {
+          //         'check_task_id': 6,
+          //         'date': '2019-05-14',
+          //         'task_name': '文本框',
+          //         'task_id': 10,
+          //         'task_type': '人脸质量标注'
+          //       },
+          //       {
+          //         'check_task_id': 6,
+          //         'date': '2019-05-14',
+          //         'task_name': '标记年龄',
+          //         'task_id': 11,
+          //         'task_type': '人脸质量标注'
+          //       }
+          //     ]
+          //   },
+          //   {
+          //     'date': '2019-05-15',
+          //     'check_task_id': 7,
+          //     'tasks': [
+          //       {
+          //         'check_task_id': 7,
+          //         'date': '2019-05-15',
+          //         'task_name': '标记年龄',
+          //         'task_id': 11,
+          //         'task_type': '人脸质量标注'
+          //       }
+          //     ]
+          //   }
+          // ]
+
+          this.quality_data.forEach(item => {
+            this.tableData.push(...item.tasks)
+          })
           this.loading = false
-          // this.data.forEach(item => {
-          //   item.create_time = this.getTime(item.create_time)
-          // })
-          // console.log(this.data)
         },
         error: function (err) {
           console.log('error!', err)

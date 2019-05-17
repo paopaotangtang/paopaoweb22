@@ -11,13 +11,15 @@
       </template>
       <template v-if="groupId==2">
         <li class="c-user">当前用户：{{nickname}}（标注员）</li>
-        <router-link exact to="/label/task2" tag="li">任务</router-link>
+        <router-link exact to="/label/task_label" tag="li">任务</router-link>
         <router-link exact to="/label/history" tag="li">历史</router-link>
         <router-link exact to="/label/performance" tag="li">绩效</router-link>
       </template>
       <template v-if="groupId==3">
         <li class="c-user">当前用户：{{nickname}}（质检员）</li>
-        <router-link exact to="/label/task" tag="li">任务</router-link>
+        <router-link exact to="/label/task_quality" tag="li">查看质检</router-link>
+        <router-link exact to="/label/handle" tag="li">手动生成质检</router-link>
+        <router-link exact to="/label/quality_history" tag="li">质检历史</router-link>
       </template>
       <li @click="quit">退出系统</li>
     </ul>
