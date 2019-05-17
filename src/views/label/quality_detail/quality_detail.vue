@@ -1,22 +1,28 @@
 <template>
   <div>
     <div class="c-bread">
-      <span>任务列表</span>
+      <router-link exact to="/label/task_quality" tag="span" class="c-home">
+        <a-icon type="home" />
+        任务列表</router-link>
+      /
+      <span >任务详情</span>
+
     </div>
     <div class="c-table">
       <a-table :columns="columns"
-               :dataSource="tableData"
+               :dataSource="users"
                :rowKey="item => item.task_id"
-               v-if="tableData.length"
+               v-if="users.length"
                :pagination="false"
                @change="handleTableChange"
                :loading="loading">
-        <span  slot="date">date</span>
-        <span slot="task_id" >task_id</span>
-        <span slot="task_name" >task_name</span>
-        <span slot="task_type" >task_type</span>>
+        <span  slot="check_user">check_user</span>
+        <span slot="check_num" >check_num</span>
+        <span slot="total_num" >total_num</span>
+        <span slot="error_num" >error_num</span>
+        <span slot="already_num" >already_num</span>>
         <span slot="action"  slot-scope="text,record">
-           <a-button type="primary"  @click="toDetail(record)" >查看任务</a-button>
+           <a-button type="primary"  @click="toDetail(record)" >开始质检</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
@@ -27,17 +33,20 @@
 
 <script>
 var columns = [{
-  title: '质检生成时间',
-  dataIndex: 'date'
+  title: '标注员',
+  dataIndex: 'check_user'
 }, {
-  title: '任务名称',
-  dataIndex: 'task_name'
+  title: '抽检数量',
+  dataIndex: 'check_num'
 }, {
-  title: '任务id',
-  dataIndex: 'task_id'
+  title: '总数量',
+  dataIndex: 'total_num'
 }, {
-  title: '任务类型',
-  dataIndex: 'task_type'
+  title: '错误数',
+  dataIndex: 'error_num'
+}, {
+  title: '已完成数量',
+  dataIndex: 'already_num'
 }, {
   title: '操作',
   dataIndex: 'action',
@@ -45,11 +54,10 @@ var columns = [{
 }]
 
 export default {
-  name: 'task_quality',
+  name: 'quality_detail',
   data () {
     return {
-      tableData: [],
-      quality_data: [],
+      users: [],
       pagination: {
         current: 1,
         pageSize: 10
@@ -69,10 +77,10 @@ export default {
   methods: {
     toDetail (record) {
       this.$router.push({
-        path: '/label/quality_detail',
+        path: '/label/detail',
         query: {
           'task_id': record.task_id,
-          'check_task_id':record.check_task_id
+          'check_task_id': record.check_task_id
         }})
     },
     getData (e) {
@@ -83,54 +91,28 @@ export default {
         data: {},
         success: (res) => {
           console.log('这里是返回的真数据', res)
-          this.quality_data = res.quality_data
+          this.users = res.users
           // 假数据
-          // this.quality_data = [
+          // this.users = [
           //   {
-          //     'date': '2019-05-14',
-          //     'check_task_id': 6,
-          //     'tasks': [
-          //       {
-          //         'check_task_id': 6,
-          //         'date': '2019-05-14',
-          //         'task_name': '完整的标注测试',
-          //         'task_id': 8,
-          //         'task_type': '人脸质量标注'
-          //       },
-          //       {
-          //         'check_task_id': 6,
-          //         'date': '2019-05-14',
-          //         'task_name': '文本框',
-          //         'task_id': 10,
-          //         'task_type': '人脸质量标注'
-          //       },
-          //       {
-          //         'check_task_id': 6,
-          //         'date': '2019-05-14',
-          //         'task_name': '标记年龄',
-          //         'task_id': 11,
-          //         'task_type': '人脸质量标注'
-          //       }
-          //     ]
+          //     'check_user': 'paopao',
+          //     'check_num': 12,
+          //     'total_num': 120,
+          //     'error_num': 6,
+          //     'already_num': 12
           //   },
           //   {
-          //     'date': '2019-05-15',
-          //     'check_task_id': 7,
-          //     'tasks': [
-          //       {
-          //         'check_task_id': 7,
-          //         'date': '2019-05-15',
-          //         'task_name': '标记年龄',
-          //         'task_id': 11,
-          //         'task_type': '人脸质量标注'
-          //       }
-          //     ]
+          //     'check_user': 'wangwei',
+          //     'check_num': 6,
+          //     'total_num': 58,
+          //     'error_num': 2,
+          //     'already_num': 5
           //   }
           // ]
 
-          this.quality_data.forEach(item => {
-            this.tableData.push(...item.tasks)
-          })
+          // this.data.forEach(item => {
+          //   item.create_time = this.getTime(item.create_time)
+          // })
           this.loading = false
         },
         error: function (err) {
@@ -187,7 +169,12 @@ export default {
     line-height: 60px;
     text-align: left;
   }
-
+  .c-home{
+    cursor: pointer;
+  }
+  .c-home:hover{
+    color:#65ae7e;
+  }
   .c-create{
     margin-left: 20px;
 
