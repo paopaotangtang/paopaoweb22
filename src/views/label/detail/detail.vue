@@ -26,7 +26,7 @@
       </div>
 
       <div class="right">
-        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">#此数据已被质检员确认，不可修改</a-tag>
+        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -217,56 +217,6 @@ export default {
             this.props = res.props
             this.detail_type = res.detail_type
             this.qualityLock = res.quality_lock == 1 ? true : false
-            this.props = [
-              {
-                'prop_id': 11,
-                'prop_name': '衣服',
-                'prop_option_value': 0,
-                'prop_option_value_final': 5,
-                'prop_type': 1,
-                'property_values': [
-                  {
-                    'option_name': '未知',
-                    'option_value': 0
-                  }, {
-                    'option_name': '黄皮',
-                    'option_value': 1
-                  },
-                  {
-                    'option_name': '黑皮',
-                    'option_value': 2
-                  },
-                  {
-                    'option_name': '白皮',
-                    'option_value': 5
-                  }
-                ]
-              },
-              {
-                'prop_id': 13,
-                'prop_name': '肤色',
-                'prop_option_value': 0,
-                'prop_option_value_final': 1,
-                'prop_type': 1,
-                'property_values': [
-                  {
-                    'option_name': '未知',
-                    'option_value': 0
-                  },
-                  {
-                    'option_name': '黄',
-                    'option_value': 2
-                  },
-                  {
-                    'option_name': '黑',
-                    'option_value': 1
-                  },
-                  {
-                    'option_name': '白',
-                    'option_value': 3
-                  }
-                ]
-              }]
           }
           this.lastLoading = false
           this.nextLoading = false
