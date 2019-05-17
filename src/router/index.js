@@ -172,6 +172,8 @@ router.beforeEach((to, from, next) => {
       router.push({path: '/label/task_label'})
     } else if (groupid == 3) {
       router.push({path: '/label/task_quality'})
+    } else {
+      router.push({path: '/login'})
     }
   }
 })

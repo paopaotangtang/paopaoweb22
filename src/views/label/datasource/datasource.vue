@@ -197,13 +197,15 @@ export default {
       if (!this.sourceName) {
         this.$warning({
           title: '数据源名称不能为空',
-          content: '请填写数据源名称'
+          content: '请填写数据源名称',
+          maskClosable: true
         })
         return
       } else if (!this.fileUrl) {
         this.$warning({
           title: '数据源地址不能为空',
-          content: '请填写数据源地址'
+          content: '请填写数据源地址',
+          maskClosable: true
         })
         return
       }

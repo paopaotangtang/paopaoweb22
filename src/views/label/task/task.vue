@@ -226,25 +226,29 @@ export default {
         if (!this.taskName) {
           this.$warning({
             title: '任务名称不能为空',
-            content: '请填写任务名称'
+            content: '请填写任务名称',
+            maskClosable: true
           })
           return
         } else if (!this.difficultNum) {
           this.$warning({
             title: '难度系数不能为空',
-            content: '请填写难度系数'
+            content: '请填写难度系数',
+            maskClosable: true
           })
           return
         } else if (this.difficultNum <= 0) {
           this.$warning({
             title: '难度系数不正确',
-            content: '请填写大于等于0的值'
+            content: '请填写大于等于0的值',
+            maskClosable: true
           })
           return
         } else if (!this.prop_ids.length) {
           this.$warning({
             title: '配置属性不能为空',
-            content: '请填写配置属性'
+            content: '请填写配置属性',
+            maskClosable: true
           })
           return
         }
@@ -303,7 +307,8 @@ export default {
       if (e.target.value <= 0) {
         this.$warning({
           title: '难度系数不正确',
-          content: '请填写大于等于0的值'
+          content: '请填写大于等于0的值',
+          maskClosable: true
         })
       }
     },
