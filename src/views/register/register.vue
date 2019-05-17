@@ -91,9 +91,6 @@ export default {
     this.form = this.$form.createForm(this)
   },
   methods: {
-    toLabelHome () {
-      this.$router.push({path: '/label'})
-    },
     handleSource (value) {
       console.log(`Selected: ${value}`)
       // this.groupChecked = value
@@ -118,13 +115,7 @@ export default {
               console.log('成功调用了ajax', res)
               if (res.status === 'success') {
                 console.log('返回了', res)
-
-                this.$success({
-                  title: '注册成功',
-                  content: '已为您跳转到主页...'
-                })
-                window.localStorage.setItem('isLogin', true)
-                this.toLabelHome()
+                this.$router.push({path: '/login'})
               } else if (res.status === 'fail') {
                 this.$error({
                   title: '注册失败',
