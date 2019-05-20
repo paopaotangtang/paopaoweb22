@@ -216,6 +216,7 @@ export default {
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
+            /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
           }
           this.lastLoading = false
