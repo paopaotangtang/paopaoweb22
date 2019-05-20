@@ -2,9 +2,9 @@
     <div class="wrap">
       <div class="left">
         <div class="c-done">
-          <span>删除（del/D）</span>
+          <span id='mk_del'>删除（del/D）</span>
           <span id='mk_drag'>拖拽（Space）</span>
-          <span>坐标线（X）</span>
+          <span  id="coor" class="c-span-active" @click="toggleXY(this)">坐标线（X）</span>
           <span >废弃</span>
           <span>退出标注</span>
         </div>
@@ -90,8 +90,9 @@ export default {
     var opt = false// 是否操作启用
     // 加载图片
     var img = new Image()
+    console.log(93,this.photo_path)
     // img.src = '/sorting/upload/getLocalPic.do?pathFile=/home/lifeng/sortingFile/kunshan_20190305/0192/6a54f030-3c1c-11e9-9535-e8611f275834.jpg'
-    img.src = 'http://127.0.0.1:82/static/1/10.jpg'
+    img.src = this.photo_path
     console.log(img.src)
     // 图片加载完成后，获取图片的原始宽高属性
     img.onload = function () {
@@ -673,26 +674,26 @@ export default {
         triggleMove($('#mk_drag')[0], 'move', '2')
         return
       }
-      if (evt.keyCode == 84) {
-        triggleMove($('#mk_ding')[0], 'ding', '2')
-        return
-      }
-      if (evt.keyCode == 66) {
-        triggleMove($('#mk_poly')[0], 'line', '2')
-        return
-      }
-      if (evt.keyCode == 97 || evt.keyCode == 49) {
-        triggleMove($('#man')[0], 'man')
-        return
-      }
-      if (evt.keyCode == 98 || evt.keyCode == 50) {
-        triggleMove($('#car')[0], 'car')
-        return
-      }
-      if (evt.keyCode == 99 || evt.keyCode == 51) {
-        triggleMove($('#bycycle')[0], 'bycycle')
-        return
-      }
+      // if (evt.keyCode == 84) {
+      //   triggleMove($('#mk_ding')[0], 'ding', '2')
+      //   return
+      // }
+      // if (evt.keyCode == 66) {
+      //   triggleMove($('#mk_poly')[0], 'line', '2')
+      //   return
+      // }
+      // if (evt.keyCode == 97 || evt.keyCode == 49) {
+      //   triggleMove($('#man')[0], 'man')
+      //   return
+      // }
+      // if (evt.keyCode == 98 || evt.keyCode == 50) {
+      //   triggleMove($('#car')[0], 'car')
+      //   return
+      // }
+      // if (evt.keyCode == 99 || evt.keyCode == 51) {
+      //   triggleMove($('#bycycle')[0], 'bycycle')
+      //   return
+      // }
       if (evt.keyCode == 88) {
         toggleXY($('#coor')[0])
       }
@@ -735,6 +736,15 @@ export default {
         }
       })
     },
+    toggleXY (th) {
+      if ($(th).hasClass('c-span-active')) {
+        coor = false
+        $(th).removeClass('c-span-active')
+      } else {
+        $(th).addClass('c-span-active')
+        coor = true
+      }
+    },
     getDetail (detailType) {
       if (detailType == 2) {
         this.lastLoading = true
@@ -745,6 +755,7 @@ export default {
         type: 'POST',
         url: this.baseUrl + '/task/show_task_detail',
         dataType: 'json',
+        async: false,
         contentType: 'application/json',
         data: JSON.stringify({
           'nickname': window.localStorage.getItem('nickname'),
