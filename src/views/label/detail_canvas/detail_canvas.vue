@@ -3,7 +3,7 @@
       <div class="left">
         <div class="c-done">
           <span>删除（del/D）</span>
-          <span :class="openSpace? 'c-span-active': ''">拖拽（Space）</span>
+          <span id='mk_drag'>拖拽（Space）</span>
           <span>坐标线（X）</span>
           <span >废弃</span>
           <span>退出标注</span>
@@ -73,54 +73,64 @@ export default {
     this.getDetail(1)
   },
   mounted () {
+  // 获取画布和画笔对象。
+  // 先不加双缓存，如果有性能问题再考虑双缓存画布的结构
     var cvs = $('#canvas')[0]
     var ctx = cvs.getContext('2d')
     // 画布的宽高
     var wd = cvs.offsetWidth
     var ht = cvs.offsetHeight
+
     // 保存图片的原始宽高数据
     var origin_w = null
     var origin_h = null
     var scale = 1 // 放大比例
     var trans_x = 0 // x轴相对于scale=1时的移动量，
-    var trans_y = 0 // y轴相对于scale=1时的移动量
+    var trans_y = 0// y轴相对于scale=1时的移动量
     var opt = false// 是否操作启用
     // 加载图片
     var img = new Image()
-    img.src = this.photo_path
+    // img.src = '/sorting/upload/getLocalPic.do?pathFile=/home/lifeng/sortingFile/kunshan_20190305/0192/6a54f030-3c1c-11e9-9535-e8611f275834.jpg'
+    img.src = 'http://127.0.0.1:82/static/1/10.jpg'
+    console.log(img.src)
     // 图片加载完成后，获取图片的原始宽高属性
     img.onload = function () {
       origin_w = img.width
       origin_h = img.height
       wd = cvs.offsetWidth
       ht = cvs.offsetHeight
+      console.log(wd,ht)
       var w_scale = 1
       var h_scale = 1
       if (origin_w > wd) {
-        w_scale = wd / origin_w
+        w_scale = wd * 0.9 / origin_w
       }
       if (origin_h > ht) {
-        h_scale = ht / origin_h
+        h_scale = ht * 0.9 / origin_h
       }
       var min = Math.min(w_scale, h_scale)
       scale = Math.min(min, scale)
       bindEvent()
       setTimeout(function () {
+        // renderByData();
         startRender()
       }, 0)
     }
 
     var ding_png = new Image()
-    ding_png.src = this.photo_path
-    ding_png.onload = function () {}
+    ding_png.src = '/sorting/image/dingding.jpg'
+    ding_png.onload = function () {
+
+    }
     // 用来保存图片，标注等的位置大小数据
     var datas = {
       markup: [// 用来存放标注的数据。
       ],
-      arrows: [
+      polygon: [
 
       ]
     }
+
     // 保存不同标注的颜色值
     var colors = {
       man: 'yellow',
@@ -128,127 +138,103 @@ export default {
       bycycle: 'green'
     }
 
+    // 回显数据
+    // var kjson = JSON.parse($('#kuang').text())
+    // var pjson = JSON.parse($('#duo').text())
+
+    // if (kjson.length > 0) {
+    //   for (var i = 0; i < kjson.length; i++) {
+    //     var tmp = kjson[i]
+    //     var mark = {id: tmp.id, sx: tmp.x, sy: tmp.y, wd: tmp.width, ht: tmp.height, ding: tmp.ding}
+    //     switch (tmp.type) {
+    //       case '2':mark.color = colors.man; break
+    //       case '3':mark.color = colors.car; break
+    //       case '4':mark.color = colors.bycycle; break
+    //     }
+    //     mark.ding = mark.ding
+    //     datas.markup.push(mark)
+    //   }
+    // }
+
+    // if (pjson.length > 0) {
+    //   for (var i = 0; i < pjson.length; i++) {
+    //     var tmp = pjson[i]
+    //     var poly = {cp: true, points: []}
+    //     tmp.zuoBiao = JSON.parse(tmp.zuoBiao)
+    //     for (var k = 0; k < tmp.zuoBiao.length; k++) {
+    //       var parr = tmp.zuoBiao[k]
+    //       var pt = {x: parr[0], y: parr[1]}
+    //       poly.points.push(pt)
+    //     }
+    //     poly.ding = tmp.ding
+    //     datas.polygon.push(poly)
+    //   }
+    // }
+
+    // 获取传输标注数据
+    function RectPost () {
+      var arr = []
+      for (var i = 0; i < datas.markup.length; i++) {
+        var tmp = datas.markup[i]
+        var pt = {x: tmp.sx, y: tmp.sy, height: tmp.ht, width: tmp.wd, index: i}
+        switch (tmp.color) {
+          case colors.man:pt.type = '2'; break
+          case colors.car:pt.type = '3'; break
+          case colors.bycycle:pt.type = '4'; break
+        }
+        arr.push(pt)
+      }
+      return arr
+    }
+
+    // 获取传输多边形数据
+    function PolygonPost () {
+      var arr = []
+      for (var i = 0; i < datas.polygon.length; i++) {
+        var tmp = datas.polygon[i]
+        var pt = {zuoBiao: [], group: 'poly' + i}
+        if (tmp.points.length <= 2) {
+          continue
+        }
+        for (var k = 0; k < tmp.points.length; k++) {
+          var ppt = tmp.points[k]
+          pt.zuoBiao.push([ppt.x, ppt.y])
+        }
+        arr.push(pt)
+      }
+      return arr
+    }
+
     // 保存可操作的状态
     var stats = {
       move: false,
       del: false,
       ding: false,
-      rect: false,
-      arrow: false
+      line: false,
+      man: true,
+      car: false,
+      bycycle: false
     }
 
-    var r_color = null
-    var r_type = null
-    function openRect (type, color) {
-      stats.rect = true
-      r_type = type
-      r_color = color
-      stats.arrow = false
-      $('#carrow').removeAttr('checked')
-    }
-    var ar_type
-    function openArrow (th, type) {
-      stats.rect = false
-      $('.kuang').removeAttr('checked')
-      if (th.checked) {
-        ar_type = type
-        stats.arrow = true
-      } else {
-        stats.arrow = false
-      }
-    }
-    // 展现不动的矩形框
-    var realStr = '978,982,111,98'// 标注员标注的区域
-    var expandRect = '867,933,333,147'// 外扩之后的区域
-    var brect = null
-    if (expandRect.length > 0) {
-      var expandRectArr = expandRect.split(',')
-      brect = {x: expandRectArr[0], y: expandRectArr[1], width: expandRectArr[2], height: expandRectArr[3]}
-    }
-    var crect = null
-    var img_left = null
-    var img_top = null
-
-    var realRect = null
-    var arr = realStr.split(',')
-    if (arr.length > 0) {
-      realRect = {x: arr[0], y: arr[1], width: arr[2], height: arr[3]}
-    }
-    // 计算展现矩形以及初始偏移量，放大系数
-    function calcWin (ctx) {
-      $(cvs).attr('width', $('#cvs_cont').width())
-      $(cvs).attr('height', $('#cvs_cont').height())
-      wd = $(cvs).width()
-      ht = $(cvs).height()
-      var hor_scale = wd / brect.width
-      var ver_scale = ht / brect.height
-      var bscale = Math.min(hor_scale, ver_scale)
-      scale = bscale
-      img_left = (wd - (origin_w) * scale) / 2 + trans_x * scale
-      img_top = (ht - (origin_h) * scale) / 2 + trans_y * scale
-      var bx = brect.x * scale + img_left
-      var by = brect.y * scale + img_top
-      var bwd = brect.width * scale
-      var bht = brect.height * scale
-      var want_x = (wd - bwd) / 2
-      var want_y = (ht - bht) / 2
-      trans_x = (want_x - bx) / scale
-      trans_y = (want_y - by) / scale
-      crect = {x: want_x, y: want_y, width: bwd, height: bht}
-      img_left = (wd - (origin_w) * scale) / 2 + trans_x * scale
-      img_top = (ht - (origin_h) * scale) / 2 + trans_y * scale
-    }
-
+    // var fsize = 14
     var coor = true
     var coor_x = 0
     var coor_y = 0
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
-
     // 根据data数据渲染画布
     function renderByData () {
       $(cvs).attr('width', $('#cvs_cont').width())
-      $(cvs).attr('height', $('#cvs yyyy_cont').height())
+      $(cvs).attr('height', $('#cvs_cont').height())
       wd = $(cvs).width()
       ht = $(cvs).height()
       // 首先清空画布
       ctx.clearRect(0, 0, wd, ht)
-      img_left = (wd - (origin_w) * scale) / 2 + trans_x * scale
-      img_top = (ht - (origin_h) * scale) / 2 + trans_y * scale
-      // 计算矩形框的位置以及画布的初始偏移量
-      if (!crect) {
-        /* var bx=brect.x*scale+img_left;
-            var by=brect.y*scale+img_top;
-            var bwd=brect.width*scale;
-            var bht=brect.height*scale;
-            var want_x=(wd-bwd)/2;
-            var want_y=(ht-bht)/2;
-            trans_x=want_x-bx;
-            trans_y=want_y-by;
-            crect={x:want_x,y:want_y,width:bwd,height:bht};
-            img_left=(wd-(origin_w)*scale)/2+trans_x*scale;
-            img_top=(ht-(origin_h)*scale)/2+trans_y*scale; */
-        calcWin(ctx)
-      }
       // 绘制图片
+      var img_left = (wd - (origin_w) * scale) / 2 + trans_x * scale
+      var img_top = (ht - (origin_h) * scale) / 2 + trans_y * scale
       var img_w = origin_w * scale
       var img_h = origin_h * scale
       ctx.drawImage(img, img_left, img_top, img_w, img_h)
-
-      if (realRect) {
-        var rx = realRect.x * scale + img_left
-        var ry = realRect.y * scale + img_top
-        var rwd = realRect.width * scale
-        var rht = realRect.height * scale
-        ctx.save()
-        ctx.beginPath()
-        ctx.strokeStyle = '#D1D30A'
-        ctx.setLineDash([15, 7])
-        ctx.lineWidth = '3'
-        ctx.strokeRect(rx, ry, rwd, rht)
-        ctx.closePath()
-        ctx.restore()
-      }
-
       // 根据data里面的数据绘制标注。
       if (datas.markup.length > 0) {
         for (var i = 0; i < datas.markup.length; i++) {
@@ -257,7 +243,7 @@ export default {
           ctx.strokeStyle = mup.color
           ctx.fontSize = '12px'
           ctx.lineWidth = '3'
-          if (mup.sx && mup.sy && mup.wd && mup.ht) {
+          if (mup.sx != undefined && mup.sy != undefined && mup.wd != undefined && mup.ht != undefined) {
             var xx = mup.sx
             var yy = mup.sy
             if ((mup.ex && mup.ex < mup.sx) || (mup.ey && mup.ey < mup.sy)) {
@@ -278,70 +264,36 @@ export default {
           }
         }
       }
-      ctx.fillStyle = '#505050'
-      ctx.fillRect(0, 0, wd, crect.y)
-      ctx.fillRect(0, crect.y + crect.height, wd, ht - (crect.y + crect.height))
-      ctx.fillRect(0, crect.y, (wd - crect.width) / 2, crect.height)
-      ctx.fillRect((wd - crect.width) / 2 + crect.width, crect.y, (wd - crect.width) / 2, crect.height)
 
-      // 画箭头的函数
-      function drawArrow (ctx, fromX, fromY, toX, toY, theta, headlen, width, color) {
-        let theta1 = theta || 30
-        let headlen1 = headlen || 10
-        let width1 = width || 3
-        let color1 = color || '#7FFFAA'
-        let angle = Math.atan2(fromY - toY, fromX - toX) * 180 / Math.PI
-        let angle1 = (angle + theta1) * Math.PI / 180
-        let angle2 = (angle - theta1) * Math.PI / 180
-        let topX = headlen1 * Math.cos(angle1)
-        let topY = headlen1 * Math.sin(angle1)
-        let botX = headlen1 * Math.cos(angle2)
-        let botY = headlen1 * Math.sin(angle2)
-        ctx.save()
-        ctx.beginPath()
-        var arrowX = fromX - topX
-        var arrowY = fromY - topY
-        /* ctx.moveTo(arrowX, arrowY);
-          ctx.lineTo(fromX, fromY);
-          arrowX = fromX - botX;
-          arrowY = fromY - botY;
-          ctx.lineTo(arrowX, arrowY); */
-        ctx.moveTo(fromX, fromY)
-        ctx.lineTo(toX, toY)
-        // Reverse length on the other side
-        arrowX = toX + topX
-        arrowY = toY + topY
-        ctx.moveTo(arrowX, arrowY)
-        ctx.lineTo(toX, toY)
-        arrowX = toX + botX
-        arrowY = toY + botY
-        ctx.lineTo(arrowX, arrowY)
-        ctx.strokeStyle = color1
-        ctx.lineWidth = width1
-        ctx.stroke()
-        ctx.restore()
-      }
-      // 根据datas数据绘制箭头
-      if (datas.arrows.length > 0) {
-        for (let i = 0; i < datas.arrows.length; i++) {
-          var aow = datas.arrows[i]
-          /* ctx.beginPath()
-                ctx.strokeStyle="black"
-                ctx.lineWidth="3" */
-          let cx = aow.start.x * scale + img_left
-          let cy = aow.start.y * scale + img_top
-          /* ctx.moveTo(cx,cy); */
-          var cx2 = aow.end.x * scale + img_left
-          var cy2 = aow.end.y * scale + img_top
-          // ctx.lineTo(cx2,cy2)
-          //       ctx.closePath()
-          //       var  deg=Math.atan(cx2/cy2)
-
-          // ctx.stroke()
-          drawArrow(ctx, cx, cy, cx2, cy2)
+      // 根据data里面的数据渲染多边形
+      if (datas.polygon.length > 0) {
+        for (var i = 0; i < datas.polygon.length; i++) {
+          var poly = datas.polygon[i]
+          ctx.beginPath()
+          ctx.strokeStyle = 'red'
+          ctx.strokeWidth = '5px'
+          for (var j = 0; j < poly.points.length; j++) {
+            var point = poly.points[j]
+            let cx = point.x * scale + img_left
+            let cy = point.y * scale + img_top
+            if (j == 0) {
+              ctx.moveTo(cx, cy)
+            } else {
+              ctx.lineTo(cx, cy)
+            }
+          }
+          if (poly.cp) {
+            ctx.closePath()
+          }
+          ctx.stroke()
+          if (poly.ding) {
+            var first = poly.points[0]
+            let cx = first.x * scale + img_left
+            let cy = first.y * scale + img_top
+            ctx.drawImage(ding_png, cx - 10, cy - 10, 20, 20)
+          }
         }
       }
-
       // 绘制十字架
       if (coor) {
         ctx.save()
@@ -354,12 +306,53 @@ export default {
         ctx.stroke()
         ctx.restore()
       }
+
       requestAnimationFrame(renderByData)
     }
 
     function startRender () {
       requestAnimationFrame(renderByData)
     }
+
+    // 判断一个点是否在多边形中
+    function isInPolygon (p, poly) {
+      let px = p.x,
+        py = p.y,
+        flag = false
+
+      for (var i = 0, l = poly.length, j = l - 1; i < l; j = i, i++) {
+        let sx = poly[i].x,
+          sy = poly[i].y,
+          tx = poly[j].x,
+          ty = poly[j].y
+
+        // 点与多边形顶点重合
+        if ((sx === px && sy === py) || (tx === px && ty === py)) {
+          return 'on'
+        }
+
+        // 判断线段两端点是否在射线两侧
+        if ((sy < py && ty >= py) || (sy >= py && ty < py)) {
+          // 线段上与射线 Y 坐标相同的点的 X 坐标
+          var x = sx - (-(py - sy) * (tx - sx) / (ty - sy))
+
+          // 点在多边形的边上
+          if (x === px) {
+            return 'on'
+          }
+
+          // 射线穿过多边形的边界
+          if (x > px) {
+            flag = !flag
+          }
+        }
+      }
+
+      // 射线穿过多边形边界的次数为奇数时点在多边形内
+      // return flag ? 'in' : 'out'
+      return flag
+    }
+
     // 给画布添加上一些操作事件
     function bindEvent () {
       // 鼠标的滚轮事件兼容
@@ -378,7 +371,7 @@ export default {
           scale = 0.1
         }
         // 调用渲染函数
-        // renderByData()
+        // renderByData();
       })
 
       var ismove = false// 是否在拖拽状态中，
@@ -406,7 +399,7 @@ export default {
         var tmp_y = evt.clientY
         trans_x = tmp_transx + ((tmp_x - mv_x) / scale)
         trans_y = tmp_transy + ((tmp_y - mv_y) / scale)
-        // renderByData()
+        // renderByData();
       })
       cvs.addEventListener('mouseup', function (evt) {
         if (stats.move) {
@@ -426,21 +419,37 @@ export default {
       var mk_move = false
       // 绑定人、车、非机动车的标注事件
       cvs.addEventListener('mousedown', function (evt) {
-        if (!opt && stats.rect) {
+        if (!opt && (stats.man || stats.car || stats.bycycle)) {
+          var color = ''
+          if (stats.man) { color = colors.man }
+          if (stats.car) { color = colors.car }
+          if (stats.bycycle) { color = colors.bycycle }
           mk_down = true
           mk_x = evt.clientX
           mk_y = evt.clientY
           var point = convertCoordtion(mk_x, mk_y)
+          if (point.x < 0) {
+            point.x = 0
+          }
+          if (point.x > origin_w) {
+            point.x = origin_w
+          }
+          if (point.y < 0) {
+            point.y = 0
+          }
+          if (point.y > origin_h) {
+            point.y = origin_h
+          }
           uid = uuId()
           mk_dt = {
             id: uid,
-            color: r_color,
-            type: r_type,
+            color: color,
             sx: point.x,
             sy: point.y,
             point1: point
           }
           datas.markup.push(mk_dt)
+          console.log(datas.markup)
           mk_move = false
         }
       })
@@ -449,6 +458,18 @@ export default {
           mk_ex = evt.clientX
           mk_ey = evt.clientY
           var point = convertCoordtion(mk_ex, mk_ey)
+          if (point.x < 0) {
+            point.x = 0
+          }
+          if (point.x > origin_w) {
+            point.x = origin_w
+          }
+          if (point.y < 0) {
+            point.y = 0
+          }
+          if (point.y > origin_h) {
+            point.y = origin_h
+          }
           mk_dt.point2 = point
           mk_dt.sx = Math.min(mk_dt.point1.x, mk_dt.point2.x)
           mk_dt.sy = Math.min(mk_dt.point1.y, mk_dt.point2.y)
@@ -456,70 +477,27 @@ export default {
           mk_dt.ht = Math.abs(Math.floor((mk_dt.point1.y - mk_dt.point2.y)))
           mk_move = true
 
-          // renderByData()
+          // renderByData();
         }
       })
       document.addEventListener('mouseup', function (evt) {
         if (mk_down) {
           if (!mk_move) {
             datas.markup.pop()
-          } else {
-            if (mk_dt.wd + mk_dt.sx > origin_w || mk_dt.ht + mk_dt.sy > origin_h || mk_dt.sx < 0 || mk_dt.sy < 0) {
-              datas.markup.pop()
-              // renderByData()
-              alert('请在图片上进行标注！^_^')
-            }
-            if (mk_dt.wd < 1 || mk_dt.ht < 1) {
-              datas.markup.pop()
-              // renderByData()
-              // alert("标注宽高必须大于20哦！*_*")
-            }
+            return
+          }
+          if (mk_dt.wd + mk_dt.sx > origin_w || mk_dt.ht + mk_dt.sy > origin_h || mk_dt.sx < 0 || mk_dt.sy < 0) {
+            datas.markup.pop()
+            // renderByData();
+            alert('请在图片上进行标注！^_^')
+          }
+          if (mk_dt.wd < 20 || mk_dt.ht < 20) {
+            datas.markup.pop()
+            // renderByData();
+            // alert("标注宽高必须大于20哦！*_*");
           }
           mk_down = false
           mk_dt = null
-        }
-      })
-
-      var a_sx = 0
-      var a_sy = 0
-      var a_ex = 0
-      var a_ey = 0
-      var arr_down = false
-      var arr_move = false
-      var arr_dt = {start: {}, end: {}}
-      // 绑定画箭头的功能
-      cvs.addEventListener('mousedown', function (evt) {
-        if (!opt && stats.arrow) {
-          arr_down = true
-          a_sx = evt.clientX
-          a_sy = evt.clientY
-          var point = convertCoordtion(a_sx, a_sy)
-          arr_dt.start = point
-          arr_dt.type = ar_type
-          datas.arrows.push(arr_dt)
-        }
-      })
-      cvs.addEventListener('mousemove', function (evt) {
-        if (arr_down) {
-          arr_move = true
-          a_ex = evt.clientX
-          a_ey = evt.clientY
-          var point = convertCoordtion(a_ex, a_ey)
-          arr_dt.end = point
-          // renderByData()
-        }
-      })
-      document.addEventListener('mouseup', function (evt) {
-        if (arr_down) {
-          if (!arr_move) {
-            datas.arrows.pop()
-          } else {
-
-          }
-          arr_dt = {start: {}, end: {}}
-          // renderByData()
-          arr_down = false
-          arr_move = false
         }
       })
 
@@ -536,67 +514,82 @@ export default {
             var tmp = datas.markup[i]
             if (point.x >= tmp.sx && point.x <= tmp.sx - (-tmp.wd) && point.y >= tmp.sy && point.y <= tmp.sy - (-tmp.ht)) {
               datas.markup.splice(i, 1)
-              // renderByData()
+              // renderByData();
               break
             }
           }
         }
-        if (datas.arrows.length > 0) {
-          for (let i = 0; i < datas.arrows.length; i++) {
-            var arrow = datas.arrows[i]
-            var arrow_len = Math.sqrt(Math.pow(Math.abs(arrow.start.x - arrow.end.x), 2) + Math.pow(Math.abs(arrow.start.y - arrow.end.y), 2))
-            var len1 = Math.sqrt(Math.pow(Math.abs(arrow.start.x - point.x), 2) + Math.pow(Math.abs(arrow.start.y - point.y), 2))
-            var len2 = Math.sqrt(Math.pow(Math.abs(arrow.end.x - point.x), 2) + Math.pow(Math.abs(arrow.end.y - point.y), 2))
-            if (Math.abs(len1 + len2 - arrow_len) < 2) {
-              datas.arrows.splice(i, 1)
-              // renderByData()
+        if (datas.polygon.length > 0) {
+          for (var i = 0; i < datas.polygon.length; i++) {
+            var tmp = datas.polygon[i].points
+            var flag = isInPolygon(point, tmp)
+            if (flag) {
+              datas.polygon.splice(i, 1)
+              // renderByData();
               break
             }
           }
         }
-        // if(datas.polygon.length>0){
-        //          for(var i=0;i<datas.polygon.length;i++){
-        //              var tmp=datas.polygon[i].points;
-        //              var flag=isInPolygon(point,tmp);
-        //              if(flag){
-        //                  datas.polygon.splice(i,1);
-        //                  renderByData();
-        //                  break;
-        //              }
-        //
-        //          }
-        //      }
+      })
+
+      var poly = {points: [], cp: false}// 存储多边形的点坐标位置。
+      // 绑定标记的事件
+      cvs.addEventListener('click', function (evt) {
+        if (!stats.line) {
+          return
+        }
+        var x = evt.clientX
+        var y = evt.clientY
+        var point = convertCoordtion(x, y)
+        if (poly.points.length == 0) {
+          datas.polygon.push(poly)
+        }
+        poly.points.push(point)
+        // renderByData();
+      })
+      cvs.addEventListener('contextmenu', function (evt) {
+        if (stats.line) {
+          evt.preventDefault()
+          if (poly.points.length <= 2) {
+            datas.polygon.pop()
+            alert('标记形状无效')
+          } else {
+            poly.cp = true
+          }
+          poly = {points: [], cp: false}
+          // renderByData();
+        }
       })
 
       // 绑定订的事件
-      // cvs.addEventListener('click', function (evt) {
-      //   if (!stats.ding) {
-      //     return
-      //   }
-      //   var x = evt.clientX
-      //   var y = evt.clientY
-      //   var point = convertCoordtion(x, y)
-      //   if (datas.markup.length > 0) {
-      //     for (var i = 0; i < datas.markup.length; i++) {
-      //       var tmp = datas.markup[i]
-      //       if (point.x > tmp.sx && point.x < tmp.sx - (-tmp.wd) && point.y > tmp.sy && point.y < tmp.sy - (-tmp.ht)) {
-      //         tmp.ding = !tmp.ding
-      //         toDing(tmp, 'r', tmp.ding)
-      //
-      //         break
-      //       }
-      //     }
-      //   }
-      //   if (datas.polygon.length > 0) {
-      //     for (var i = 0; i < datas.polygon.length; i++) {
-      //       var tmp = datas.polygon[i]
-      //       if (isInPolygon(point, tmp.points)) {
-      //         tmp.ding = !tmp.ding
-      //         toDing(tmp, 'd', tmp.ding)
-      //       }
-      //     }
-      //   }
-      // })
+      cvs.addEventListener('click', function (evt) {
+        if (!stats.ding) {
+          return
+        }
+        var x = evt.clientX
+        var y = evt.clientY
+        var point = convertCoordtion(x, y)
+        if (datas.markup.length > 0) {
+          for (var i = 0; i < datas.markup.length; i++) {
+            var tmp = datas.markup[i]
+            if (point.x > tmp.sx && point.x < tmp.sx - (-tmp.wd) && point.y > tmp.sy && point.y < tmp.sy - (-tmp.ht)) {
+              tmp.ding = !tmp.ding
+              toDing(tmp, 'r', tmp.ding)
+
+              break
+            }
+          }
+        }
+        if (datas.polygon.length > 0) {
+          for (var i = 0; i < datas.polygon.length; i++) {
+            var tmp = datas.polygon[i]
+            if (isInPolygon(point, tmp.points)) {
+              tmp.ding = !tmp.ding
+              toDing(tmp, 'd', tmp.ding)
+            }
+          }
+        }
+      })
 
       // 绑定十字架事件
       cvs.addEventListener('mousemove', function (evt) {
@@ -607,6 +600,7 @@ export default {
         coor_y = y - cvs_rect.top
       })
     }
+
     function convertCoordtion (x, y) {
       var _left = (wd - (origin_w) * scale) / 2 + trans_x * scale
       var _top = (ht - (origin_h) * scale) / 2 + trans_y * scale
@@ -614,6 +608,7 @@ export default {
       var cvs_rect = cvs.getBoundingClientRect()
       var mk_fx = x - cvs_rect.left// 转化成相对于画布的坐标
       var mk_fy = y - cvs_rect.top
+
       mk_fx = mk_fx - _left// 转换成相对于图片的坐标
       mk_fy = mk_fy - _top
 
@@ -624,24 +619,52 @@ export default {
 
     // 改变拖拽的状态
     function triggleMove (th, key, isopt) {
-      if ($(th).hasClass('active')) {
-        opt = false
-        $(th).removeClass('active')
-        stats[key] = false
+      if (isopt) {
+        if (isopt == '1') {
+          opt = true
+          $('.opitem').removeClass('c-span-active')
+          for (var keys in stats) {
+            if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
+              stats[keys] = false
+            }
+          }
+        } else {
+          if ($(th).hasClass('c-span-active')) {
+            opt = false
+            $(th).removeClass('c-span-active')
+            stats[key] = false
+            return
+          } else {
+            opt = true
+            $('.opitem').removeClass('c-span-active')
+            for (var keys in stats) {
+              if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
+                stats[keys] = false
+              }
+            }
+          }
+        }
       } else {
-        opt = true
-        $('.mkitem').removeClass('active')
-        $(th).addClass('active')
-        stats.move = false
-        stats.del = false
-        stats.ding = false
-        stats[key] = true
-        // cvs.style.cursor='crosshair'
+        $('.mkitem').removeClass('c-span-active')
+        for (var keys in stats) {
+          if (keys == 'man' || keys == 'car' || keys == 'bycycle') {
+            stats[keys] = false
+          }
+        }
       }
+      $(th).addClass('c-span-active')
+
+      stats[key] = true
+       	// if(key=='move'||key=='ding'||key=='del'){
+         //      cvs.style.cursor='pointer';
+         //  }else{
+         //      cvs.style.cursor='crosshair';
+         //  }
     }
 
     document.addEventListener('keyup', function (evt) {
       evt.preventDefault()
+      console.log('key:' + evt.keyCode)
       if (evt.keyCode == 46 || evt.keyCode == 68) {
         triggleMove($('#mk_del')[0], 'del', '2')
         return
@@ -650,31 +673,46 @@ export default {
         triggleMove($('#mk_drag')[0], 'move', '2')
         return
       }
-      /* if(evt.keyCode==84){
-                triggleMove($("#mk_ding")[0],'ding',"2")
-            } */
+      if (evt.keyCode == 84) {
+        triggleMove($('#mk_ding')[0], 'ding', '2')
+        return
+      }
+      if (evt.keyCode == 66) {
+        triggleMove($('#mk_poly')[0], 'line', '2')
+        return
+      }
+      if (evt.keyCode == 97 || evt.keyCode == 49) {
+        triggleMove($('#man')[0], 'man')
+        return
+      }
+      if (evt.keyCode == 98 || evt.keyCode == 50) {
+        triggleMove($('#car')[0], 'car')
+        return
+      }
+      if (evt.keyCode == 99 || evt.keyCode == 51) {
+        triggleMove($('#bycycle')[0], 'bycycle')
+        return
+      }
       if (evt.keyCode == 88) {
         toggleXY($('#coor')[0])
       }
     })
-
     function toggleXY (th) {
-      console.log('coordition')
-      if ($(th).hasClass('active')) {
+      if ($(th).hasClass('c-span-active')) {
         coor = false
-        $(th).removeClass('active')
+        $(th).removeClass('c-span-active')
       } else {
-        $(th).addClass('active')
+        $(th).addClass('c-span-active')
         coor = true
       }
     }
+
     // 用来生成前端的唯一ID，
     function uuId () {
       return 'off-' + Math.floor(Math.random() * 1000) + '-' + Math.floor(Math.random() * 1000) + '-' + Math.floor(Math.random() * 1000)
     }
     window.addEventListener('resize', function () {
-      // renderByData()
-      calcWin(ctx)
+      // renderByData();
     })
   },
   destroyed () {
@@ -729,7 +767,6 @@ export default {
               maskClosable: true
             })
           } else {
-            this.initImg()
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
@@ -753,6 +790,7 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({
           'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
@@ -794,6 +832,7 @@ export default {
         contentType: 'application/json',
         data: JSON.stringify({
           'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
