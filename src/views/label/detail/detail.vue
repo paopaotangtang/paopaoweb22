@@ -169,6 +169,7 @@ export default {
       this.props.forEach(item => {
         if (item.prop_id == id) {
           item.prop_option_value = parseInt(event.target.value)
+          item.prop_option_value_final = parseInt(event.target.value)
         }
       })
     },
