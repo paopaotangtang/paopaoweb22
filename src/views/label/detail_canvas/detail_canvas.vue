@@ -38,7 +38,9 @@
                               :value="parseInt(item.prop_option_value)"
                               buttonStyle="solid"
                               size="large">
-                <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value">{{option.option_name}}</a-radio-button>
+                <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value"
+                                :class="item.prop_option_value!=item.prop_option_value_final&&option.option_value==item.prop_option_value_final?'red':''"
+                >{{option.option_name}}</a-radio-button>
               </a-radio-group>
               <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
             </td>
@@ -65,7 +67,8 @@ export default {
       nextLoading: false,
       saveLoading: false,
       isMove: false,
-      isDown: false
+      isDown: false,
+      qualityInspection: 0
     }
   },
   beforeMount () {
@@ -726,6 +729,7 @@ export default {
       this.props.forEach(item => {
         if (item.prop_id == id) {
           item.prop_option_value = parseInt(event.target.value)
+          item.prop_option_value_final = parseInt(event.target.value)
         }
       })
     },
@@ -737,6 +741,7 @@ export default {
       })
     },
     toggleXY (th) {
+      /* eslint-disable*/
       if ($(th).hasClass('c-span-active')) {
         coor = false
         $(th).removeClass('c-span-active')
@@ -781,6 +786,50 @@ export default {
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
+            this.props = [
+              {
+                "prop_id": 11,
+                "prop_name": "衣服",
+                "prop_option_value": 1,
+                "prop_option_value_final": 3,
+                "prop_type": 1,
+                "property_values": [
+                  {
+                    "option_name": "黄皮",
+                    "option_value": 1
+                  },
+                  {
+                    "option_name": "黑皮",
+                    "option_value": 2
+                  },
+                  {
+                    "option_name": "白皮",
+                    "option_value": 3
+                  }
+                ]
+              },
+              {
+                "prop_id": 13,
+                "prop_name": "肤色",
+                "prop_option_value": 2,
+                "prop_option_value_final": 2,
+                "prop_type": 1,
+                "property_values": [
+                  {
+                    "option_name": "黄",
+                    "option_value": 2
+                  },
+                  {
+                    "option_name": "黑",
+                    "option_value": 1
+                  },
+                  {
+                    "option_name": "白",
+                    "option_value": 3
+                  }
+                ]
+              }
+            ]
             this.detail_type = res.detail_type
           }
           this.lastLoading = false
@@ -949,5 +998,9 @@ export default {
     width: 50%;
     border-right:1px solid gray;
     text-align: left;
+  }
+  .red{
+    background: red;
+    color:white;
   }
 </style>
