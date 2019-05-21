@@ -39,6 +39,7 @@
                               buttonStyle="solid"
                               size="large">
                 <a-radio-button v-for="option in item.property_values" :key="option.option_value" :value="option.option_value"
+                                :disabled="qualityInspection==-1?true:false"
                                 :class="item.prop_option_value!=item.prop_option_value_final&&option.option_value==item.prop_option_value_final?'red':''"
                 >{{option.option_name}}</a-radio-button>
               </a-radio-group>
