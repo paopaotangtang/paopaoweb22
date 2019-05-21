@@ -63,7 +63,7 @@
         </a-dropdown>
       </div>
 
-      <div class="c-flex" v-if="modalObj.propTypeId==3">
+      <div class="c-flex" v-if="modalObj.propType=='画框'">
         <span class="c-title">画框颜色：</span>
         <a-dropdown class="c-menu" :trigger="['click']" >
           <a-menu slot="overlay" overlayClassName="c-menu" @click="colorChange">
@@ -81,7 +81,7 @@
         </a-dropdown>
       </div>
 
-      <div style="height: 250px;overflow-y: auto;" v-if="modalObj.propTypeId==1">
+      <div style="height: 250px;overflow-y: auto;" v-if="modalObj.propType=='单选'">
         <div class="c-card" v-for="(item,index) in modalObj.propertyValues" v-bind:key="index">
           <div class="c-flex">
             <span class="c-title">选项名称：</span><a-input placeholder="请输入选项名称" v-model="item.option_name" @change="changeValue(item)"/>
