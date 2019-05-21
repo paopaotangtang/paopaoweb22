@@ -49,12 +49,13 @@
         </a-dropdown>
       </div>
 
-      <div class="c-flex">
+      <div class="c-flex" >
         <span class="c-title">属性类别：</span>
         <a-dropdown class="c-menu" :trigger="['click']" >
           <a-menu slot="overlay" overlayClassName="c-menu" @click="propTypeChange">
             <a-menu-item key="1" class="c-item" title="单选">单选</a-menu-item>
             <a-menu-item key="2" class="c-item" title="文本框">文本框</a-menu-item>
+            <a-menu-item key="3" class="c-item" title="画框">画框</a-menu-item>
           </a-menu>
           <a-button :disabled="modalType==1?false:true">
             {{modalObj.propType}}<a-icon type="down" />
@@ -62,8 +63,25 @@
         </a-dropdown>
       </div>
 
-      <div style="height: 250px;overflow-y: auto;">
+      <div class="c-flex" v-if="modalObj.propType=='画框'">
+        <span class="c-title">画框颜色：</span>
+        <a-dropdown class="c-menu" :trigger="['click']" >
+          <a-menu slot="overlay" overlayClassName="c-menu" @click="colorChange">
+            <a-menu-item key="1" class="c-item" title="红色">红色</a-menu-item>
+            <a-menu-item key="2" class="c-item" title="橙色">橙色</a-menu-item>
+            <a-menu-item key="3" class="c-item" title="黄色">黄色</a-menu-item>
+            <a-menu-item key="4" class="c-item" title="绿色">绿色</a-menu-item>
+            <a-menu-item key="5" class="c-item" title="青色">青色</a-menu-item>
+            <a-menu-item key="6" class="c-item" title="蓝色">蓝色</a-menu-item>
+            <a-menu-item key="7" class="c-item" title="紫色">紫色</a-menu-item>
+          </a-menu>
+          <a-button :disabled="modalType==1?false:true">
+            {{modalObj.color}}<a-icon type="down" />
+          </a-button>
+        </a-dropdown>
+      </div>
 
+      <div style="height: 250px;overflow-y: auto;" v-if="modalObj.propType=='单选'">
         <div class="c-card" v-for="(item,index) in modalObj.propertyValues" v-bind:key="index">
           <div class="c-flex">
             <span class="c-title">选项名称：</span><a-input placeholder="请输入选项名称" v-model="item.option_name" @change="changeValue(item)"/>
@@ -76,7 +94,6 @@
         <div style="text-align: center;padding: 10px 0;">
           <a-button type="primary" icon="plus" @click="addValue" >添加选项</a-button>
         </div>
-
       </div>
 
     </a-modal>
@@ -108,6 +125,8 @@ export default {
         labelTypeId: 1,
         propType: '单选',
         propTypeId: 1,
+        color: '红色',
+        colorId: 1,
         propertyValues: [{
           'option_name': '未知', // 选项名字
           'option_value': '0', // 选项id
@@ -142,6 +161,8 @@ export default {
         labelTypeId: 1,
         propType: '单选',
         propTypeId: 1,
+        color: '红色',
+        colorId: 1,
         propertyValues: [{
           'option_name': '未知', // 选项名字
           'option_value': '0', // 选项id
@@ -205,7 +226,9 @@ export default {
             propType: res.prop_type,
             propertyValues: res.property_values,
             recordValues: res.property_values.concat(),
-            propId: res.prop_id
+            propId: res.prop_id,
+            color: res.color || '红色',
+            colorId: res.colorId || 1
           }
           this.visible = true
         },
@@ -246,7 +269,8 @@ export default {
           'prop_name': this.modalObj.propName, // 属性名
           'label_type_id': this.modalObj.labelTypeId, // 标注类型
           'prop_type': this.modalObj.propTypeId,
-          'property_value': this.modalObj.propertyValues
+          'property_value': this.modalObj.propertyValues,
+          'color': this.color
         }
       } else if (this.modalType == 2) { // 修改属性的参数
         modalData = {
@@ -295,6 +319,10 @@ export default {
       this.modalObj.propType = e.item.title // 修改数据类型
       this.modalObj.propTypeId = e.key
       console.log('选择了proptype:', this.modalObj.propTypeId)
+    },
+    colorChange (e) { // 修改颜色
+      this.modalObj.color = e.item.title // 修改数据类型
+      this.modalObj.colorId = e.key
     },
     addValue () {
       let localId = new Date().getTime() + this.modalObj.propertyValues.length

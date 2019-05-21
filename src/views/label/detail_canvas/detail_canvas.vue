@@ -94,7 +94,7 @@ export default {
     var opt = false// 是否操作启用
     // 加载图片
     var img = new Image()
-    console.log(93,this.photo_path)
+    console.log(93, this.photo_path)
     // img.src = '/sorting/upload/getLocalPic.do?pathFile=/home/lifeng/sortingFile/kunshan_20190305/0192/6a54f030-3c1c-11e9-9535-e8611f275834.jpg'
     img.src = this.photo_path
     console.log(img.src)
@@ -104,7 +104,7 @@ export default {
       origin_h = img.height
       wd = cvs.offsetWidth
       ht = cvs.offsetHeight
-      console.log(wd,ht)
+      console.log(wd, ht)
       var w_scale = 1
       var h_scale = 1
       if (origin_w > wd) {
@@ -624,6 +624,7 @@ export default {
 
     // 改变拖拽的状态
     function triggleMove (th, key, isopt) {
+      console.log('触发了trigermove')
       if (isopt) {
         if (isopt == '1') {
           opt = true
@@ -660,11 +661,11 @@ export default {
       $(th).addClass('c-span-active')
 
       stats[key] = true
-       	// if(key=='move'||key=='ding'||key=='del'){
-         //      cvs.style.cursor='pointer';
-         //  }else{
-         //      cvs.style.cursor='crosshair';
-         //  }
+      // if(key=='move'||key=='ding'||key=='del'){
+      //      cvs.style.cursor='pointer';
+      //  }else{
+      //      cvs.style.cursor='crosshair';
+      //  }
     }
 
     document.addEventListener('keyup', function (evt) {
