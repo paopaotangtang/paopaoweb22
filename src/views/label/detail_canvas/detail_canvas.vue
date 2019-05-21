@@ -44,6 +44,7 @@
                 >{{option.option_name}}</a-radio-button>
               </a-radio-group>
               <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
+              <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentBtn==item.prop_id?'primary':'default'" @click="checkFrame" >Default</a-button>
             </td>
           </tr>
         </table>
@@ -69,7 +70,8 @@ export default {
       saveLoading: false,
       isMove: false,
       isDown: false,
-      qualityInspection: 0
+      qualityInspection: 0,
+      currentBtn:-1
     }
   },
   beforeMount () {
@@ -94,7 +96,6 @@ export default {
     var opt = false// 是否操作启用
     // 加载图片
     var img = new Image()
-    console.log(93, this.photo_path)
     // img.src = '/sorting/upload/getLocalPic.do?pathFile=/home/lifeng/sortingFile/kunshan_20190305/0192/6a54f030-3c1c-11e9-9535-e8611f275834.jpg'
     img.src = this.photo_path
     console.log(img.src)
@@ -567,34 +568,34 @@ export default {
       })
 
       // 绑定订的事件
-      cvs.addEventListener('click', function (evt) {
-        if (!stats.ding) {
-          return
-        }
-        var x = evt.clientX
-        var y = evt.clientY
-        var point = convertCoordtion(x, y)
-        if (datas.markup.length > 0) {
-          for (var i = 0; i < datas.markup.length; i++) {
-            var tmp = datas.markup[i]
-            if (point.x > tmp.sx && point.x < tmp.sx - (-tmp.wd) && point.y > tmp.sy && point.y < tmp.sy - (-tmp.ht)) {
-              tmp.ding = !tmp.ding
-              toDing(tmp, 'r', tmp.ding)
-
-              break
-            }
-          }
-        }
-        if (datas.polygon.length > 0) {
-          for (var i = 0; i < datas.polygon.length; i++) {
-            var tmp = datas.polygon[i]
-            if (isInPolygon(point, tmp.points)) {
-              tmp.ding = !tmp.ding
-              toDing(tmp, 'd', tmp.ding)
-            }
-          }
-        }
-      })
+      // cvs.addEventListener('click', function (evt) {
+      //   if (!stats.ding) {
+      //     return
+      //   }
+      //   var x = evt.clientX
+      //   var y = evt.clientY
+      //   var point = convertCoordtion(x, y)
+      //   if (datas.markup.length > 0) {
+      //     for (var i = 0; i < datas.markup.length; i++) {
+      //       var tmp = datas.markup[i]
+      //       if (point.x > tmp.sx && point.x < tmp.sx - (-tmp.wd) && point.y > tmp.sy && point.y < tmp.sy - (-tmp.ht)) {
+      //         tmp.ding = !tmp.ding
+      //         toDing(tmp, 'r', tmp.ding)
+      //
+      //         break
+      //       }
+      //     }
+      //   }
+      //   if (datas.polygon.length > 0) {
+      //     for (var i = 0; i < datas.polygon.length; i++) {
+      //       var tmp = datas.polygon[i]
+      //       if (isInPolygon(point, tmp.points)) {
+      //         tmp.ding = !tmp.ding
+      //         toDing(tmp, 'd', tmp.ding)
+      //       }
+      //     }
+      //   }
+      // })
 
       // 绑定十字架事件
       cvs.addEventListener('mousemove', function (evt) {
@@ -735,6 +736,9 @@ export default {
         }
       })
     },
+    checkFrame(e){
+      this.currentBtn = e.target.id
+    },
     onInput (id) {
       this.props.forEach(item => {
         if (item.prop_id == id) {
@@ -788,50 +792,6 @@ export default {
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
-            this.props = [
-              {
-                "prop_id": 11,
-                "prop_name": "衣服",
-                "prop_option_value": 1,
-                "prop_option_value_final": 3,
-                "prop_type": 1,
-                "property_values": [
-                  {
-                    "option_name": "黄皮",
-                    "option_value": 1
-                  },
-                  {
-                    "option_name": "黑皮",
-                    "option_value": 2
-                  },
-                  {
-                    "option_name": "白皮",
-                    "option_value": 3
-                  }
-                ]
-              },
-              {
-                "prop_id": 13,
-                "prop_name": "肤色",
-                "prop_option_value": 2,
-                "prop_option_value_final": 2,
-                "prop_type": 1,
-                "property_values": [
-                  {
-                    "option_name": "黄",
-                    "option_value": 2
-                  },
-                  {
-                    "option_name": "黑",
-                    "option_value": 1
-                  },
-                  {
-                    "option_name": "白",
-                    "option_value": 3
-                  }
-                ]
-              }
-            ]
             this.detail_type = res.detail_type
           }
           this.lastLoading = false
