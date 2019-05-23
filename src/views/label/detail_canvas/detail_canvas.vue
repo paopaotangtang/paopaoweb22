@@ -76,7 +76,12 @@ export default {
       img: new Image(),
       markup: [], // 用来存放标注的数据
       polygon: [],
-      opt: false // 是否操作启用
+      opt: false, // 是否操作启用
+      origin_w: null, // 保存图片的原始宽高数据
+      origin_h: null,
+      scale: 1, // 放大比例
+      trans_x: 0, // x轴相对于scale=1时的移动量，
+      trans_y: 0// y轴相对于scale=1时的移动量
     }
   },
   beforeMount () {
@@ -92,30 +97,30 @@ export default {
     var wd = cvs.offsetWidth
     var ht = cvs.offsetHeight
 
-    // 保存图片的原始宽高数据
-    var origin_w = null
-    var origin_h = null
-    var scale = 1 // 放大比例
-    var trans_x = 0 // x轴相对于scale=1时的移动量，
-    var trans_y = 0// y轴相对于scale=1时的移动量
+    // 保存图片的原始宽高数据,绑定在vue上
+    // var origin_w = null
+    // var origin_h = null
+    // var scale = 1 // 放大比例
+    // var trans_x = 0 // x轴相对于scale=1时的移动量，
+    // var trans_y = 0// y轴相对于scale=1时的移动量
     // 加载图片
     this.img.src = this.photo_path
     // 图片加载完成后，获取图片的原始宽高属性
     this.img.onload = function () {
-      origin_w = _this.img.width
-      origin_h = _this.img.height
+      _this.origin_w = _this.img.width
+      _this.origin_h = _this.img.height
       wd = cvs.offsetWidth
       ht = cvs.offsetHeight
       var w_scale = 1
       var h_scale = 1
-      if (origin_w > wd) {
-        w_scale = wd * 0.9 / origin_w
+      if (_this.origin_w > wd) {
+        w_scale = wd * 0.9 / _this.origin_w
       }
-      if (origin_h > ht) {
-        h_scale = ht * 0.9 / origin_h
+      if (_this.origin_h > ht) {
+        h_scale = ht * 0.9 / _this.origin_h
       }
       var min = Math.min(w_scale, h_scale)
-      scale = Math.min(min, scale)
+      _this.scale = Math.min(min, _this.scale)
       bindEvent()
       setTimeout(function () {
         // renderByData();
@@ -236,10 +241,10 @@ export default {
       // 首先清空画布
       ctx.clearRect(0, 0, wd, ht)
       // 绘制图片
-      var img_left = (wd - (origin_w) * scale) / 2 + trans_x * scale
-      var img_top = (ht - (origin_h) * scale) / 2 + trans_y * scale
-      var img_w = origin_w * scale
-      var img_h = origin_h * scale
+      var img_left = (wd - (_this.origin_w) * _this.scale) / 2 + _this.trans_x * _this.scale
+      var img_top = (ht - (_this.origin_h) * _this.scale) / 2 + _this.trans_y * _this.scale
+      var img_w = _this.origin_w * _this.scale
+      var img_h = _this.origin_h * _this.scale
       ctx.drawImage(_this.img, img_left, img_top, img_w, img_h)
       // 根据data里面的数据绘制标注
       if (_this.markup.length > 0) {
@@ -256,10 +261,10 @@ export default {
               xx = mup.ex
               yy = mup.ey
             }
-            var cx = xx * scale + img_left
-            var cy = yy * scale + img_top
-            var cwd = mup.wd * scale
-            var cht = mup.ht * scale
+            var cx = xx * _this.scale + img_left
+            var cy = yy * _this.scale + img_top
+            var cwd = mup.wd * _this.scale
+            var cht = mup.ht * _this.scale
             ctx.strokeRect(cx, cy, cwd, cht)
             var txt = (mup.wd) + '*' + (mup.ht)
             ctx.lineWidth = '1'
@@ -280,8 +285,8 @@ export default {
           ctx.strokeWidth = '5px'
           for (var j = 0; j < poly.points.length; j++) {
             var point = poly.points[j]
-            let cx = point.x * scale + img_left
-            let cy = point.y * scale + img_top
+            let cx = point.x * _this.scale + img_left
+            let cy = point.y * _this.scale + img_top
             if (j == 0) {
               ctx.moveTo(cx, cy)
             } else {
@@ -294,8 +299,8 @@ export default {
           ctx.stroke()
           if (poly.ding) {
             var first = poly.points[0]
-            let cx = first.x * scale + img_left
-            let cy = first.y * scale + img_top
+            let cx = first.x * _this.scale + img_left
+            let cy = first.y * _this.scale + img_top
             ctx.drawImage(ding_png, cx - 10, cy - 10, 20, 20)
           }
         }
@@ -372,9 +377,9 @@ export default {
           countV = -Math.floor(evt.detail / 3)
         }
         // 改变缩放比例
-        scale += countV * 0.1
-        if (scale < 0.1) {
-          scale = 0.1
+        _this.scale += countV * 0.1
+        if (_this.scale < 0.1) {
+          _this.scale = 0.1
         }
         // 调用渲染函数
         // renderByData();
@@ -394,8 +399,8 @@ export default {
         mv_x = evt.clientX
         mv_y = evt.clientY
         ismove = true
-        tmp_transx = trans_x
-        tmp_transy = trans_y
+        tmp_transx = _this.trans_x
+        tmp_transy = _this.trans_y
       })
       cvs.addEventListener('mousemove', function (evt) {
         if (!stats.move || !ismove) {
@@ -403,8 +408,8 @@ export default {
         }
         var tmp_x = evt.clientX
         var tmp_y = evt.clientY
-        trans_x = tmp_transx + ((tmp_x - mv_x) / scale)
-        trans_y = tmp_transy + ((tmp_y - mv_y) / scale)
+        _this.trans_x = tmp_transx + ((tmp_x - mv_x) / _this.scale)
+        _this.trans_y = tmp_transy + ((tmp_y - mv_y) / _this.scale)
         // renderByData();
       })
       cvs.addEventListener('mouseup', function (evt) {
@@ -435,14 +440,14 @@ export default {
           if (point.x < 0) {
             point.x = 0
           }
-          if (point.x > origin_w) {
-            point.x = origin_w
+          if (point.x > _this.origin_w) {
+            point.x = _this.origin_w
           }
           if (point.y < 0) {
             point.y = 0
           }
-          if (point.y > origin_h) {
-            point.y = origin_h
+          if (point.y > _this.origin_h) {
+            point.y = _this.origin_h
           }
           // uid = uuId()
           mk_dt = {
@@ -472,14 +477,14 @@ export default {
           if (point.x < 0) {
             point.x = 0
           }
-          if (point.x > origin_w) {
-            point.x = origin_w
+          if (point.x > _this.origin_w) {
+            point.x = _this.origin_w
           }
           if (point.y < 0) {
             point.y = 0
           }
-          if (point.y > origin_h) {
-            point.y = origin_h
+          if (point.y > _this.origin_h) {
+            point.y = _this.origin_h
           }
           mk_dt.point2 = point
           mk_dt.sx = Math.min(mk_dt.point1.x, mk_dt.point2.x)
@@ -501,7 +506,7 @@ export default {
             _this.markup.pop()
             return
           }
-          if (mk_dt.wd + mk_dt.sx > origin_w || mk_dt.ht + mk_dt.sy > origin_h || mk_dt.sx < 0 || mk_dt.sy < 0) {
+          if (mk_dt.wd + mk_dt.sx > _this.origin_w || mk_dt.ht + mk_dt.sy > _this.origin_h || mk_dt.sx < 0 || mk_dt.sy < 0) {
             _this.markup.pop()
             // renderByData();
             alert('请在图片上进行标注！^_^')
@@ -625,8 +630,8 @@ export default {
     }
 
     function convertCoordtion (x, y) {
-      var _left = (wd - (origin_w) * scale) / 2 + trans_x * scale
-      var _top = (ht - (origin_h) * scale) / 2 + trans_y * scale
+      var _left = (wd - (_this.origin_w) * _this.scale) / 2 + _this.trans_x * _this.scale
+      var _top = (ht - (_this.origin_h) * _this.scale) / 2 + _this.trans_y * _this.scale
 
       var cvs_rect = cvs.getBoundingClientRect()
       var mk_fx = x - cvs_rect.left// 转化成相对于画布的坐标
@@ -635,8 +640,8 @@ export default {
       mk_fx = mk_fx - _left// 转换成相对于图片的坐标
       mk_fy = mk_fy - _top
 
-      mk_fx = mk_fx / scale// 去除缩放后转换的坐标
-      mk_fy = mk_fy / scale
+      mk_fx = mk_fx / _this.scale// 去除缩放后转换的坐标
+      mk_fy = mk_fy / _this.scale
       return {x: Math.floor(mk_fx), y: Math.floor(mk_fy)}
     }
 
@@ -805,34 +810,19 @@ export default {
               maskClosable: true
             })
           } else {
+            var _this = this
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
+
+            //初始化canvas&&img
+             this.origin_w = null
+             this.origin_h = null
+             this.scale = 1 // 放大比例
+             this.trans_x = 0 // x轴相对于scale=1时的移动量，
+             this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
-
-            this.img.onload = function () {
-              origin_w = _this.img.width
-              origin_h = _this.img.height
-              wd = cvs.offsetWidth
-              ht = cvs.offsetHeight
-              var w_scale = 1
-              var h_scale = 1
-              if (origin_w > wd) {
-                w_scale = wd * 0.9 / origin_w
-              }
-              if (origin_h > ht) {
-                h_scale = ht * 0.9 / origin_h
-              }
-              var min = Math.min(w_scale, h_scale)
-              scale = Math.min(min, scale)
-              bindEvent()
-              setTimeout(function () {
-                // renderByData();
-                startRender()
-              }, 0)
-            }
-
             this.markup = []
             if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
