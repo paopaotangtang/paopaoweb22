@@ -44,7 +44,7 @@
                 >{{option.option_name}}</a-radio-button>
               </a-radio-group>
               <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
-              <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentBtn==item.prop_id?'primary':'default'" @click="checkFrame" >Default</a-button>
+              <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentFrameId==item.prop_id?'primary':'default'" @click="checkFrame" >画框</a-button>
             </td>
           </tr>
         </table>
@@ -71,7 +71,12 @@ export default {
       isMove: false,
       isDown: false,
       qualityInspection: 0,
-      currentBtn:-1
+      currentFrameId: -1, // 当前画框属性
+      drawOpen: false, // 打开画框
+      img: new Image(),
+      markup: [], // 用来存放标注的数据
+      polygon: [],
+      opt: false // 是否操作启用
     }
   },
   beforeMount () {
@@ -79,8 +84,8 @@ export default {
     this.getDetail(1)
   },
   mounted () {
-  // 获取画布和画笔对象。
-  // 先不加双缓存，如果有性能问题再考虑双缓存画布的结构
+    var _this = this
+    // 获取画布和画笔对象。
     var cvs = $('#canvas')[0]
     var ctx = cvs.getContext('2d')
     // 画布的宽高
@@ -93,19 +98,14 @@ export default {
     var scale = 1 // 放大比例
     var trans_x = 0 // x轴相对于scale=1时的移动量，
     var trans_y = 0// y轴相对于scale=1时的移动量
-    var opt = false// 是否操作启用
     // 加载图片
-    var img = new Image()
-    // img.src = '/sorting/upload/getLocalPic.do?pathFile=/home/lifeng/sortingFile/kunshan_20190305/0192/6a54f030-3c1c-11e9-9535-e8611f275834.jpg'
-    img.src = this.photo_path
-    console.log(img.src)
+    this.img.src = this.photo_path
     // 图片加载完成后，获取图片的原始宽高属性
-    img.onload = function () {
-      origin_w = img.width
-      origin_h = img.height
+    this.img.onload = function () {
+      origin_w = _this.img.width
+      origin_h = _this.img.height
       wd = cvs.offsetWidth
       ht = cvs.offsetHeight
-      console.log(wd, ht)
       var w_scale = 1
       var h_scale = 1
       if (origin_w > wd) {
@@ -126,19 +126,19 @@ export default {
     var ding_png = new Image()
     ding_png.src = '/sorting/image/dingding.jpg'
     ding_png.onload = function () {
-
     }
     // 用来保存图片，标注等的位置大小数据
-    var datas = {
-      markup: [// 用来存放标注的数据。
-      ],
-      polygon: [
-
-      ]
-    }
+    // var datas = {
+    //   markup: [// 用来存放标注的数据。
+    //   ],
+    //   polygon: [
+    //
+    //   ]
+    // }
 
     // 保存不同标注的颜色值
     var colors = {
+      drawOpen: 'red',
       man: 'yellow',
       car: 'blue',
       bycycle: 'green'
@@ -158,7 +158,7 @@ export default {
     //       case '4':mark.color = colors.bycycle; break
     //     }
     //     mark.ding = mark.ding
-    //     datas.markup.push(mark)
+    //     _this.markup.push(mark)
     //   }
     // }
 
@@ -173,15 +173,15 @@ export default {
     //       poly.points.push(pt)
     //     }
     //     poly.ding = tmp.ding
-    //     datas.polygon.push(poly)
+    //     _this.polygon.push(poly)
     //   }
     // }
 
     // 获取传输标注数据
     function RectPost () {
       var arr = []
-      for (var i = 0; i < datas.markup.length; i++) {
-        var tmp = datas.markup[i]
+      for (var i = 0; i < _this.markup.length; i++) {
+        var tmp = _this.markup[i]
         var pt = {x: tmp.sx, y: tmp.sy, height: tmp.ht, width: tmp.wd, index: i}
         switch (tmp.color) {
           case colors.man:pt.type = '2'; break
@@ -196,8 +196,8 @@ export default {
     // 获取传输多边形数据
     function PolygonPost () {
       var arr = []
-      for (var i = 0; i < datas.polygon.length; i++) {
-        var tmp = datas.polygon[i]
+      for (var i = 0; i < _this.polygon.length; i++) {
+        var tmp = _this.polygon[i]
         var pt = {zuoBiao: [], group: 'poly' + i}
         if (tmp.points.length <= 2) {
           continue
@@ -217,7 +217,7 @@ export default {
       del: false,
       ding: false,
       line: false,
-      man: true,
+      man: false,
       car: false,
       bycycle: false
     }
@@ -240,13 +240,13 @@ export default {
       var img_top = (ht - (origin_h) * scale) / 2 + trans_y * scale
       var img_w = origin_w * scale
       var img_h = origin_h * scale
-      ctx.drawImage(img, img_left, img_top, img_w, img_h)
-      // 根据data里面的数据绘制标注。
-      if (datas.markup.length > 0) {
-        for (var i = 0; i < datas.markup.length; i++) {
+      ctx.drawImage(_this.img, img_left, img_top, img_w, img_h)
+      // 根据data里面的数据绘制标注
+      if (_this.markup.length > 0) {
+        for (var i = 0; i < _this.markup.length; i++) {
           ctx.beginPath()
-          var mup = datas.markup[i]
-          ctx.strokeStyle = mup.color
+          var mup = _this.markup[i]
+          ctx.strokeStyle = mup.color || 'green'
           ctx.fontSize = '12px'
           ctx.lineWidth = '3'
           if (mup.sx != undefined && mup.sy != undefined && mup.wd != undefined && mup.ht != undefined) {
@@ -272,9 +272,9 @@ export default {
       }
 
       // 根据data里面的数据渲染多边形
-      if (datas.polygon.length > 0) {
-        for (var i = 0; i < datas.polygon.length; i++) {
-          var poly = datas.polygon[i]
+      if (_this.polygon.length > 0) {
+        for (var i = 0; i < _this.polygon.length; i++) {
+          var poly = _this.polygon[i]
           ctx.beginPath()
           ctx.strokeStyle = 'red'
           ctx.strokeWidth = '5px'
@@ -425,11 +425,9 @@ export default {
       var mk_move = false
       // 绑定人、车、非机动车的标注事件
       cvs.addEventListener('mousedown', function (evt) {
-        if (!opt && (stats.man || stats.car || stats.bycycle)) {
+        if (!_this.opt && _this.drawOpen) {
           var color = ''
-          if (stats.man) { color = colors.man }
-          if (stats.car) { color = colors.car }
-          if (stats.bycycle) { color = colors.bycycle }
+          if (_this.drawOpen) { color = colors.drawOpen }
           mk_down = true
           mk_x = evt.clientX
           mk_y = evt.clientY
@@ -446,16 +444,23 @@ export default {
           if (point.y > origin_h) {
             point.y = origin_h
           }
-          uid = uuId()
+          // uid = uuId()
           mk_dt = {
-            id: uid,
+            prop_id: _this.currentFrameId,
             color: color,
             sx: point.x,
             sy: point.y,
             point1: point
           }
-          datas.markup.push(mk_dt)
-          console.log(datas.markup)
+          // 同一个属性id,只能画一个框
+          _this.markup.forEach((item, index) => {
+            if (item.prop_id == mk_dt.prop_id) {
+              _this.markup.splice(index, 1)
+            }
+          })
+
+          _this.markup.push(mk_dt)
+          console.log(_this.markup)
           mk_move = false
         }
       })
@@ -482,28 +487,40 @@ export default {
           mk_dt.wd = Math.abs(Math.floor((mk_dt.point1.x - mk_dt.point2.x)))
           mk_dt.ht = Math.abs(Math.floor((mk_dt.point1.y - mk_dt.point2.y)))
           mk_move = true
-
+          _this.markup.forEach((item, index) => {
+            if (item.prop_id == this.currentFrameId) {
+              _this.markup.splice(index, 1)
+            }
+          })
           // renderByData();
         }
       })
       document.addEventListener('mouseup', function (evt) {
         if (mk_down) {
           if (!mk_move) {
-            datas.markup.pop()
+            _this.markup.pop()
             return
           }
           if (mk_dt.wd + mk_dt.sx > origin_w || mk_dt.ht + mk_dt.sy > origin_h || mk_dt.sx < 0 || mk_dt.sy < 0) {
-            datas.markup.pop()
+            _this.markup.pop()
             // renderByData();
             alert('请在图片上进行标注！^_^')
           }
           if (mk_dt.wd < 20 || mk_dt.ht < 20) {
-            datas.markup.pop()
+            _this.markup.pop()
             // renderByData();
             // alert("标注宽高必须大于20哦！*_*");
           }
           mk_down = false
           mk_dt = null
+          _this.markup.forEach(item => {
+            _this.props.forEach(prop => {
+              if (item.prop_id == prop.prop_id) {
+                prop.prop_option_value = item.sx + ',' + item.sy + ',' + item.wd + ',' + item.ht
+                prop.prop_option_value_final = item.sx + ',' + item.sy + ',' + item.wd + ',' + item.ht
+              }
+            })
+          })
         }
       })
 
@@ -515,22 +532,22 @@ export default {
         var x = evt.clientX
         var y = evt.clientY
         var point = convertCoordtion(x, y)
-        if (datas.markup.length > 0) {
-          for (var i = 0; i < datas.markup.length; i++) {
-            var tmp = datas.markup[i]
+        if (_this.markup.length > 0) {
+          for (var i = 0; i < _this.markup.length; i++) {
+            var tmp = _this.markup[i]
             if (point.x >= tmp.sx && point.x <= tmp.sx - (-tmp.wd) && point.y >= tmp.sy && point.y <= tmp.sy - (-tmp.ht)) {
-              datas.markup.splice(i, 1)
+              _this.markup.splice(i, 1)
               // renderByData();
               break
             }
           }
         }
-        if (datas.polygon.length > 0) {
-          for (var i = 0; i < datas.polygon.length; i++) {
-            var tmp = datas.polygon[i].points
+        if (_this.polygon.length > 0) {
+          for (var i = 0; i < _this.polygon.length; i++) {
+            var tmp = _this.polygon[i].points
             var flag = isInPolygon(point, tmp)
             if (flag) {
-              datas.polygon.splice(i, 1)
+              _this.polygon.splice(i, 1)
               // renderByData();
               break
             }
@@ -548,7 +565,7 @@ export default {
         var y = evt.clientY
         var point = convertCoordtion(x, y)
         if (poly.points.length == 0) {
-          datas.polygon.push(poly)
+          _this.polygon.push(poly)
         }
         poly.points.push(point)
         // renderByData();
@@ -557,7 +574,7 @@ export default {
         if (stats.line) {
           evt.preventDefault()
           if (poly.points.length <= 2) {
-            datas.polygon.pop()
+            _this.polygon.pop()
             alert('标记形状无效')
           } else {
             poly.cp = true
@@ -575,9 +592,9 @@ export default {
       //   var x = evt.clientX
       //   var y = evt.clientY
       //   var point = convertCoordtion(x, y)
-      //   if (datas.markup.length > 0) {
-      //     for (var i = 0; i < datas.markup.length; i++) {
-      //       var tmp = datas.markup[i]
+      //   if (_this.markup.length > 0) {
+      //     for (var i = 0; i < _this.markup.length; i++) {
+      //       var tmp = _this.markup[i]
       //       if (point.x > tmp.sx && point.x < tmp.sx - (-tmp.wd) && point.y > tmp.sy && point.y < tmp.sy - (-tmp.ht)) {
       //         tmp.ding = !tmp.ding
       //         toDing(tmp, 'r', tmp.ding)
@@ -586,9 +603,9 @@ export default {
       //       }
       //     }
       //   }
-      //   if (datas.polygon.length > 0) {
-      //     for (var i = 0; i < datas.polygon.length; i++) {
-      //       var tmp = datas.polygon[i]
+      //   if (_this.polygon.length > 0) {
+      //     for (var i = 0; i < _this.polygon.length; i++) {
+      //       var tmp = _this.polygon[i]
       //       if (isInPolygon(point, tmp.points)) {
       //         tmp.ding = !tmp.ding
       //         toDing(tmp, 'd', tmp.ding)
@@ -625,10 +642,9 @@ export default {
 
     // 改变拖拽的状态
     function triggleMove (th, key, isopt) {
-      console.log('触发了trigermove')
       if (isopt) {
         if (isopt == '1') {
-          opt = true
+          _this.opt = true
           $('.opitem').removeClass('c-span-active')
           for (var keys in stats) {
             if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
@@ -637,12 +653,12 @@ export default {
           }
         } else {
           if ($(th).hasClass('c-span-active')) {
-            opt = false
+            _this.opt = false
             $(th).removeClass('c-span-active')
             stats[key] = false
             return
           } else {
-            opt = true
+            _this.opt = true
             $('.opitem').removeClass('c-span-active')
             for (var keys in stats) {
               if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
@@ -653,14 +669,13 @@ export default {
         }
       } else {
         $('.mkitem').removeClass('c-span-active')
-        for (var keys in stats) {
-          if (keys == 'man' || keys == 'car' || keys == 'bycycle') {
-            stats[keys] = false
+        for (var stat in stats) {
+          if (stat == 'man' || stat == 'car' || stat == 'bycycle') {
+            stats[stat] = false
           }
         }
       }
       $(th).addClass('c-span-active')
-
       stats[key] = true
       // if(key=='move'||key=='ding'||key=='del'){
       //      cvs.style.cursor='pointer';
@@ -679,6 +694,9 @@ export default {
       if (evt.keyCode == 32) {
         triggleMove($('#mk_drag')[0], 'move', '2')
         return
+      }
+      if (evt.keyCode == 88) {
+        toggleXY($('#coor')[0])
       }
       // if (evt.keyCode == 84) {
       //   triggleMove($('#mk_ding')[0], 'ding', '2')
@@ -700,9 +718,6 @@ export default {
       //   triggleMove($('#bycycle')[0], 'bycycle')
       //   return
       // }
-      if (evt.keyCode == 88) {
-        toggleXY($('#coor')[0])
-      }
     })
     function toggleXY (th) {
       if ($(th).hasClass('c-span-active')) {
@@ -736,8 +751,9 @@ export default {
         }
       })
     },
-    checkFrame(e){
-      this.currentBtn = e.target.id
+    checkFrame (e) {
+      this.drawOpen = true
+      this.currentFrameId = e.target.id
     },
     onInput (id) {
       this.props.forEach(item => {
@@ -793,6 +809,50 @@ export default {
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
+            this.img.src = this.photo_path
+
+            this.img.onload = function () {
+              origin_w = _this.img.width
+              origin_h = _this.img.height
+              wd = cvs.offsetWidth
+              ht = cvs.offsetHeight
+              var w_scale = 1
+              var h_scale = 1
+              if (origin_w > wd) {
+                w_scale = wd * 0.9 / origin_w
+              }
+              if (origin_h > ht) {
+                h_scale = ht * 0.9 / origin_h
+              }
+              var min = Math.min(w_scale, h_scale)
+              scale = Math.min(min, scale)
+              bindEvent()
+              setTimeout(function () {
+                // renderByData();
+                startRender()
+              }, 0)
+            }
+
+            this.markup = []
+            if(detailType!=1){//不是新任务，则有画框记录
+              this.props.forEach(item=>{
+                if(item.prop_type==3){
+                  console.log(item.prop_option_value)
+                  let pos = item.prop_option_value.split(',')
+                  let obj ={
+                    prop_id: item.prop_id,
+                    sx: pos[0],
+                    sy: pos[1],
+                    wd: pos[2],
+                    ht: pos[3]
+                  }
+                  this.markup.push(obj)
+                }
+              })
+            }
+
+            console.log(this.markup)
+            this.currentFrameId = -1
           }
           this.lastLoading = false
           this.nextLoading = false
