@@ -2,9 +2,9 @@
     <div class="wrap">
       <div class="left">
         <div class="c-done">
-          <span id='mk_del'>删除（del/D）</span>
-          <span id='mk_drag'>拖拽（Space）</span>
-          <span  id="coor" class="c-span-active" @click="toggleXY(this)">坐标线（X）</span>
+          <span id='mk_del' @click="triggleMove($event.target,'del',2)">删除（del/D）</span>
+          <span id='mk_drag' @click="triggleMove($event.target,'move',2)">拖拽（Space）</span>
+          <span  id="coor" class="c-span-active" @click="toggleXY($event.target)">坐标线（X）</span>
           <span >废弃</span>
           <span>退出标注</span>
         </div>
@@ -88,7 +88,10 @@ export default {
         man: false,
         car: false,
         bycycle: false
-      }
+      },
+      coor: true,
+      coor_x: 0,
+      coor_y: 0
     }
   },
   beforeMount () {
@@ -235,9 +238,9 @@ export default {
     // }
 
     // var fsize = 14
-    var coor = true
-    var coor_x = 0
-    var coor_y = 0
+    // var coor = true
+    // var coor_x = 0
+    // var coor_y = 0
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
     // 根据data数据渲染画布
     function renderByData () {
@@ -313,14 +316,14 @@ export default {
         }
       }
       // 绘制十字架
-      if (coor) {
+      if (_this.coor) {
         ctx.save()
         ctx.beginPath()
         ctx.strokeStyle = '#F77C05'
-        ctx.moveTo(coor_x, 0)
-        ctx.lineTo(coor_x, ht)
-        ctx.moveTo(0, coor_y)
-        ctx.lineTo(wd, coor_y)
+        ctx.moveTo(_this.coor_x, 0)
+        ctx.lineTo(_this.coor_x, ht)
+        ctx.moveTo(0, _this.coor_y)
+        ctx.lineTo(wd, _this.coor_y)
         ctx.stroke()
         ctx.restore()
       }
@@ -638,8 +641,8 @@ export default {
         var x = evt.clientX
         var y = evt.clientY
         var cvs_rect = cvs.getBoundingClientRect()
-        coor_x = x - cvs_rect.left
-        coor_y = y - cvs_rect.top
+        _this.coor_x = x - cvs_rect.left
+        _this.coor_y = y - cvs_rect.top
       })
     }
 
@@ -659,65 +662,148 @@ export default {
       return {x: Math.floor(mk_fx), y: Math.floor(mk_fy)}
     }
 
+    // // 改变拖拽的状态
+    // function triggleMove (th, key, isopt) {
+    //   console.log('触发', th, key, isopt)
+    //   if (isopt) {
+    //     if (isopt == '1') {
+    //       _this.opt = true
+    //       $('.opitem').removeClass('c-span-active')
+    //       for (var keys in _this.stats) {
+    //         if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
+    //           _this.stats[keys] = false
+    //         }
+    //       }
+    //     } else {
+    //       if ($(th).hasClass('c-span-active')) {
+    //         _this.opt = false
+    //         $(th).removeClass('c-span-active')
+    //         _this.stats[key] = false
+    //         return
+    //       } else {
+    //         _this.opt = true
+    //         $('.opitem').removeClass('c-span-active')
+    //         for (var keys in _this.stats) {
+    //           if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
+    //             _this.stats[keys] = false
+    //           }
+    //         }
+    //       }
+    //     }
+    //   } else {
+    //     $('.mkitem').removeClass('c-span-active')
+    //     for (var stat in _this.stats) {
+    //       if (stat == 'man' || stat == 'car' || stat == 'bycycle') {
+    //         _this.stats[stat] = false
+    //       }
+    //     }
+    //   }
+    //   $(th).addClass('c-span-active')
+    //   _this.stats[key] = true
+    //   // if(key=='move'||key=='ding'||key=='del'){
+    //   //      cvs.style.cursor='pointer';
+    //   //  }else{
+    //   //      cvs.style.cursor='crosshair';
+    //   //  }
+    // }
+
+    document.addEventListener('keyup', _this.myKeyUp)
+
+    // 用来生成前端的唯一ID，
+    function uuId () {
+      return 'off-' + Math.floor(Math.random() * 1000) + '-' + Math.floor(Math.random() * 1000) + '-' + Math.floor(Math.random() * 1000)
+    }
+    window.addEventListener('resize', function () {
+      // renderByData();
+    })
+  },
+  beforeDestroy () {
+    var _this = this
+    document.removeEventListener('keyup', _this.myKeyUp)
+  },
+
+  methods: {
+    onchange (id) {
+      // console.log('change啦')
+      // console.log(event.target.value, id)
+      this.props.forEach(item => {
+        if (item.prop_id == id) {
+          item.prop_option_value = parseInt(event.target.value)
+          item.prop_option_value_final = parseInt(event.target.value)
+        }
+      })
+    },
+    checkFrame (e) {
+      this.drawOpen = true
+      this.currentFrameId = e.target.id
+    },
+    onInput (id) {
+      this.props.forEach(item => {
+        if (item.prop_id == id) {
+          item.prop_option_value = event.target.value
+        }
+      })
+    },
+    toggleXY (th) { // 改变坐标线
+      /* eslint-disable*/
+      if ($(th).hasClass('c-span-active')) {
+        this.coor = false
+        $(th).removeClass('c-span-active')
+      } else {
+        $(th).addClass('c-span-active')
+        this.coor = true
+      }
+    },
     // 改变拖拽的状态
-    function triggleMove (th, key, isopt) {
-      console.log('触发', th, key, isopt)
+    triggleMove (th, key, isopt) {
       if (isopt) {
         if (isopt == '1') {
-          _this.opt = true
+          this.opt = true
           $('.opitem').removeClass('c-span-active')
-          for (var keys in _this.stats) {
+          for (var keys in this.stats) {
             if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
-              _this.stats[keys] = false
+              this.stats[keys] = false
             }
           }
         } else {
           if ($(th).hasClass('c-span-active')) {
-            _this.opt = false
+            this.opt = false
             $(th).removeClass('c-span-active')
-            _this.stats[key] = false
+            this.stats[key] = false
             return
           } else {
-            _this.opt = true
+            this.opt = true
             $('.opitem').removeClass('c-span-active')
-            for (var keys in _this.stats) {
+            for (var keys in this.stats) {
               if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
-                _this.stats[keys] = false
+                this.stats[keys] = false
               }
             }
           }
-        }
-      } else {
-        $('.mkitem').removeClass('c-span-active')
-        for (var stat in _this.stats) {
-          if (stat == 'man' || stat == 'car' || stat == 'bycycle') {
-            _this.stats[stat] = false
-          }
-        }
-      }
-      $(th).addClass('c-span-active')
-      _this.stats[key] = true
-      // if(key=='move'||key=='ding'||key=='del'){
-      //      cvs.style.cursor='pointer';
-      //  }else{
-      //      cvs.style.cursor='crosshair';
-      //  }
     }
-
-    document.addEventListener('keyup', function (evt) {
-      console.log('绑定keyup！！！')
+  } else {
+    $('.mkitem').removeClass('c-span-active')
+    for (var stat in this.stats) {
+      if (stat == 'man' || stat == 'car' || stat == 'bycycle') {
+        this.stats[stat] = false
+      }
+    }
+  }
+  $(th).addClass('c-span-active')
+  this.stats[key] = true
+},
+    myKeyUp (evt) {
       evt.preventDefault()
-      console.log('key:' + evt.keyCode)
       if (evt.keyCode == 46 || evt.keyCode == 68) {
-        triggleMove($('#mk_del')[0], 'del', '2')
+        this.triggleMove($('#mk_del')[0], 'del', '2')
         return
       }
       if (evt.keyCode == 32) {
-        triggleMove($('#mk_drag')[0], 'move', '2')
+        this.triggleMove($('#mk_drag')[0], 'move', '2')
         return
       }
       if (evt.keyCode == 88) {
-        toggleXY($('#coor')[0])
+       this.toggleXY($('#coor')[0])
       }
       // if (evt.keyCode == 84) {
       //   triggleMove($('#mk_ding')[0], 'ding', '2')
@@ -739,59 +825,6 @@ export default {
       //   triggleMove($('#bycycle')[0], 'bycycle')
       //   return
       // }
-    })
-    function toggleXY (th) {
-      if ($(th).hasClass('c-span-active')) {
-        coor = false
-        $(th).removeClass('c-span-active')
-      } else {
-        $(th).addClass('c-span-active')
-        coor = true
-      }
-    }
-
-    // 用来生成前端的唯一ID，
-    function uuId () {
-      return 'off-' + Math.floor(Math.random() * 1000) + '-' + Math.floor(Math.random() * 1000) + '-' + Math.floor(Math.random() * 1000)
-    }
-    window.addEventListener('resize', function () {
-      // renderByData();
-    })
-  },
-  destroyed () {
-  },
-
-  methods: {
-    onchange (id) {
-      console.log('change啦')
-      console.log(event.target.value, id)
-      this.props.forEach(item => {
-        if (item.prop_id == id) {
-          item.prop_option_value = parseInt(event.target.value)
-          item.prop_option_value_final = parseInt(event.target.value)
-        }
-      })
-    },
-    checkFrame (e) {
-      this.drawOpen = true
-      this.currentFrameId = e.target.id
-    },
-    onInput (id) {
-      this.props.forEach(item => {
-        if (item.prop_id == id) {
-          item.prop_option_value = event.target.value
-        }
-      })
-    },
-    toggleXY (th) {
-      /* eslint-disable*/
-      if ($(th).hasClass('c-span-active')) {
-        coor = false
-        $(th).removeClass('c-span-active')
-      } else {
-        $(th).addClass('c-span-active')
-        coor = true
-      }
     },
     getDetail (detailType) {
       if (detailType == 2) {
@@ -843,7 +876,7 @@ export default {
             if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
-                  console.log(item.prop_option_value)
+                  // console.log(item.prop_option_value)
                   let pos = item.prop_option_value.split(',')
                   let obj ={
                     prop_id: item.prop_id,
@@ -862,7 +895,7 @@ export default {
           this.saveLoading = false
         },
         error: function (err) {
-          console.log('error!', err)
+          // console.log('error!', err)
         }
       })
     },
@@ -933,18 +966,6 @@ export default {
           console.log('error!', err)
         }
       })
-    },
-    initImg () {
-      let wid = $('#myimg').width()
-      let hei = $('#myimg').height()
-      if (wid > hei) {
-        $('#myimg').width('100%')
-        $('#myimg').height('auto')
-      } else {
-        $('#myimg').width('auto')
-        $('#myimg').height('100%')
-      }
-      $('#myimg').css({'left': '0', 'top': '0'})
     }
 
   }
