@@ -68,8 +68,6 @@ export default {
       lastLoading: false,
       nextLoading: false,
       saveLoading: false,
-      isMove: false,
-      isDown: false,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
       drawOpen: false, // 打开画框
@@ -81,7 +79,16 @@ export default {
       origin_h: null,
       scale: 1, // 放大比例
       trans_x: 0, // x轴相对于scale=1时的移动量，
-      trans_y: 0// y轴相对于scale=1时的移动量
+      trans_y: 0, // y轴相对于scale=1时的移动量
+      stats: { // 保存可操作的状态
+        move: false,
+        del: false,
+        ding: false,
+        line: false,
+        man: false,
+        car: false,
+        bycycle: false
+      }
     }
   },
   beforeMount () {
@@ -217,15 +224,15 @@ export default {
     }
 
     // 保存可操作的状态
-    var stats = {
-      move: false,
-      del: false,
-      ding: false,
-      line: false,
-      man: false,
-      car: false,
-      bycycle: false
-    }
+    // var stats = {
+    //   move: false,
+    //   del: false,
+    //   ding: false,
+    //   line: false,
+    //   man: false,
+    //   car: false,
+    //   bycycle: false
+    // }
 
     // var fsize = 14
     var coor = true
@@ -366,6 +373,7 @@ export default {
 
     // 给画布添加上一些操作事件
     function bindEvent () {
+      console.log('bind事件')
       // 鼠标的滚轮事件兼容
       var wheelname = navigator.userAgent.indexOf('Firefox') > 0 ? 'DOMMouseScroll' : 'mousewheel'
       cvs.addEventListener(wheelname, function (evt) {
@@ -392,7 +400,7 @@ export default {
       var tmp_transy = 0// 用来保存开始时的偏移位置量，move过程中都以此偏移量为参照进行运算。
       // 绑定拖拽事件，拖拽事件要看是否处于可拖拽状态
       cvs.addEventListener('mousedown', function (evt) {
-        if (!stats.move) {
+        if (!_this.stats.move) {
           return
         }
         evt.preventDefault()
@@ -403,7 +411,7 @@ export default {
         tmp_transy = _this.trans_y
       })
       cvs.addEventListener('mousemove', function (evt) {
-        if (!stats.move || !ismove) {
+        if (!_this.stats.move || !ismove) {
           return
         }
         var tmp_x = evt.clientX
@@ -413,7 +421,7 @@ export default {
         // renderByData();
       })
       cvs.addEventListener('mouseup', function (evt) {
-        if (stats.move) {
+        if (_this.stats.move) {
           ismove = false
         }
       })
@@ -531,7 +539,7 @@ export default {
 
       // 删除事件的绑定
       cvs.addEventListener('click', function (evt) {
-        if (!stats.del) {
+        if (!_this.stats.del) {
           return
         }
         var x = evt.clientX
@@ -542,6 +550,12 @@ export default {
             var tmp = _this.markup[i]
             if (point.x >= tmp.sx && point.x <= tmp.sx - (-tmp.wd) && point.y >= tmp.sy && point.y <= tmp.sy - (-tmp.ht)) {
               _this.markup.splice(i, 1)
+              _this.props.forEach(item => {
+                if (item.prop_id == tmp.prop_id) {
+                  item.prop_option_value = ''
+                  item.prop_option_value_final = ''
+                }
+              })
               // renderByData();
               break
             }
@@ -563,7 +577,7 @@ export default {
       var poly = {points: [], cp: false}// 存储多边形的点坐标位置。
       // 绑定标记的事件
       cvs.addEventListener('click', function (evt) {
-        if (!stats.line) {
+        if (!_this.stats.line) {
           return
         }
         var x = evt.clientX
@@ -576,7 +590,7 @@ export default {
         // renderByData();
       })
       cvs.addEventListener('contextmenu', function (evt) {
-        if (stats.line) {
+        if (_this.stats.line) {
           evt.preventDefault()
           if (poly.points.length <= 2) {
             _this.polygon.pop()
@@ -591,7 +605,7 @@ export default {
 
       // 绑定订的事件
       // cvs.addEventListener('click', function (evt) {
-      //   if (!stats.ding) {
+      //   if (!_this.stats.ding) {
       //     return
       //   }
       //   var x = evt.clientX
@@ -647,41 +661,42 @@ export default {
 
     // 改变拖拽的状态
     function triggleMove (th, key, isopt) {
+      console.log('触发', th, key, isopt)
       if (isopt) {
         if (isopt == '1') {
           _this.opt = true
           $('.opitem').removeClass('c-span-active')
-          for (var keys in stats) {
+          for (var keys in _this.stats) {
             if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
-              stats[keys] = false
+              _this.stats[keys] = false
             }
           }
         } else {
           if ($(th).hasClass('c-span-active')) {
             _this.opt = false
             $(th).removeClass('c-span-active')
-            stats[key] = false
+            _this.stats[key] = false
             return
           } else {
             _this.opt = true
             $('.opitem').removeClass('c-span-active')
-            for (var keys in stats) {
+            for (var keys in _this.stats) {
               if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
-                stats[keys] = false
+                _this.stats[keys] = false
               }
             }
           }
         }
       } else {
         $('.mkitem').removeClass('c-span-active')
-        for (var stat in stats) {
+        for (var stat in _this.stats) {
           if (stat == 'man' || stat == 'car' || stat == 'bycycle') {
-            stats[stat] = false
+            _this.stats[stat] = false
           }
         }
       }
       $(th).addClass('c-span-active')
-      stats[key] = true
+      _this.stats[key] = true
       // if(key=='move'||key=='ding'||key=='del'){
       //      cvs.style.cursor='pointer';
       //  }else{
@@ -690,6 +705,7 @@ export default {
     }
 
     document.addEventListener('keyup', function (evt) {
+      console.log('绑定keyup！！！')
       evt.preventDefault()
       console.log('key:' + evt.keyCode)
       if (evt.keyCode == 46 || evt.keyCode == 68) {
@@ -810,18 +826,18 @@ export default {
               maskClosable: true
             })
           } else {
-            var _this = this
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
-
             //初始化canvas&&img
-             this.origin_w = null
-             this.origin_h = null
-             this.scale = 1 // 放大比例
-             this.trans_x = 0 // x轴相对于scale=1时的移动量，
-             this.trans_y = 0// y轴相对于scale=1时的移动量
+            this.drawOpen = false
+            this.currentFrameId = -1
+            this.origin_w = null
+            this.origin_h = null
+            this.scale = 1 // 放大比例
+            this.trans_x = 0 // x轴相对于scale=1时的移动量，
+            this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
             this.markup = []
             if(detailType!=1){//不是新任务，则有画框记录
@@ -840,9 +856,6 @@ export default {
                 }
               })
             }
-
-            console.log(this.markup)
-            this.currentFrameId = -1
           }
           this.lastLoading = false
           this.nextLoading = false
