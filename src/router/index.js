@@ -8,17 +8,17 @@ import Register from '@/views/register/register'
 import Task from '@/views/label/task/task'
 import DataSource from '@/views/label/datasource/datasource'
 import Attribute from '@/views/label/attribute/attribute'
-import Detail from '@/views/label/detail/detail'
-import DetailCanvas from '@/views/label/detail_canvas/detail_canvas'
+import TaskDetails from '@/views/label/task_details/task_details'
 
 import TaskLabel from '@/views/label/task_label/task_label'
 import History from '@/views/label/history/history'
 import Performance from '@/views/label/performance/performance'
 
-import TaskQuality from '@/views/label/task_quality/task_quality'
+import QualityTask from '@/views/label/quality_task/quality_task'
 import Handle from '@/views/label/handle/handle'
 import QualityHistory from '@/views/label/quality_history/quality_history'
-import QualityDetail from '@/views/label/quality_detail/quality_detail'
+import QualityUserDetail from '@/views/label/quality_user_detail/quality_user_detail'
+import QualityCheckDetails from '@/views/label/quality_check_details/quality_check_details'
 
 Vue.use(Router)
 
@@ -83,24 +83,17 @@ const router = new Router({
         meta: {
           groupid: 2
         }
-      }, {
-        path: 'detail',
-        name: 'detail',
-        component: Detail,
+      },  {
+        path: 'task_details',
+        name: 'task_details',
+        component: TaskDetails,
         meta: {
           groupid: 2
         }
       }, {
-        path: 'detail_canvas',
-        name: 'detail_canvas',
-        component: DetailCanvas,
-        meta: {
-          groupid: 2
-        }
-      }, {
-        path: 'task_quality',
-        name: 'task_quality',
-        component: TaskQuality,
+        path: 'quality_task',
+        name: 'quality_task',
+        component: QualityTask,
         meta: {
           groupid: 3
         }
@@ -119,9 +112,16 @@ const router = new Router({
           groupid: 3
         }
       }, {
-        path: 'quality_detail',
-        name: 'quality_detail',
-        component: QualityDetail,
+        path: 'quality_user_detail',
+        name: 'quality_user_detail',
+        component: QualityUserDetail,
+        meta: {
+          groupid: 3
+        }
+      }, {
+        path: 'quality_check_details',
+        name: 'quality_check_details',
+        component: QualityCheckDetails,
         meta: {
           groupid: 3
         }
@@ -161,7 +161,7 @@ router.beforeEach((to, from, next) => {
     } else if (groupid == 2) {
       router.push({path: '/label/task_label'})
     } else if (groupid == 3) {
-      router.push({path: '/label/task_quality'})
+      router.push({path: '/label/quality_task'})
     }
   }
   // 已登录状态，当路由到label时进行跳转
@@ -171,7 +171,7 @@ router.beforeEach((to, from, next) => {
     } else if (groupid == 2) {
       router.push({path: '/label/task_label'})
     } else if (groupid == 3) {
-      router.push({path: '/label/task_quality'})
+      router.push({path: '/label/quality_task'})
     } else {
       router.push({path: '/login'})
     }

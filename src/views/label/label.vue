@@ -17,7 +17,7 @@
       </template>
       <template v-if="groupId==3">
         <li class="c-user">当前用户：{{nickname}}（质检员）</li>
-        <router-link exact to="/label/task_quality" tag="li">查看质检</router-link>
+        <router-link exact to="/label/quality_task" tag="li">查看质检</router-link>
         <router-link exact to="/label/handle" tag="li">手动生成质检</router-link>
         <router-link exact to="/label/quality_history" tag="li">质检历史</router-link>
       </template>

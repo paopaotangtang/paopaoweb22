@@ -97,7 +97,7 @@ export default {
                 } else if (res.groupid == 2) {
                   this.$router.push('/label/task_label')
                 } else if (res.groupid == 3) {
-                  this.$router.push('/label/task_quality')
+                  this.$router.push('/label/quality_task')
                 }
               } else if (res.code === 250) {
                 this.$error({

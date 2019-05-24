@@ -16,8 +16,7 @@
         <span slot="my_label_count" >我的标注量</span>
         <span slot="my_frame_count" >我的框数</span>
         <span slot="action"  slot-scope="text,record">
-           <a-button type="primary"  @click="toDetail(record)" >标注</a-button>
-           <a-button type="primary"  @click="toCanvas(record)" >cavas</a-button>
+           <a-button type="primary"  @click="toTaskDetails(record)" >标注</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
@@ -76,17 +75,10 @@ export default {
   mounted () {
   },
   methods: {
-    toDetail (record) {
+    toTaskDetails (record) {
       console.log('去标注', record)
       this.$router.push({
-        path: '/label/detail',
-        query: {
-          'task_id': record.task_id}})
-    },
-    toCanvas (record) {
-      console.log('去标注', record)
-      this.$router.push({
-        path: '/label/detail_canvas',
+        path: '/label/task_details',
         query: {
           'task_id': record.task_id}})
     },

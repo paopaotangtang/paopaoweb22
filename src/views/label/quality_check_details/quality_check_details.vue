@@ -54,7 +54,7 @@
 <script>
 
 export default {
-  name: 'detail_canvas',
+  name: 'quality_check_details',
   data () {
     return {
       task_id: this.$route.query.task_id,
@@ -834,7 +834,7 @@ export default {
       }
       $.ajax({
         type: 'POST',
-        url: this.baseUrl + '/task/show_task_detail',
+        url: this.baseUrl + '/check_task_details',
         dataType: 'json',
         async: false,
         contentType: 'application/json',
