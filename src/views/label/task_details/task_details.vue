@@ -16,7 +16,8 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <a-button type="primary"  v-if="detail_type!==1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
           </div>
           <div>
             <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
@@ -25,6 +26,7 @@
       </div>
 
       <div class="right">
+        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -64,6 +66,7 @@ export default {
       openSpace: false,
       classActive: 'c-span-active',
       detail_type: 1,
+      qualityLock: false,
       modifyLoading: false,
       lastLoading: false,
       nextLoading: false,
@@ -863,6 +866,8 @@ export default {
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
+            /*eslint-disable*/
+            this.qualityLock = res.quality_lock == 1 ? true : false
             //初始化canvas&&img
             this.drawOpen = false
             this.currentFrameId = -1

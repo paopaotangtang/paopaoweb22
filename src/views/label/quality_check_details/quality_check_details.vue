@@ -16,7 +16,8 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <a-button type="primary"  v-if="detail_type!==1" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  v-if="check_data_info_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="check_data_info_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
           </div>
           <div>
             <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
@@ -24,7 +25,8 @@
         </div>
       </div>
 
-      <div class="right">
+      <div class="center">
+        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -49,6 +51,11 @@
           </tr>
         </table>
       </div>
+      <div class="right">
+        <a-button  shape="circle" icon="check" size="large" color="green"/>
+        <a-button type="danger" shape="circle" icon="close" size="large" />
+
+      </div>
     </div>
 </template>
 <script>
@@ -63,7 +70,9 @@ export default {
       props: [], // 传来的并传回去
       openSpace: false,
       classActive: 'c-span-active',
-      detail_type: 1,
+      check_data_info_type: 1,
+      qualityLock: false,
+      quality_inspection: 0,
       modifyLoading: false,
       lastLoading: false,
       nextLoading: false,
@@ -95,8 +104,92 @@ export default {
     }
   },
   beforeMount () {
-    // 进入页面detail_type ==1,相当于新的一张
-    this.getDetail(1)
+    // 进入页面check_data_info_type ==1,相当于新的一张
+    // this.getDetail(1)
+    let res = {
+      'photo_path': 'http://127.0.0.1:82/static/1/5.jpg',
+      'quality_lock': 0,
+      'quality_inspection': 0,
+      'task_detail_id': 6321,
+      'task_id': 4,
+      'props': [
+        {
+          'prop_id': 11,
+          'prop_name': '衣服',
+          'prop_option_value': 0,
+          'prop_option_value_final': 0,
+          'prop_type': 1,
+          'property_values': [
+            {
+              'option_name': '黄皮',
+              'option_value': 1
+            },
+            {
+              'option_name': '黑皮',
+              'option_value': 2
+            },
+            {
+              'option_name': '白皮',
+              'option_value': 3
+            }
+          ]
+        },
+        {
+          'prop_id': 13,
+          'prop_name': '肤色',
+          'prop_option_value': 0,
+          'prop_option_value_final': 0,
+          'prop_type': 1,
+          'property_values': [
+            {
+              'option_name': '黄',
+              'option_value': 2
+            },
+            {
+              'option_name': '黑',
+              'option_value': 1
+            },
+            {
+              'option_name': '白',
+              'option_value': 3
+            }
+          ]
+        }
+      ]
+    }
+    this.photo_path = res.photo_path
+    this.task_detail_id = res.task_detail_id
+    this.props = res.props
+    this.check_data_info_type = res.check_data_info_type
+    /*eslint-disable*/
+    this.qualityLock = res.quality_lock == 1 ? true : false
+    this.quality_inspection = res.quality_inspection
+    //初始化canvas&&img
+    this.drawOpen = false
+    this.currentFrameId = -1
+    this.origin_w = null
+    this.origin_h = null
+    this.scale = 1 // 放大比例
+    this.trans_x = 0 // x轴相对于scale=1时的移动量，
+    this.trans_y = 0// y轴相对于scale=1时的移动量
+    this.img.src = this.photo_path
+    this.markup = []
+    if(check_data_info_type!=1){//不是新任务，则有画框记录
+      this.props.forEach(item=>{
+        if(item.prop_type==3){
+          // console.log(item.prop_option_value)
+          let pos = item.prop_option_value.split(',')
+          let obj ={
+            prop_id: item.prop_id,
+            sx: pos[0],
+            sy: pos[1],
+            wd: pos[2],
+            ht: pos[3]
+          }
+          this.markup.push(obj)
+        }
+      })
+    }
   },
   mounted () {
     var _this = this
@@ -107,12 +200,6 @@ export default {
     var wd = cvs.offsetWidth
     var ht = cvs.offsetHeight
 
-    // 保存图片的原始宽高数据,绑定在vue上
-    // var origin_w = null
-    // var origin_h = null
-    // var scale = 1 // 放大比例
-    // var trans_x = 0 // x轴相对于scale=1时的移动量，
-    // var trans_y = 0// y轴相对于scale=1时的移动量
     // 加载图片
     this.img.src = this.photo_path
     // 图片加载完成后，获取图片的原始宽高属性
@@ -606,35 +693,6 @@ export default {
         }
       })
 
-      // 绑定订的事件
-      // cvs.addEventListener('click', function (evt) {
-      //   if (!_this.stats.ding) {
-      //     return
-      //   }
-      //   var x = evt.clientX
-      //   var y = evt.clientY
-      //   var point = convertCoordtion(x, y)
-      //   if (_this.markup.length > 0) {
-      //     for (var i = 0; i < _this.markup.length; i++) {
-      //       var tmp = _this.markup[i]
-      //       if (point.x > tmp.sx && point.x < tmp.sx - (-tmp.wd) && point.y > tmp.sy && point.y < tmp.sy - (-tmp.ht)) {
-      //         tmp.ding = !tmp.ding
-      //         toDing(tmp, 'r', tmp.ding)
-      //
-      //         break
-      //       }
-      //     }
-      //   }
-      //   if (_this.polygon.length > 0) {
-      //     for (var i = 0; i < _this.polygon.length; i++) {
-      //       var tmp = _this.polygon[i]
-      //       if (isInPolygon(point, tmp.points)) {
-      //         tmp.ding = !tmp.ding
-      //         toDing(tmp, 'd', tmp.ding)
-      //       }
-      //     }
-      //   }
-      // })
 
       // 绑定十字架事件
       cvs.addEventListener('mousemove', function (evt) {
@@ -661,51 +719,6 @@ export default {
       mk_fy = mk_fy / _this.scale
       return {x: Math.floor(mk_fx), y: Math.floor(mk_fy)}
     }
-
-    // // 改变拖拽的状态
-    // function triggleMove (th, key, isopt) {
-    //   console.log('触发', th, key, isopt)
-    //   if (isopt) {
-    //     if (isopt == '1') {
-    //       _this.opt = true
-    //       $('.opitem').removeClass('c-span-active')
-    //       for (var keys in _this.stats) {
-    //         if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
-    //           _this.stats[keys] = false
-    //         }
-    //       }
-    //     } else {
-    //       if ($(th).hasClass('c-span-active')) {
-    //         _this.opt = false
-    //         $(th).removeClass('c-span-active')
-    //         _this.stats[key] = false
-    //         return
-    //       } else {
-    //         _this.opt = true
-    //         $('.opitem').removeClass('c-span-active')
-    //         for (var keys in _this.stats) {
-    //           if (keys != 'man' && keys != 'car' && keys != 'bycycle') {
-    //             _this.stats[keys] = false
-    //           }
-    //         }
-    //       }
-    //     }
-    //   } else {
-    //     $('.mkitem').removeClass('c-span-active')
-    //     for (var stat in _this.stats) {
-    //       if (stat == 'man' || stat == 'car' || stat == 'bycycle') {
-    //         _this.stats[stat] = false
-    //       }
-    //     }
-    //   }
-    //   $(th).addClass('c-span-active')
-    //   _this.stats[key] = true
-    //   // if(key=='move'||key=='ding'||key=='del'){
-    //   //      cvs.style.cursor='pointer';
-    //   //  }else{
-    //   //      cvs.style.cursor='crosshair';
-    //   //  }
-    // }
 
     document.addEventListener('keyup', _this.myKeyUp)
 
@@ -826,10 +839,10 @@ export default {
       //   return
       // }
     },
-    getDetail (detailType) {
-      if (detailType == 2) {
+    getDetail (check_data_info_type) {
+      if (check_data_info_type == 2) {
         this.lastLoading = true
-      } else if (detailType == 3) {
+      } else if (check_data_info_type == 3) {
         this.nextLoading = true
       }
       $.ajax({
@@ -839,10 +852,11 @@ export default {
         async: false,
         contentType: 'application/json',
         data: JSON.stringify({
-          'nickname': window.localStorage.getItem('nickname'),
-          'task_id': this.task_id,
-          'detail_type': detailType,
-          'task_detail_id': this.task_detail_id
+          'task_id':  this.$route.query.task_id,
+          "date":  this.$route.query.date,
+          "label_user": this.$route.query.label_user,
+          "quality_user": window.location.nickname,
+          "check_data_info_type": check_data_info_type
         }),
         success: (res) => {
           if (res.status == '该任务已结束') {
@@ -859,10 +873,14 @@ export default {
               maskClosable: true
             })
           } else {
+            console.log('check_task_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
-            this.detail_type = res.detail_type
+            this.check_data_info_type = res.check_data_info_type
+            /*eslint-disable*/
+            this.qualityLock = res.quality_lock == 1 ? true : false
+            this.quality_inspection = res.quality_inspection
             //初始化canvas&&img
             this.drawOpen = false
             this.currentFrameId = -1
@@ -873,7 +891,7 @@ export default {
             this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
             this.markup = []
-            if(detailType!=1){//不是新任务，则有画框记录
+            if(check_data_info_type!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   // console.log(item.prop_option_value)
@@ -913,7 +931,7 @@ export default {
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
           'props': this.props,
-          'detail_type': this.detail_type
+          'check_data_info_type': this.check_data_info_type
 
         }),
         success: (res) => {
@@ -937,9 +955,9 @@ export default {
         }
       })
     },
-    saveData (detailType) {
+    saveData (check_data_info_type) {
       this.saveLoading = true
-      if (this.detail_type !== 1) {
+      if (this.check_data_info_type !== 1) {
         this.getDetail(1)
         return
       }
@@ -1023,8 +1041,11 @@ export default {
     width: 50%;
     margin-left:50px;
   }
+  .center{
+    width: 40%;
+  }
   .right{
-    width: 50%;
+    width: 10%;
   }
   #myimg{
     width: auto;
