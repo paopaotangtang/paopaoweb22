@@ -77,17 +77,12 @@ export default {
   },
   methods: {
     toDetail (record) {
-      console.log(record)
       this.$router.push({
         path: '/label/quality_check_details',
         query: {
-          'task_id': record.task_id,
-          "date": "2019-05-14",
-          'check_task_id': record.check_task_id,
-          "label_user": "paopao",
-          "quality_user": "huahua",
-          "check_data_info_type": 1,
-          "task_details_id": "9392"
+          'task_id': this.$route.query.task_id,
+          'date': record.check_date,
+          'label_user': record.label_user
         }})
     },
     getData (e) {
@@ -111,6 +106,7 @@ export default {
               'check_num': 12,
               'total_num': 120,
               'error_num': 6,
+              'check_date': '2019-05-23',
               'already_num': 12
             },
             {
@@ -118,6 +114,7 @@ export default {
               'check_num': 6,
               'total_num': 58,
               'error_num': 2,
+              'check_date': '2019-05-23',
               'already_num': 5
             }
           ]
