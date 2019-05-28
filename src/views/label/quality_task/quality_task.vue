@@ -77,9 +77,8 @@ export default {
     },
     getData (e) {
       this.loading = true
-      $.ajax({
+      let params = {
         url: this.baseUrl + '/check_task',
-        dataType: 'json',
         data: {},
         success: (res) => {
           console.log('这里是返回的真数据', res)
@@ -136,7 +135,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)

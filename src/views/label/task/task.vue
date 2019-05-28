@@ -166,9 +166,8 @@ export default {
       this.prop_ids = []
     },
     getData (e) {
-      $.ajax({
+      let params = {
         url: this.baseUrl + '/task/admin',
-        dataType: 'json',
         data: {
           'page': this.pagination.current,
           'pagerows': this.pagination.pageSize
@@ -186,7 +185,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     showModal () {
       this.initModal()
@@ -197,10 +197,10 @@ export default {
       if (this.step === 1) { // 下一步获取所有的属性和数据源
         console.log(this.labelTypeId)
         this.confirmLoading = true
-        $.ajax({
+        let params = {
           type: 'GET',
           url: this.baseUrl + '/add_task?label_type_id=' + this.labelTypeId,
-          dataType: 'json',
+          data: {},
           success: (res) => {
             console.log('ok成功了！！！', res)
             this.allProps = res.props
@@ -219,7 +219,8 @@ export default {
           error: function (err) {
             console.log('error!', err)
           }
-        })
+        }
+        this.sendAjax(params)
       } else if (this.step === 2) {
         // 添加时，先过滤出组件里选择的属性ids
         console.log('配置属性数组', this.prop_ids)
@@ -253,17 +254,15 @@ export default {
           return
         }
         this.confirmLoading = true
-        $.ajax({
+        let params = {
           type: 'POST',
           url: this.baseUrl + '/add_task',
-          dataType: 'json',
-          contentType: 'application/json',
-          data: JSON.stringify({
+          data: {
             'task_name': this.taskName,
             'difficult_num': this.difficultNum,
             'prop_ids': this.prop_ids.join(','),
             'source_id': this.source_id
-          }),
+          },
           success: (res) => {
             console.log('ok成功了！！！', res)
             if (res.status === 'success') {
@@ -275,7 +274,8 @@ export default {
           error: function (err) {
             console.log('error!', err)
           }
-        })
+        }
+        this.sendAjax(params)
       }
     },
     handleCancel (e) {

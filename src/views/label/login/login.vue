@@ -72,15 +72,13 @@ export default {
       this.form.validateFields((err, values) => {
         console.log('form:', values)
         if (!err) {
-          $.ajax({
+          let params = {
             type: 'POST',
             url: this.baseUrl + '/login',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({
+            data: {
               'nickname': values.username,
               'password': values.password
-            }),
+            },
             success: (res) => {
               console.log('成功调用了ajax', res)
               if (res.code === 200) { // 如果账号密码正确
@@ -109,7 +107,8 @@ export default {
             error: function (err) {
               console.log('ajax error!', err)
             }
-          })
+          }
+          this.sendAjax(params)
         }
       })
     }

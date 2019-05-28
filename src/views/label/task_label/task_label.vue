@@ -84,9 +84,8 @@ export default {
     },
     getData (e) {
       this.loading = true
-      $.ajax({
+      let params = {
         url: this.baseUrl + '/task/labeler',
-        dataType: 'json',
         data: {
           'page': this.pagination.current,
           'pagerows': this.pagination.pageSize,
@@ -107,7 +106,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)

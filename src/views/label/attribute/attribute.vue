@@ -171,12 +171,10 @@ export default {
       }
     },
     getProperty (e) {
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/show_property',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({}),
+        data: {},
         success: (res) => {
           this.properties = res.properties
           this.onChange()
@@ -198,7 +196,8 @@ export default {
           // })
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     showModal (modalType, recordId) { // modalType:1创建属性2查看修改
       this.modalType = modalType
@@ -211,14 +210,12 @@ export default {
       }
     },
     getPropertyValue (propId) {
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/show_property_value',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           prop_id: propId
-        }),
+        },
         success: (res) => {
           this.modalObj = {
             propName: res.prop_name,
@@ -235,7 +232,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     handleOk (e) {
       if (!this.modalObj.propName) {
@@ -278,12 +276,10 @@ export default {
           'property_value': this.modalObj.recordValues // 记录的values
         }
       }
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/add_property',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify(modalData),
+        data: modalData,
         success: (res) => {
           if (res.status == 'success') {
             this.getProperty()
@@ -295,7 +291,8 @@ export default {
             content: err.statusText
           })
         }
-      })
+      }
+      this.sendAjax(params)
     },
     handleCancel (e) {
       this.visible = false

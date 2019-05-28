@@ -102,6 +102,7 @@ export default {
     this.getDetail(1)
   },
   mounted () {
+    /*eslint-disable*/
     var _this = this
     // 获取画布和画笔对象。
     var cvs = $('#canvas')[0]
@@ -569,7 +570,7 @@ export default {
         }
         if (_this.polygon.length > 0) {
           for (var i = 0; i < _this.polygon.length; i++) {
-            var tmp = _this.polygon[i].points
+            let tmp = _this.polygon[i].points
             var flag = isInPolygon(point, tmp)
             if (flag) {
               _this.polygon.splice(i, 1)
@@ -835,18 +836,16 @@ export default {
       } else if (detailType == 3) {
         this.nextLoading = true
       }
-      $.ajax({
+      let params  = {
         type: 'POST',
         url: this.baseUrl + '/task/show_task_detail',
-        dataType: 'json',
         async: false,
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'nickname': window.localStorage.getItem('nickname'),
           'task_id': this.task_id,
           'detail_type': detailType,
           'task_detail_id': this.task_detail_id
-        }),
+        },
         success: (res) => {
           if (res.status == '该任务已结束') {
             this.$warning({
@@ -902,16 +901,15 @@ export default {
         error: function (err) {
           // console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     modifyDetail () {
       this.modifyLoading = true
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/task/modify_data',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'create_user': window.localStorage.getItem('nickname'),
           'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
@@ -920,7 +918,7 @@ export default {
           'props': this.props,
           'detail_type': this.detail_type
 
-        }),
+        },
         success: (res) => {
           this.modifyLoading = false
           if (res.status == 'success') {
@@ -940,7 +938,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     saveData (detailType) {
       this.saveLoading = true
@@ -948,19 +947,17 @@ export default {
         this.getDetail(1)
         return
       }
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/task/save_data',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'create_user': window.localStorage.getItem('nickname'),
           'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
           'props': this.props
-        }),
+        },
         success: (res) => {
           if (res.status == 'success') {
             this.saveLoading = false
@@ -970,7 +967,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     }
 
   }

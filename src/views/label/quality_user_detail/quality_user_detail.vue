@@ -89,15 +89,13 @@ export default {
     },
     getData (e) {
       this.loading = true
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/check_task_user',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'task_id': this.$route.query.task_id,
           'check_task_id': this.$route.query.check_task_id
-        }),
+        },
         success: (res) => {
           console.log('这里是返回的真数据', res)
           this.users = res.users
@@ -130,7 +128,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     getTime (timestamp) {
       let time = new Date(timestamp * 1000)
