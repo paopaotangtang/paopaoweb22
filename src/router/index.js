@@ -83,7 +83,7 @@ const router = new Router({
         meta: {
           groupid: 2
         }
-      },  {
+      }, {
         path: 'task_details',
         name: 'task_details',
         component: TaskDetails,

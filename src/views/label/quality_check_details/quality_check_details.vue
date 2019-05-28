@@ -193,6 +193,7 @@ export default {
     // }
   },
   mounted () {
+    /*eslint-disable*/
     var _this = this
     // 获取画布和画笔对象。
     var cvs = $('#canvas')[0]
@@ -846,20 +847,18 @@ export default {
         this.nextLoading = true
       }
 
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/check_task_details',
-        dataType: 'json',
         async: false,
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'task_id':  this.$route.query.task_id,
           "date":  this.$route.query.date,
           "label_user": this.$route.query.label_user,
           "quality_user": window.localStorage.getItem('nickname'),
           "check_data_info_type": check_data_info_type,
           'check_task_id': this.$route.query.check_task_id
-        }),
+        },
         success: (res) => {
           if (res.status == '该任务已结束') {
             this.$warning({
@@ -931,16 +930,16 @@ export default {
         error: function (err) {
           // console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
+
     },
     modifyDetail (result_status) {
       this.modifyLoading = true
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/modify_check_data',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'create_user': window.localStorage.getItem('nickname'),
           'group_id': parseInt(window.localStorage.getItem('groupid')),
           'photo_path': this.photo_path,
@@ -950,8 +949,7 @@ export default {
           'props': this.props,
           'check_data_info_type': this.check_data_info_type,
           'result_status':result_status
-
-        }),
+        },
         success: (res) => {
           this.modifyLoading = false
           if (res.status == 'success') {
@@ -974,7 +972,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     saveData (check_data_info_type) {
       this.saveLoading = true
@@ -982,19 +981,17 @@ export default {
         this.getDetail(1)
         return
       }
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/task/save_data',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'create_user': window.localStorage.getItem('nickname'),
           'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
           'props': this.props
-        }),
+        },
         success: (res) => {
           if (res.status == 'success') {
             this.saveLoading = false
@@ -1004,7 +1001,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     }
 
   }

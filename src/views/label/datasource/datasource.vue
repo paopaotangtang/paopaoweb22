@@ -125,16 +125,14 @@ export default {
       }
       this.sourceId = sourceId
       this.imgType = imgType
-      $.ajax({
+      let params = {
         type: 'post',
         url: this.baseUrl + '/view_source_image',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'source_id': this.sourceId,
           'source_img_type': this.imgType,
           'source_image_id': this.imgId
-        }),
+        },
         success: (res) => {
           console.log('图片', res)
           if (res.msg) {
@@ -154,7 +152,8 @@ export default {
           })
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     initModal () {
       this.sourceName = ''
@@ -163,9 +162,8 @@ export default {
       this.fileUrl = ''
     },
     getData (e) {
-      $.ajax({
+      let params = {
         url: this.baseUrl + '/source',
-        dataType: 'json',
         data: {
           'page': this.pagination.current,
           'pagerows': this.pagination.pageSize
@@ -186,7 +184,8 @@ export default {
           })
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     showModal () {
       this.initModal()
@@ -210,16 +209,14 @@ export default {
         return
       }
       this.confirmLoading = true
-      $.ajax({
+      let params = {
         type: 'POST',
         url: this.baseUrl + '/add_source',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
+        data: {
           'source_name': this.sourceName,
           'label_type_id': this.labelTypeId,
           'file_url': this.fileUrl
-        }),
+        },
         success: (res) => {
           console.log('ok成功了！！！', res)
           if (res.status === 'success') {
@@ -231,7 +228,8 @@ export default {
         error: function (err) {
           console.log('error!', err)
         }
-      })
+      }
+      this.sendAjax(params)
     },
     handleCancel (e) {
       console.log('Clicked cancel button')

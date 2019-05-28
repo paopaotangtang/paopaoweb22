@@ -99,18 +99,16 @@ export default {
       e.preventDefault()
       this.form.validateFields((err, values) => {
         if (!err) {
-          $.ajax({
+          let params = {
             type: 'POST',
             url: this.baseUrl + '/register',
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify({
+            data: {
               'nickname': values.nickname,
               'realname': values.realname,
               'password': values.password,
               'email': values.email,
               'groupid': values.groupid
-            }),
+            },
             success: (res) => {
               console.log('成功调用了ajax', res)
               if (res.status === 'success') {
@@ -133,7 +131,8 @@ export default {
                 content: err
               })
             }
-          })
+          }
+          this.sendAjax(params)
         }
       })
     }
