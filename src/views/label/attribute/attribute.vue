@@ -174,7 +174,6 @@ export default {
       let params = {
         type: 'POST',
         url: this.baseUrl + '/show_property',
-        data: {},
         success: (res) => {
           this.properties = res.properties
           this.onChange()

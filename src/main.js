@@ -13,7 +13,7 @@ Vue.use(antd)
 
 Vue.config.productionTip = false
 // Vue.prototype.baseUrl = 'https://www.easy-mock.com/mock/5c931ac12418a911d0e22aa7/paopaoweb'//这里是基础路由，以后铺设服务器也是改这个！
-Vue.prototype.baseUrl = 'http://localhost:82'
+Vue.prototype.baseUrl = 'http://192.168.3.211:82'
 Vue.prototype.sendAjax = (params) => {
   $.ajax({
     type: params.type || 'get',

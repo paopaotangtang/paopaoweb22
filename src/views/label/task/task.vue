@@ -200,7 +200,6 @@ export default {
         let params = {
           type: 'GET',
           url: this.baseUrl + '/add_task?label_type_id=' + this.labelTypeId,
-          data: {},
           success: (res) => {
             console.log('ok成功了！！！', res)
             this.allProps = res.props

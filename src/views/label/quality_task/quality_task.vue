@@ -79,7 +79,6 @@ export default {
       this.loading = true
       let params = {
         url: this.baseUrl + '/check_task',
-        data: {},
         success: (res) => {
           console.log('这里是返回的真数据', res)
           this.quality_data = res.quality_data
