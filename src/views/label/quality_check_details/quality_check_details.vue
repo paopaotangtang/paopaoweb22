@@ -861,32 +861,22 @@ export default {
           'task_detail_id': this.task_detail_id
         },
         success: (res) => {
-          if (res.status == '该任务已结束') {
-            this.$warning({
-              title: '此任务已完成：',
-              content: '已经没有图片了。',
-              maskClosable: true
-            })
-            this.$router.push({path: '/label/task2'})
-          } else if (res.msg == '没有更多了') {
+          if(res.msg) {
             this.$warning({
               title: '温馨提示：',
               content: res.msg,
               maskClosable: true
             })
-            this.$router.push({
-              path: '/label/quality_user_detail',
-              query: {
-                'task_id': this.task_id,
-                'check_task_id': this.check_task_id
-              }})
-          }else if (res.msg) {
-            this.$warning({
-              title: '温馨提示：',
-              content: res.msg,
-              maskClosable: true
-            })
-          } else {
+            if (res.status == 666) {
+              this.$router.push({
+                path: '/label/quality_user_detail',
+                query: {
+                  'task_id': this.task_id,
+                  'check_task_id': this.check_task_id
+                }
+              })
+            }
+          }else {
             console.log('check_task_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
