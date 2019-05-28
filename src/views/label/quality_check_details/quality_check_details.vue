@@ -858,7 +858,7 @@ export default {
           "quality_user": window.localStorage.getItem('nickname'),
           "check_data_info_type": check_data_info_type,
           'check_task_id': this.$route.query.check_task_id,
-          'task_details_id': this.task_details_id
+          'task_detail_id': this.task_detail_id
         },
         success: (res) => {
           if (res.status == '该任务已结束') {
