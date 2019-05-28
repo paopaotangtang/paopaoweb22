@@ -21,7 +21,7 @@ Vue.prototype.sendAjax = (params) => {
     dataType: 'json',
     contentType: 'application/json',
     async: params.async || true,
-    data: params.type == 'get' || 'GET' ? params.data : JSON.stringify(params.data),
+    data: (params.type == 'get' || params.type == 'GET') ? params.data : JSON.stringify(params.data),
     success: (res) => { params.success(res) },
     error: (err) => { params.error(err) }
   })
