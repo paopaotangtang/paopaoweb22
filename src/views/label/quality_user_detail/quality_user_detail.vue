@@ -63,7 +63,8 @@ export default {
         pageSize: 10
       },
       columns: columns,
-      loading: true
+      loading: true,
+      check_task_id: -1
     }
   },
   beforeCreate () {
@@ -82,7 +83,8 @@ export default {
         query: {
           'task_id': this.$route.query.task_id,
           'date': record.check_date,
-          'label_user': record.label_user
+          'label_user': record.label_user,
+          'check_task_id': this.check_task_id
         }})
     },
     getData (e) {
@@ -99,25 +101,26 @@ export default {
         success: (res) => {
           console.log('这里是返回的真数据', res)
           this.users = res.users
+          this.check_task_id = res.check_task_id
           // 假数据
-          this.users = [
-            {
-              'label_user': 'paopao',
-              'check_num': 12,
-              'total_num': 120,
-              'error_num': 6,
-              'check_date': '2019-05-23',
-              'already_num': 12
-            },
-            {
-              'label_user': 'wangwei',
-              'check_num': 6,
-              'total_num': 58,
-              'error_num': 2,
-              'check_date': '2019-05-23',
-              'already_num': 5
-            }
-          ]
+          // this.users = [
+          //   {
+          //     'label_user': 'paopao',
+          //     'check_num': 12,
+          //     'total_num': 120,
+          //     'error_num': 6,
+          //     'check_date': '2019-05-23',
+          //     'already_num': 12
+          //   },
+          //   {
+          //     'label_user': 'wangwei',
+          //     'check_num': 6,
+          //     'total_num': 58,
+          //     'error_num': 2,
+          //     'check_date': '2019-05-23',
+          //     'already_num': 5
+          //   }
+          // ]
 
           // this.data.forEach(item => {
           //   item.create_time = this.getTime(item.create_time)
