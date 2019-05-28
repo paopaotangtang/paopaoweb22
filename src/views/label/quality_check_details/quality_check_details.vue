@@ -16,17 +16,17 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <a-button type="primary"  v-if="check_data_info_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
-            <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="check_data_info_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
+            <!--<a-button type="primary"  v-if="check_data_info_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>-->
+            <!--<a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="check_data_info_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>-->
           </div>
-          <div>
-            <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
-          </div>
+          <!--<div>-->
+            <!--<a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>-->
+          <!--</div>-->
         </div>
       </div>
 
       <div class="center">
-        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
+        <!--<a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>-->
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -52,9 +52,8 @@
         </table>
       </div>
       <div class="right">
-        <a-button  shape="circle" icon="check" size="large" color="green"/>
-        <a-button type="danger" shape="circle" icon="close" size="large" />
-
+          <a-button  shape="circle" icon="check" class="c-abtn c-green" @click="modifyDetail(1)"/>
+          <a-button type="danger" shape="circle" icon="close" class="c-abtn" @click="modifyDetail(0)"/>
       </div>
     </div>
 </template>
@@ -65,12 +64,14 @@ export default {
   data () {
     return {
       task_id: this.$route.query.task_id,
+      check_task_id: this.$route.query.check_task_id,
       photo_path: '',
       task_detail_id: -1,
       props: [], // 传来的并传回去
       openSpace: false,
       classActive: 'c-span-active',
       check_data_info_type: 1,
+      check_data_info_id: -1,
       qualityLock: false,
       quality_inspection: 0,
       modifyLoading: false,
@@ -105,91 +106,91 @@ export default {
   },
   beforeMount () {
     // 进入页面check_data_info_type ==1,相当于新的一张
-    // this.getDetail(1)
-    let res = {
-      'photo_path': 'http://127.0.0.1:82/static/1/5.jpg',
-      'quality_lock': 0,
-      'quality_inspection': 0,
-      'task_detail_id': 6321,
-      'task_id': 4,
-      'props': [
-        {
-          'prop_id': 11,
-          'prop_name': '衣服',
-          'prop_option_value': 0,
-          'prop_option_value_final': 0,
-          'prop_type': 1,
-          'property_values': [
-            {
-              'option_name': '黄皮',
-              'option_value': 1
-            },
-            {
-              'option_name': '黑皮',
-              'option_value': 2
-            },
-            {
-              'option_name': '白皮',
-              'option_value': 3
-            }
-          ]
-        },
-        {
-          'prop_id': 13,
-          'prop_name': '肤色',
-          'prop_option_value': 0,
-          'prop_option_value_final': 0,
-          'prop_type': 1,
-          'property_values': [
-            {
-              'option_name': '黄',
-              'option_value': 2
-            },
-            {
-              'option_name': '黑',
-              'option_value': 1
-            },
-            {
-              'option_name': '白',
-              'option_value': 3
-            }
-          ]
-        }
-      ]
-    }
-    this.photo_path = res.photo_path
-    this.task_detail_id = res.task_detail_id
-    this.props = res.props
-    this.check_data_info_type = res.check_data_info_type
-    /*eslint-disable*/
-    this.qualityLock = res.quality_lock == 1 ? true : false
-    this.quality_inspection = res.quality_inspection
-    //初始化canvas&&img
-    this.drawOpen = false
-    this.currentFrameId = -1
-    this.origin_w = null
-    this.origin_h = null
-    this.scale = 1 // 放大比例
-    this.trans_x = 0 // x轴相对于scale=1时的移动量，
-    this.trans_y = 0// y轴相对于scale=1时的移动量
-    this.img.src = this.photo_path
-    this.markup = []
-    if(check_data_info_type!=1){//不是新任务，则有画框记录
-      this.props.forEach(item=>{
-        if(item.prop_type==3){
-          // console.log(item.prop_option_value)
-          let pos = item.prop_option_value.split(',')
-          let obj ={
-            prop_id: item.prop_id,
-            sx: pos[0],
-            sy: pos[1],
-            wd: pos[2],
-            ht: pos[3]
-          }
-          this.markup.push(obj)
-        }
-      })
-    }
+    this.getDetail(1)
+    // let res = {
+    //   'photo_path': 'http://127.0.0.1:82/static/1/5.jpg',
+    //   'quality_lock': 0,
+    //   'quality_inspection': 0,
+    //   'task_detail_id': 6321,
+    //   'task_id': 4,
+    //   'props': [
+    //     {
+    //       'prop_id': 11,
+    //       'prop_name': '衣服',
+    //       'prop_option_value': 0,
+    //       'prop_option_value_final': 0,
+    //       'prop_type': 1,
+    //       'property_values': [
+    //         {
+    //           'option_name': '黄皮',
+    //           'option_value': 1
+    //         },
+    //         {
+    //           'option_name': '黑皮',
+    //           'option_value': 2
+    //         },
+    //         {
+    //           'option_name': '白皮',
+    //           'option_value': 3
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       'prop_id': 13,
+    //       'prop_name': '肤色',
+    //       'prop_option_value': 0,
+    //       'prop_option_value_final': 0,
+    //       'prop_type': 1,
+    //       'property_values': [
+    //         {
+    //           'option_name': '黄',
+    //           'option_value': 2
+    //         },
+    //         {
+    //           'option_name': '黑',
+    //           'option_value': 1
+    //         },
+    //         {
+    //           'option_name': '白',
+    //           'option_value': 3
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // }
+    // this.photo_path = res.photo_path
+    // this.task_detail_id = res.task_detail_id
+    // this.props = res.props
+    // this.check_data_info_type = res.check_data_info_type
+    // /*eslint-disable*/
+    // this.qualityLock = res.quality_lock == 1 ? true : false
+    // this.quality_inspection = res.quality_inspection
+    // //初始化canvas&&img
+    // this.drawOpen = false
+    // this.currentFrameId = -1
+    // this.origin_w = null
+    // this.origin_h = null
+    // this.scale = 1 // 放大比例
+    // this.trans_x = 0 // x轴相对于scale=1时的移动量，
+    // this.trans_y = 0// y轴相对于scale=1时的移动量
+    // this.img.src = this.photo_path
+    // this.markup = []
+    // if(check_data_info_type!=1){//不是新任务，则有画框记录
+    //   this.props.forEach(item=>{
+    //     if(item.prop_type==3){
+    //       // console.log(item.prop_option_value)
+    //       let pos = item.prop_option_value.split(',')
+    //       let obj ={
+    //         prop_id: item.prop_id,
+    //         sx: pos[0],
+    //         sy: pos[1],
+    //         wd: pos[2],
+    //         ht: pos[3]
+    //       }
+    //       this.markup.push(obj)
+    //     }
+    //   })
+    // }
   },
   mounted () {
     var _this = this
@@ -693,7 +694,6 @@ export default {
         }
       })
 
-
       // 绑定十字架事件
       cvs.addEventListener('mousemove', function (evt) {
         var x = evt.clientX
@@ -845,6 +845,7 @@ export default {
       } else if (check_data_info_type == 3) {
         this.nextLoading = true
       }
+
       $.ajax({
         type: 'POST',
         url: this.baseUrl + '/check_task_details',
@@ -855,8 +856,9 @@ export default {
           'task_id':  this.$route.query.task_id,
           "date":  this.$route.query.date,
           "label_user": this.$route.query.label_user,
-          "quality_user": window.location.nickname,
-          "check_data_info_type": check_data_info_type
+          "quality_user": window.localStorage.getItem('nickname'),
+          "check_data_info_type": check_data_info_type,
+          'check_task_id': this.$route.query.check_task_id
         }),
         success: (res) => {
           if (res.status == '该任务已结束') {
@@ -866,7 +868,19 @@ export default {
               maskClosable: true
             })
             this.$router.push({path: '/label/task2'})
-          } else if (res.msg) {
+          } else if (res.msg == '没有更多了') {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg,
+              maskClosable: true
+            })
+            this.$router.push({
+              path: '/label/quality_user_detail',
+              query: {
+                'task_id': this.task_id,
+                'check_task_id': this.check_task_id
+              }})
+          }else if (res.msg) {
             this.$warning({
               title: '温馨提示：',
               content: res.msg,
@@ -876,8 +890,10 @@ export default {
             console.log('check_task_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
+            this.task_id  = res.task_id
             this.props = res.props
             this.check_data_info_type = res.check_data_info_type
+            this.check_data_info_id = res.check_data_info_id
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
             this.quality_inspection = res.quality_inspection
@@ -917,31 +933,36 @@ export default {
         }
       })
     },
-    modifyDetail () {
+    modifyDetail (result_status) {
       this.modifyLoading = true
       $.ajax({
         type: 'POST',
-        url: this.baseUrl + '/task/modify_data',
+        url: this.baseUrl + '/modify_check_data',
         dataType: 'json',
         contentType: 'application/json',
         data: JSON.stringify({
           'create_user': window.localStorage.getItem('nickname'),
-          'group_id': window.localStorage.getItem('groupid'),
+          'group_id': parseInt(window.localStorage.getItem('groupid')),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
+          'check_data_info_id':this.check_data_info_id,
           'props': this.props,
-          'check_data_info_type': this.check_data_info_type
+          'check_data_info_type': this.check_data_info_type,
+          'result_status':result_status
 
         }),
         success: (res) => {
           this.modifyLoading = false
           if (res.status == 'success') {
-            this.$success({
-              title: '修改成功：',
-              content: '此数据已保存。',
-              maskClosable: true
-            })
+            console.log('已提交')
+            //调取新的一张
+            this.getDetail(1)
+            // this.$success({
+            //   title: '修改成功：',
+            //   content: '此数据已保存。',
+            //   maskClosable: true
+            // })
           } else if (res.msg) {
             this.$warning({
               title: '温馨提示：',
@@ -1042,10 +1063,31 @@ export default {
     margin-left:50px;
   }
   .center{
-    width: 40%;
+    width: 45%;
   }
   .right{
-    width: 10%;
+    width: 5%;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 200px;
+  }
+  .c-abtn{
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+  }
+  .c-green{
+    border-color: limegreen;
+    color: limegreen;
+    margin-bottom: 20px;
+  }
+  .c-green:hover{
+    color: #fff;
+    background-color: limegreen;
   }
   #myimg{
     width: auto;
@@ -1063,7 +1105,6 @@ export default {
 }
   .left-bottom{
     width: 50%;
-    border-right:1px solid gray;
     text-align: left;
   }
   .red{

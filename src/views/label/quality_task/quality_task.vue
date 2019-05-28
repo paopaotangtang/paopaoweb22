@@ -85,48 +85,48 @@ export default {
           console.log('这里是返回的真数据', res)
           this.quality_data = res.quality_data
           // 假数据
-          this.quality_data = [
-            {
-              'date': '2019-05-14',
-              'check_task_id': 6,
-              'tasks': [
-                {
-                  'check_task_id': 6,
-                  'date': '2019-05-14',
-                  'task_name': '完整的标注测试',
-                  'task_id': 8,
-                  'task_type': '人脸质量标注'
-                },
-                {
-                  'check_task_id': 6,
-                  'date': '2019-05-14',
-                  'task_name': '文本框',
-                  'task_id': 10,
-                  'task_type': '人脸质量标注'
-                },
-                {
-                  'check_task_id': 6,
-                  'date': '2019-05-14',
-                  'task_name': '标记年龄',
-                  'task_id': 11,
-                  'task_type': '人脸质量标注'
-                }
-              ]
-            },
-            {
-              'date': '2019-05-15',
-              'check_task_id': 7,
-              'tasks': [
-                {
-                  'check_task_id': 7,
-                  'date': '2019-05-15',
-                  'task_name': '标记年龄',
-                  'task_id': 11,
-                  'task_type': '人脸质量标注'
-                }
-              ]
-            }
-          ]
+          // this.quality_data = [
+          //   {
+          //     'date': '2019-05-14',
+          //     'check_task_id': 6,
+          //     'tasks': [
+          //       {
+          //         'check_task_id': 6,
+          //         'date': '2019-05-14',
+          //         'task_name': '完整的标注测试',
+          //         'task_id': 8,
+          //         'task_type': '人脸质量标注'
+          //       },
+          //       {
+          //         'check_task_id': 6,
+          //         'date': '2019-05-14',
+          //         'task_name': '文本框',
+          //         'task_id': 10,
+          //         'task_type': '人脸质量标注'
+          //       },
+          //       {
+          //         'check_task_id': 6,
+          //         'date': '2019-05-14',
+          //         'task_name': '标记年龄',
+          //         'task_id': 11,
+          //         'task_type': '人脸质量标注'
+          //       }
+          //     ]
+          //   },
+          //   {
+          //     'date': '2019-05-15',
+          //     'check_task_id': 7,
+          //     'tasks': [
+          //       {
+          //         'check_task_id': 7,
+          //         'date': '2019-05-15',
+          //         'task_name': '标记年龄',
+          //         'task_id': 11,
+          //         'task_type': '人脸质量标注'
+          //       }
+          //     ]
+          //   }
+          // ]
 
           this.quality_data.forEach(item => {
             this.tableData.push(...item.tasks)
