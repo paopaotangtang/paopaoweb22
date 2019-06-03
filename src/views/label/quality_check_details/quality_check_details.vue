@@ -45,7 +45,16 @@
                                 :class="item.prop_option_value!=item.prop_option_value_final&&option.option_value==item.prop_option_value_final?'red':''"
                 >{{option.option_name}}</a-radio-button>
               </a-radio-group>
-              <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
+              <a-tooltip placement="top"  v-if="item.prop_type==2">
+                <template slot="title" v-if="item.prop_option_value_final!=item.prop_option_value">
+                  <span>{{item.prop_option_value}}</span>
+                </template>
+                <a-input :class="item.prop_option_value_final!=item.prop_option_value?'c-diff':''"
+                         @change="onInput(item.prop_id)"
+                         :placeholder="item.prop_option_value_final"
+                         :value="item.prop_option_value_final"/>
+              </a-tooltip>
+              <!--<a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"  :placeholder="item.prop_option_value" :value="item.prop_option_value"/>-->
               <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentFrameId==item.prop_id?'primary':'default'" @click="checkFrame" >画框</a-button>
             </td>
           </tr>
@@ -1089,5 +1098,8 @@ export default {
   .red{
     background: red;
     color:white;
+  }
+  .c-diff{
+    background-color: #ff8940;
   }
 </style>
