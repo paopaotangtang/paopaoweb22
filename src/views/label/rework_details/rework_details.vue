@@ -16,17 +16,17 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <!--<a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>-->
-            <!--<a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>-->
+            <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
           </div>
           <div v-if="detail_type!=1">
-            <a-button type="primary"  @click="getDetail(1)" :loading="saveLoading">回到质检页</a-button>
+            <a-button type="primary"  @click="getDetail(1)" :loading="saveLoading">新的一张</a-button>
           </div>
         </div>
       </div>
 
       <div class="center">
-        <!--<a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>-->
+        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -60,20 +60,17 @@
           </tr>
         </table>
       </div>
-      <div class="right">
-          <a-button  shape="circle" icon="check" class="c-abtn c-green" @click="modifyDetail(1)"/>
-          <a-button type="danger" shape="circle" icon="close" class="c-abtn" @click="modifyDetail(0)"/>
-      </div>
     </div>
 </template>
 <script>
 
 export default {
-  name: 'quality_check_details',
+  name: 'rework_details',
   data () {
     return {
+      rework_id: this.$route.query.rework_id,
       task_id: this.$route.query.task_id,
-      check_task_id: this.$route.query.check_task_id,
+      date: this.$route.query.date,
       photo_path: '',
       task_detail_id: -1,
       props: [], // 传来的并传回去
@@ -864,15 +861,14 @@ export default {
 
       let params = {
         type: 'POST',
-        url: this.baseUrl + '/check_task_details',
+        url: this.baseUrl + '/rework_details',
         async: false,
         data: {
-          'task_id':  this.$route.query.task_id,
-          "date":  this.$route.query.date,
-          "label_user": this.$route.query.label_user,
-          "quality_user": window.localStorage.getItem('nickname'),
+          'rework_id': this.rework_id,
+          'task_id':this.task_id,
+          "date":  this.date,
+          "label_user": window.localStorage.getItem('nickname'),
           "detail_type": detail_type,
-          'check_task_id': this.$route.query.check_task_id,
           'task_detail_id': this.task_detail_id
         },
         success: (res) => {
@@ -884,21 +880,17 @@ export default {
             })
             if (res.status == 666) {
               this.$router.push({
-                path: '/label/quality_user_detail',
-                query: {
-                  'task_id': this.task_id,
-                  'check_task_id': this.check_task_id
-                }
+                path: '/label/rework'
               })
             }
           }else {
-            console.log('check_task_details:',res)
+            console.log('rework_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.task_id  = res.task_id
+            this.rework_id = res.rework_id
             this.props = res.props
             this.detail_type = res.detail_type
-            this.check_data_info_id = res.check_data_info_id
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
             this.quality_inspection = res.quality_inspection

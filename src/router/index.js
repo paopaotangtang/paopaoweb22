@@ -10,6 +10,8 @@ import Attribute from '@/views/label/attribute/attribute'
 import TaskDetails from '@/views/label/task_details/task_details'
 
 import TaskLabel from '@/views/label/task_label/task_label'
+import Rework from '@/views/label/rework/rework'
+import ReworkDetails from '@/views/label/rework_details/rework_details'
 import History from '@/views/label/history/history'
 import Performance from '@/views/label/performance/performance'
 
@@ -69,6 +71,20 @@ const router = new Router({
           groupid: 2
         }
       }, {
+        path: 'rework',
+        name: 'rework',
+        component: Rework,
+        meta: {
+          groupid: 2
+        }
+      }, {
+        path: 'rework_details',
+        name: 'rework_details',
+        component: ReworkDetails,
+        meta: {
+          groupid: 2
+        }
+      },{
         path: 'history',
         name: 'history',
         component: History,
