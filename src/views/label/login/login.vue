@@ -1,6 +1,5 @@
 <template>
   <div class="hello">
-    <header>meto糖糖自用标注系统</header>
     <div class="c-login">
       <a-form
         id="components-form-demo-normal-login"
@@ -119,12 +118,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  header {
-    height: 40px;
-    font: 16px/40px "微软雅黑";
-    background: linear-gradient(right bottom, palevioletred, aquamarine);
-    color: white;
-  }
+
   .c-login {
     width: 300px;
     height: 300px;

@@ -16,12 +16,12 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <!--<a-button type="primary"  v-if="check_data_info_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>-->
-            <!--<a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="check_data_info_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>-->
+            <!--<a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>-->
+            <!--<a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>-->
           </div>
-          <!--<div>-->
-            <!--<a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>-->
-          <!--</div>-->
+          <div v-if="detail_type!=1">
+            <a-button type="primary"  @click="getDetail(1)" :loading="saveLoading">回到质检页</a-button>
+          </div>
         </div>
       </div>
 
@@ -70,7 +70,7 @@ export default {
       props: [], // 传来的并传回去
       openSpace: false,
       classActive: 'c-span-active',
-      check_data_info_type: 1,
+      detail_type: 1,
       check_data_info_id: -1,
       qualityLock: false,
       quality_inspection: 0,
@@ -105,7 +105,7 @@ export default {
     }
   },
   beforeMount () {
-    // 进入页面check_data_info_type ==1,相当于新的一张
+    // 进入页面detail_type ==1,相当于新的一张
     this.getDetail(1)
     // let res = {
     //   'photo_path': 'http://127.0.0.1:82/static/1/5.jpg',
@@ -161,7 +161,7 @@ export default {
     // this.photo_path = res.photo_path
     // this.task_detail_id = res.task_detail_id
     // this.props = res.props
-    // this.check_data_info_type = res.check_data_info_type
+    // this.detail_type = res.detail_type
     // /*eslint-disable*/
     // this.qualityLock = res.quality_lock == 1 ? true : false
     // this.quality_inspection = res.quality_inspection
@@ -175,7 +175,7 @@ export default {
     // this.trans_y = 0// y轴相对于scale=1时的移动量
     // this.img.src = this.photo_path
     // this.markup = []
-    // if(check_data_info_type!=1){//不是新任务，则有画框记录
+    // if(detail_type!=1){//不是新任务，则有画框记录
     //   this.props.forEach(item=>{
     //     if(item.prop_type==3){
     //       // console.log(item.prop_option_value)
@@ -840,11 +840,13 @@ export default {
       //   return
       // }
     },
-    getDetail (check_data_info_type) {
-      if (check_data_info_type == 2) {
+    getDetail (detail_type) {
+      if (detail_type == 2) {
         this.lastLoading = true
-      } else if (check_data_info_type == 3) {
+      } else if (detail_type == 3) {
         this.nextLoading = true
+      }else{
+        this.saveLoading = true
       }
 
       let params = {
@@ -856,7 +858,7 @@ export default {
           "date":  this.$route.query.date,
           "label_user": this.$route.query.label_user,
           "quality_user": window.localStorage.getItem('nickname'),
-          "check_data_info_type": check_data_info_type,
+          "detail_type": detail_type,
           'check_task_id': this.$route.query.check_task_id,
           'task_detail_id': this.task_detail_id
         },
@@ -882,7 +884,7 @@ export default {
             this.task_detail_id = res.task_detail_id
             this.task_id  = res.task_id
             this.props = res.props
-            this.check_data_info_type = res.check_data_info_type
+            this.detail_type = res.detail_type
             this.check_data_info_id = res.check_data_info_id
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
@@ -897,7 +899,7 @@ export default {
             this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
             this.markup = []
-            if(check_data_info_type!=1){//不是新任务，则有画框记录
+            if(detail_type!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   // console.log(item.prop_option_value)
@@ -938,15 +940,18 @@ export default {
           'task_detail_id': this.task_detail_id,
           'check_data_info_id':this.check_data_info_id,
           'props': this.props,
-          'check_data_info_type': this.check_data_info_type,
+          'detail_type': this.detail_type,
           'result_status':result_status
         },
         success: (res) => {
           this.modifyLoading = false
           if (res.status == 'success') {
             console.log('已提交')
-            //调取新的一张
-            this.getDetail(1)
+            //如果是质检新的，调取新的一张，与查看历史的对错不获取新的只保存
+            if(this.detail_type == 1){
+              this.getDetail(1)
+            }
+
             // this.$success({
             //   title: '修改成功：',
             //   content: '此数据已保存。',
@@ -958,35 +963,6 @@ export default {
               content: res.msg,
               maskClosable: true
             })
-          }
-        },
-        error: function (err) {
-          console.log('error!', err)
-        }
-      }
-      this.sendAjax(params)
-    },
-    saveData (check_data_info_type) {
-      this.saveLoading = true
-      if (this.check_data_info_type !== 1) {
-        this.getDetail(1)
-        return
-      }
-      let params = {
-        type: 'POST',
-        url: this.baseUrl + '/task/save_data',
-        data: {
-          'create_user': window.localStorage.getItem('nickname'),
-          'group_id': window.localStorage.getItem('groupid'),
-          'photo_path': this.photo_path,
-          'task_id': this.task_id,
-          'task_detail_id': this.task_detail_id,
-          'props': this.props
-        },
-        success: (res) => {
-          if (res.status == 'success') {
-            this.saveLoading = false
-            this.getDetail(1)
           }
         },
         error: function (err) {
@@ -1065,14 +1041,14 @@ export default {
     font-size: 200px;
   }
   .c-abtn{
-    width: 50px;
-    height: 50px;
-    font-size: 30px;
+    width: 80px;
+    height: 80px;
+    font-size: 50px;
   }
   .c-green{
     border-color: limegreen;
     color: limegreen;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
   }
   .c-green:hover{
     color: #fff;

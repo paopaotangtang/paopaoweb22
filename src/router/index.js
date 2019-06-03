@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/views/home/home'
 import Label from '@/views/label/label'
 import Login from '@/views/label/login/login'
 import Register from '@/views/register/register'
@@ -28,8 +27,8 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
+      name: 'login',
+      component: Login
     }, {
       path: '/login', // 默认子路由
       name: 'login',
@@ -133,8 +132,8 @@ const router = new Router({
       component: Register
     }, {
       path: '*',
-      name: 'home',
-      component: Home
+      name: 'login',
+      component: Login
     }
   ]
 })

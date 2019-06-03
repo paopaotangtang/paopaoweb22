@@ -1,6 +1,5 @@
 <template>
   <div class="hello">
-    <header>meto糖糖自用标注系统</header>
     <ul class="c-label-nav">
       <!--1.管理员2.标注员2.质检员-->
       <template v-if="groupId==1">
@@ -62,12 +61,7 @@ export default {
     width: 100%;
     height: 100%;
   }
-  header {
-    height: 40px;
-    font: 16px/40px "微软雅黑";
-    background: linear-gradient(right bottom, palevioletred, aquamarine);
-    color: white;
-  }
+
    a{
      text-underline: none;
      color: white;

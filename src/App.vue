@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <header>标注系统</header>
     <router-view></router-view>
   </div>
 </template>
@@ -24,6 +25,13 @@ export default {
     text-align: center;
     width: 100%;
     height: 100%;
+  }
+  header {
+    height: 60px;
+    font: 16px/60px "微软雅黑";
+    /*background: linear-gradient(right bottom, palevioletred, aquamarine);*/
+    background: rgba(41, 109, 202, 0.48);
+    color: white;
   }
   li{
     padding: 0;
