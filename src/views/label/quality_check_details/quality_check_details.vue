@@ -754,7 +754,8 @@ export default {
     onInput (id) {
       this.props.forEach(item => {
         if (item.prop_id == id) {
-          item.prop_option_value = event.target.value
+          item.prop_option_value = event.target.value,
+          item.prop_option_value_final = event.target.value
         }
       })
     },
@@ -899,22 +900,35 @@ export default {
             this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
             this.markup = []
-            if(detail_type!=1){//不是新任务，则有画框记录
+            // if(detail_type!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   // console.log(item.prop_option_value)
                   let pos = item.prop_option_value.split(',')
                   let obj ={
                     prop_id: item.prop_id,
+                    color:'green',
                     sx: pos[0],
                     sy: pos[1],
                     wd: pos[2],
                     ht: pos[3]
                   }
                   this.markup.push(obj)
+                  if( item.prop_option_value != item.prop_option_value_final){
+                    let posFinal = item.prop_option_value_final.split(',')
+                    let objFinal = {
+                      prop_id: item.prop_id,
+                      color:'red',
+                      sx: posFinal[0],
+                      sy: posFinal[1],
+                      wd: posFinal[2],
+                      ht: posFinal[3]
+                    }
+                    this.markup.push(objFinal)
+                  }
                 }
               })
-            }
+            // }
           }
           this.lastLoading = false
           this.nextLoading = false
@@ -1048,7 +1062,7 @@ export default {
   .c-green{
     border-color: limegreen;
     color: limegreen;
-    margin-bottom: 40px;
+    margin-bottom: 200px;
   }
   .c-green:hover{
     color: #fff;
