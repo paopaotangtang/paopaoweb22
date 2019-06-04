@@ -854,7 +854,7 @@ export default {
               maskClosable: true
             })
             if (res.status == 666) {
-              this.$router.push({path: '/label/task2'})
+              this.$router.push({path: '/label/task_label'})
             }
           }else {
             this.photo_path = res.photo_path
