@@ -84,7 +84,7 @@ const router = new Router({
         meta: {
           groupid: 2
         }
-      },{
+      }, {
         path: 'history',
         name: 'history',
         component: History,

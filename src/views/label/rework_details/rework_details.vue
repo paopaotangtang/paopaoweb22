@@ -16,11 +16,11 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail(4,1)" :loading="modifyLoading">确认修改</a-button>
             <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
           </div>
-          <div v-if="detail_type!=1">
-            <a-button type="primary"  @click="getDetail(1)" :loading="saveLoading">新的一张</a-button>
+          <div >
+            <a-button type="primary"  @click="modifyDetail(4,0)" :loading="saveLoading">新的一张</a-button>
           </div>
         </div>
       </div>
@@ -934,6 +934,7 @@ export default {
               })
             // }
           }
+          this.modifyLoading = false
           this.lastLoading = false
           this.nextLoading = false
           this.saveLoading = false
@@ -945,49 +946,50 @@ export default {
       this.sendAjax(params)
 
     },
-    modifyDetail (result_status) {
-      this.modifyLoading = true
-      let params = {
-        type: 'POST',
-        url: this.baseUrl + '/modify_check_data',
-        data: {
-          'create_user': window.localStorage.getItem('nickname'),
-          'group_id': parseInt(window.localStorage.getItem('groupid')),
-          'photo_path': this.photo_path,
-          'task_id': this.task_id,
-          'task_detail_id': this.task_detail_id,
-          'check_data_info_id':this.check_data_info_id,
-          'props': this.props,
-          'detail_type': this.detail_type,
-          'result_status':result_status
-        },
-        success: (res) => {
-          this.modifyLoading = false
-          if (res.status == 'success') {
-            console.log('已提交')
-            //如果是质检新的，调取新的一张，与查看历史的对错不获取新的只保存
-            if(this.detail_type == 1){
+    modifyDetail (detail_type,warn) {//返工这里detail_type传4，实际还是1
+      if(this.qualityLock){
+        this.getDetail(1)
+        return
+      }else{
+        this.modifyLoading = true
+        let params = {
+          type: 'POST',
+          url: this.baseUrl + '/task/modify_data',
+          data: {
+            'create_user': window.localStorage.getItem('nickname'),
+            'group_id': window.localStorage.getItem('groupid'),
+            'photo_path': this.photo_path,
+            'task_id': this.task_id,
+            'task_detail_id': this.task_detail_id,
+            'props': this.props,
+            'detail_type': detail_type//4
+            // 'check_data_info_id':this.check_data_info_id,
+          },
+          success: (res) => {
+            if (res.status == 'success') {
+              if(warn==1){
+                this.$success({
+                  title: '修改成功：',
+                  content: '此数据已保存。',
+                  maskClosable: true
+                })
+              }
               this.getDetail(1)
+            } else if (res.msg) {
+              this.$warning({
+                title: '温馨提示：',
+                content: res.msg,
+                maskClosable: true
+              })
             }
-
-            // this.$success({
-            //   title: '修改成功：',
-            //   content: '此数据已保存。',
-            //   maskClosable: true
-            // })
-          } else if (res.msg) {
-            this.$warning({
-              title: '温馨提示：',
-              content: res.msg,
-              maskClosable: true
-            })
+          },
+          error: function (err) {
+            console.log('error!', err)
           }
-        },
-        error: function (err) {
-          console.log('error!', err)
         }
+        this.sendAjax(params)
       }
-      this.sendAjax(params)
+
     }
 
   }
