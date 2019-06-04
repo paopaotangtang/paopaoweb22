@@ -474,7 +474,7 @@ export default {
 
     // 给画布添加上一些操作事件
     function bindEvent () {
-      console.log('bind事件')
+      // console.log('bind事件')
       // 鼠标的滚轮事件兼容
       var wheelname = navigator.userAgent.indexOf('Firefox') > 0 ? 'DOMMouseScroll' : 'mousewheel'
       cvs.addEventListener(wheelname, function (evt) {
@@ -574,7 +574,7 @@ export default {
           })
 
           _this.markup.push(mk_dt)
-          console.log(_this.markup)
+          // console.log(_this.markup)
           mk_move = false
         }
       })
@@ -884,11 +884,10 @@ export default {
               })
             }
           }else {
-            console.log('rework_details:',res)
+            // console.log('rework_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.task_id  = res.task_id
-            this.rework_id = res.rework_id
             this.props = res.props
             this.detail_type = res.detail_type
             /*eslint-disable*/
