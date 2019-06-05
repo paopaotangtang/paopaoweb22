@@ -14,8 +14,8 @@
         <span slot="create_time" >create_time</span>
         <span slot="difficult_num" >difficult_num</span>
         <span slot="is_complete" >is_complete</span>
-        <span slot="action" >
-           <a-button type="primary"  @click="look" >待定</a-button>
+        <span slot="action" slot-scope="text,record">
+           <a-button type="primary"  @click="toExport(record)" >导出</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
@@ -142,7 +142,8 @@ export default {
       labelTypeId: 1,
       checked: true,
       visible: false,
-      confirmLoading: false
+      confirmLoading: false,
+      href: ''
     }
   },
   beforeCreate () {
@@ -154,7 +155,43 @@ export default {
   mounted () {
   },
   methods: {
-    look (e) {
+    toExport (record) {
+      let params = {
+        type: 'post',
+        url: this.baseUrl + '/task/export_data',
+        data: {
+          // 'task_id': record.task_id
+          task_id: 9
+        },
+        success: (res) => {
+          console.log('这里是返回的真数据', res)
+          if (res.msg) {
+            this.$warning({
+              title: '温馨提示',
+              content: res.msg,
+              maskClosable: true
+            })
+          } else {
+            var a = document.createElement('a')// 生成一个a元素
+            a.download = 'xixi.log' // 设置图片名称
+            a.target = '_blank'
+            a.href = this.baseUrl + res.path // 将生成的URL设置为a.href属性
+            console.log(a.href)
+            var event = new MouseEvent('click', {
+              view: window,
+              bubbles: true,
+              cancelable: true
+            })
+            var b = a.dispatchEvent(event) // 触发a的单击事件IE下使用fireEvent    高级浏览器下使用dispatchEvent
+            console.log(b) // true
+          }
+          // 假数据
+        },
+        error: function (err) {
+          console.log('error!', err)
+        }
+      }
+      this.sendAjax(params)
     },
     initModal () {
       this.step = 1
