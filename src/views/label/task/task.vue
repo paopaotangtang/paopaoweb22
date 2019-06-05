@@ -160,8 +160,8 @@ export default {
         type: 'post',
         url: this.baseUrl + '/task/export_data',
         data: {
-          // 'task_id': record.task_id
-          task_id: 9
+          'task_id': record.task_id
+          // task_id: 9
         },
         success: (res) => {
           console.log('这里是返回的真数据', res)
@@ -173,17 +173,15 @@ export default {
             })
           } else {
             var a = document.createElement('a')// 生成一个a元素
-            a.download = 'xixi.log' // 设置图片名称
+            a.download = record.task_name // 设置图片名称
             a.target = '_blank'
             a.href = this.baseUrl + res.path // 将生成的URL设置为a.href属性
-            console.log(a.href)
             var event = new MouseEvent('click', {
               view: window,
               bubbles: true,
               cancelable: true
             })
-            var b = a.dispatchEvent(event) // 触发a的单击事件IE下使用fireEvent    高级浏览器下使用dispatchEvent
-            console.log(b) // true
+            a.dispatchEvent(event) // 触发a的单击事件IE下使用fireEvent    高级浏览器下使用dispatchEvent
           }
           // 假数据
         },
