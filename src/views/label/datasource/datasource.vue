@@ -148,7 +148,8 @@ export default {
         error: function (err) {
           this.$error({
             title: '失败',
-            content: err
+            content: err,
+            maskClosable: true
           })
           console.log('error!', err)
         }
@@ -180,7 +181,8 @@ export default {
         error: function (err) {
           this.$error({
             title: '创建失败',
-            content: err
+            content: err,
+            maskClosable: true
           })
           console.log('error!', err)
         }

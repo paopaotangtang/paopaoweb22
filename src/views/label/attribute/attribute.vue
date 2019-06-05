@@ -287,7 +287,8 @@ export default {
         error: (err) => {
           this.$error({
             title: '创建失败',
-            content: err.statusText
+            content: err.statusText,
+            maskClosable: true
           })
         }
       }

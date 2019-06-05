@@ -116,20 +116,23 @@ export default {
                 console.log('返回了', res)
                 this.$success({
                   title: '注册成功',
-                  content: '您已注册，请登录'
+                  content: '您已注册，请登录',
+                  maskClosable: true
                 })
                 this.$router.push({path: '/login'})
               } else if (res.status === 'fail') {
                 this.$error({
                   title: '注册失败',
-                  content: res.msg
+                  content: res.msg,
+                  maskClosable: true
                 })
               }
             },
             error: (err) => {
               this.$error({
                 title: '注册失败',
-                content: err
+                content: err,
+                maskClosable: true
               })
             }
           }

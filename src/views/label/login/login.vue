@@ -88,7 +88,8 @@ export default {
                 window.localStorage.setItem('nickname', res.nickname)
                 this.$success({
                   title: '登陆成功',
-                  content: res.msg
+                  content: res.msg,
+                  maskClosable: true
                 })
                 if (res.groupid == 1) {
                   this.$router.push('/label/task')
@@ -100,7 +101,8 @@ export default {
               } else if (res.code === 250) {
                 this.$error({
                   title: '登录失败',
-                  content: res.msg
+                  content: res.msg,
+                  maskClosable: true
                 })
               }
             },

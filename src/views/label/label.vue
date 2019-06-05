@@ -48,7 +48,8 @@ export default {
       localStorage.removeItem('nickname')
       this.$success({
         title: '提示',
-        content: '退出成功'
+        content: '退出成功',
+        maskClosable: true
       })
       this.$router.push({path: '/login'})
     }
