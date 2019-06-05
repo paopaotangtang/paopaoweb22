@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+    <header>标注系统</header>
     <h1>注册账号之后您就可以畅游本网站了哦ヾ(◍°∇°◍)ﾉﾞ</h1>
     <div class="c-login">
       <a-form
@@ -161,6 +162,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  header {
+    height: 60px;
+    font: 16px/60px "微软雅黑";
+    /*background: linear-gradient(right bottom, palevioletred, aquamarine);*/
+    background: rgba(41, 109, 202, 0.48);
+    color: white;
+  }
   h1{
     padding: 20px;
   }

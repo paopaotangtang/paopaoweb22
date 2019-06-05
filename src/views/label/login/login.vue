@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+    <header>标注系统</header>
     <div class="c-login">
       <a-form
         id="components-form-demo-normal-login"
@@ -118,7 +119,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+  header {
+    height: 60px;
+    font: 16px/60px "微软雅黑";
+    /*background: linear-gradient(right bottom, palevioletred, aquamarine);*/
+    background: rgba(41, 109, 202, 0.48);
+    color: white;
+  }
   .c-login {
     width: 300px;
     height: 300px;

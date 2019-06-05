@@ -249,7 +249,7 @@ export default {
           maskClosable: true
         })
         return
-      } else if (this.modalObj.propertyValues.some(item => { return item.option_value == '' || item.option_name == '' })) {
+      } else if (this.modalObj.propertyValues.some(item => { return item.option_value === '' || item.option_name === '' })) {
         // propertyValues
         this.$warning({
           title: '有的选项不完整',
