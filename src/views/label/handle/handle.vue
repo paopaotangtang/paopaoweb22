@@ -38,6 +38,13 @@ export default {
         },
         success: (res) => {
           console.log(res)
+          if (res.msg) {
+            this.$success({
+              title: '提示',
+              content: res.msg,
+              maskClosable: true
+            })
+          }
           this.loading = false
         },
         error: (err) => {
