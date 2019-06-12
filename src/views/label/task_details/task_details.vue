@@ -939,6 +939,7 @@ export default {
     },
     saveData (detailType) {
       this.saveLoading = true
+      event.target.blur()
       if (this.detail_type !== 1) {
         this.getDetail(1)
         return
