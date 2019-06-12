@@ -72,6 +72,7 @@ export default {
     height: 60px;
     font: 16px/60px "微软雅黑";
     background: rgba(74, 142, 202, 0.48);
+    background: linear-gradient(to right, #98F5FF, #76EEC6);
     color: white;
   }
   .c-label-nav li{

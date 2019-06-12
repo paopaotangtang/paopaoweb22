@@ -167,9 +167,8 @@ export default {
 <style scoped>
   header {
     height: 60px;
-    font: 30px/60px "华文行楷";
-    font-weight: bold;
-    background: linear-gradient(to right, #98FB98, #76EEC6);
+    font: 35px/60px "华文行楷";
+    background: linear-gradient(to right, #98F5FF, #76EEC6);
     color: rgba(0, 0, 0, 0.76);
   }
   h1{
@@ -178,7 +177,7 @@ export default {
   .c-login {
     width: 400px;
     height:420px;
-    background: linear-gradient(to bottom, #FFE4B5, #76EEC6);
+    background: linear-gradient(to bottom, #98F5FF, #76EEC6);
     border-radius: 50px;
     border: 4px solid #000000;
     margin: 50px auto 0;
