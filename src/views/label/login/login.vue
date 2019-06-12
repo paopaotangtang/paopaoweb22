@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <header>标注系统</header>
+    <header>标 注 系 统</header>
     <div class="c-login">
       <a-form
         id="components-form-demo-normal-login"
@@ -32,14 +32,8 @@
           </a-input>
         </a-form-item>
         <a-form-item>
-          <a-checkbox
-            v-decorator="['remember',{
-            valuePropName: 'checked',
-            initialValue: true,
-          }]">记住我
-          </a-checkbox>
           <router-link class="login-form-forgot" to="/register">
-            注册
+            没有账号？立即注册
           </router-link>
           <br>
           <a-button
@@ -121,21 +115,25 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
   header {
     height: 60px;
-    font: 16px/60px "微软雅黑";
-    /*background: linear-gradient(right bottom, palevioletred, aquamarine);*/
-    background: rgba(41, 109, 202, 0.48);
-    color: white;
+    font: 30px/60px "华文行楷";
+    font-weight: bold;
+    background: linear-gradient(to right, #98FB98, #76EEC6);
+    color: rgba(0, 0, 0, 0.76);
   }
   .c-login {
     width: 300px;
     height: 300px;
-    background: linear-gradient(bottom right, rgba(137, 174, 80, 0.39), rgba(85, 14, 50, 0.39));
+    background: linear-gradient(to bottom, #FFE4B5, #76EEC6);
     border-radius: 50px;
-    border: 4px solid #000000;
+    border: 4px solid #000;
     margin: 15% auto 0;
     padding: 30px;
+  }
+  .c-remember{
+    color: #1890ff;
   }
 
 </style>

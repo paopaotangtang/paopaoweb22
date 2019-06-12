@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <header>标注系统</header>
+    <header>标 注 系 统</header>
     <h1>注册账号之后您就可以畅游本网站了哦ヾ(◍°∇°◍)ﾉﾞ</h1>
     <div class="c-login">
       <a-form
@@ -167,10 +167,10 @@ export default {
 <style scoped>
   header {
     height: 60px;
-    font: 16px/60px "微软雅黑";
-    /*background: linear-gradient(right bottom, palevioletred, aquamarine);*/
-    background: rgba(41, 109, 202, 0.48);
-    color: white;
+    font: 30px/60px "华文行楷";
+    font-weight: bold;
+    background: linear-gradient(to right, #98FB98, #76EEC6);
+    color: rgba(0, 0, 0, 0.76);
   }
   h1{
     padding: 20px;
@@ -178,7 +178,7 @@ export default {
   .c-login {
     width: 400px;
     height:420px;
-    background: linear-gradient(bottom right, rgba(170, 136, 174, 0.39), rgba(135, 0, 103, 0.3));
+    background: linear-gradient(to bottom, #FFE4B5, #76EEC6);
     border-radius: 50px;
     border: 4px solid #000000;
     margin: 50px auto 0;
