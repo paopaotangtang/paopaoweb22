@@ -958,6 +958,13 @@ export default {
         success: (res) => {
           if (res.status == 'success') {
             this.getDetail(1)
+          }else if (res.msg) {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg,
+              maskClosable: true
+            })
+            this.getDetail(1)
           }
         },
         error: function (err) {
