@@ -79,7 +79,7 @@ export default {
   ul.c-label-nav .c-icon{
     position: absolute;
     left: 50px;
-    font: 30px/60px "华文行楷";
+    font: 30px/60px "STXingkai";
     color: rgba(0, 0, 0, 0.76);
   }
   .c-label-nav li{

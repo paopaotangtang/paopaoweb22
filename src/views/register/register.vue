@@ -167,7 +167,7 @@ export default {
 <style scoped>
   header {
     height: 60px;
-    font: 35px/60px "华文行楷";
+    font: 35px/60px "STXingkai";
     background: linear-gradient(to right, #98F5FF, #76EEC6);
     color: rgba(0, 0, 0, 0.76);
   }
