@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
     <ul class="c-label-nav">
+      <!--<li class="c-icon">标注系统</li>-->
       <!--1.管理员2.标注员2.质检员-->
       <template v-if="groupId==1">
         <li class="c-user">当前用户：{{nickname}}（管理员）</li>
@@ -75,6 +76,12 @@ export default {
     background: linear-gradient(to right, #98F5FF, #76EEC6);
     color: white;
   }
+  ul.c-label-nav .c-icon{
+    position: absolute;
+    left: 50px;
+    font: 30px/60px "华文行楷";
+    color: rgba(0, 0, 0, 0.76);
+  }
   .c-label-nav li{
     display: inline-block;
     padding: 0 20px;
@@ -85,7 +92,7 @@ export default {
     background: #65ae7e;
   }
   .c-label-nav .c-user{
-    color: gray;
+    color:  rgba(0, 0, 0, 0.76);
   }
   .c-label-nav .c-user:hover{
     background: none;
