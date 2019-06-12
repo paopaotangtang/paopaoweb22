@@ -957,7 +957,6 @@ export default {
         },
         success: (res) => {
           if (res.status == 'success') {
-            this.saveLoading = false
             this.getDetail(1)
           }
         },
