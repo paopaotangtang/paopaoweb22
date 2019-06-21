@@ -607,8 +607,10 @@ export default {
           _this.polygon.forEach(item => {
             _this.props.forEach(prop => {
               if (item.prop_id == prop.prop_id) {//meto:这个points！！！
-                prop.prop_option_value = item.points
-                prop.prop_option_value_final = item.points
+                // prop.prop_option_value = item.points
+                // prop.prop_option_value_final = item.points
+                prop.prop_option_value = JSON.stringify(item.points)
+                prop.prop_option_value_final = JSON.stringify(item.points)
               }
             })
           })
@@ -833,17 +835,23 @@ export default {
                   }
                   this.markup.push(obj)
                 }
-                // if(item.prop_type==4){
-                //   // console.log(item.prop_option_value)
-                //   let pos = item.prop_option_value.split(',')
-                //   let poly ={
-                //     prop_id: item.prop_id,
-                //     points: pos[0],
-                //     cp: pos[1],
-                //     prod_id: pos[2]
-                //   }
-                //   this.polygon.push(poly)
-                // }
+                if(item.prop_type==4){
+                  // console.log(item.prop_option_value)
+                  let value = item.prop_option_value;
+                  let arr = JSON.parse(value)
+                  console.log('value:',arr)
+
+                  let value2 = JSON.parse(value)
+                  console.log('value2',value2)
+                  // let pos = item.prop_option_value.split(',')
+                  // let poly ={
+                  //   prop_id: item.prop_id,
+                  //   points: pos[0],
+                  //   cp: pos[1],
+                  //   prod_id: pos[2]
+                  // }
+                  // this.polygon.push(poly)
+                }
                 //==4
               })
             }
@@ -900,7 +908,7 @@ export default {
       console.log('markup',this.markup)
       console.log('polygon',this.polygon)
       console.log("准备保存，弹出",this.props)
-      return  //meto :here!!释放拦截
+      // return  //meto :here!!释放拦截
       this.saveLoading = true
       event.target.blur()
       if (this.detail_type !== 1) {
