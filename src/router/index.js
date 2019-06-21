@@ -8,6 +8,7 @@ import Task from '@/views/label/task/task'
 import DataSource from '@/views/label/datasource/datasource'
 import Attribute from '@/views/label/attribute/attribute'
 import TaskDetails from '@/views/label/task_details/task_details'
+import TaskDetailsLine from '@/views/label/task_details/task_details_line'
 
 import TaskLabel from '@/views/label/task_label/task_label'
 import Rework from '@/views/label/rework/rework'
@@ -102,6 +103,13 @@ const router = new Router({
         path: 'task_details',
         name: 'task_details',
         component: TaskDetails,
+        meta: {
+          groupid: 2
+        }
+      }, {
+        path: 'task_details_line',
+        name: 'task_details_line',
+        component: TaskDetailsLine,
         meta: {
           groupid: 2
         }

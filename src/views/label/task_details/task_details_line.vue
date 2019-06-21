@@ -16,17 +16,17 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
-            <!--<a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>-->
-            <!--<a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>-->
+            <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
+            <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
           </div>
-          <div v-if="detail_type!=1">
-            <a-button type="primary"  @click="getDetail(1)" :loading="saveLoading">回到质检页</a-button>
+          <div>
+            <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
           </div>
         </div>
       </div>
 
-      <div class="center">
-        <!--<a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>-->
+      <div class="right">
+        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -45,50 +45,36 @@
                                 :class="item.prop_option_value!=item.prop_option_value_final&&option.option_value==item.prop_option_value_final?'red':''"
                 >{{option.option_name}}</a-radio-button>
               </a-radio-group>
-              <a-tooltip placement="top"  v-if="item.prop_type==2">
-                <template slot="title" v-if="item.prop_option_value_final!=item.prop_option_value">
-                  <span>{{item.prop_option_value}}</span>
-                </template>
-                <a-input :class="item.prop_option_value_final!=item.prop_option_value?'c-diff':''"
-                         @change="onInput(item.prop_id)"
-                         :placeholder="item.prop_option_value_final"
-                         :value="item.prop_option_value_final"/>
-              </a-tooltip>
-              <!--<a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"  :placeholder="item.prop_option_value" :value="item.prop_option_value"/>-->
+              <a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"   :placeholder="item.prop_option_value" :value="item.prop_option_value"/>
               <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentFrameId==item.prop_id?'primary':'default'" @click="checkFrame" >画框</a-button>
+              <a-button v-if="item.prop_type==4" :id="item.prop_id" :type="currentPolygonId==item.prop_id?'primary':'default'" @click="checkPolygon" >多边形</a-button>
             </td>
           </tr>
         </table>
-      </div>
-      <div class="right">
-          <a-button  shape="circle" icon="check" class="c-abtn c-green" @click="modifyDetail(1)"/>
-          <a-button type="danger" shape="circle" icon="close" class="c-abtn" @click="modifyDetail(0)"/>
       </div>
     </div>
 </template>
 <script>
 
 export default {
-  name: 'quality_check_details',
+  name: 'task_details',
   data () {
     return {
       task_id: this.$route.query.task_id,
-      check_task_id: this.$route.query.check_task_id,
       photo_path: '',
       task_detail_id: -1,
       props: [], // 传来的并传回去
       openSpace: false,
       classActive: 'c-span-active',
       detail_type: 1,
-      check_data_info_id: -1,
       qualityLock: false,
-      quality_inspection: 0,
       modifyLoading: false,
       lastLoading: false,
       nextLoading: false,
       saveLoading: false,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
+      currentPolygonId: -1, // 当前多边形属性
       drawOpen: false, // 打开画框
       img: new Image(),
       markup: [], // 用来存放标注的数据
@@ -116,90 +102,6 @@ export default {
   beforeMount () {
     // 进入页面detail_type ==1,相当于新的一张
     this.getDetail(1)
-    // let res = {
-    //   'photo_path': 'http://127.0.0.1:82/static/1/5.jpg',
-    //   'quality_lock': 0,
-    //   'quality_inspection': 0,
-    //   'task_detail_id': 6321,
-    //   'task_id': 4,
-    //   'props': [
-    //     {
-    //       'prop_id': 11,
-    //       'prop_name': '衣服',
-    //       'prop_option_value': 0,
-    //       'prop_option_value_final': 0,
-    //       'prop_type': 1,
-    //       'property_values': [
-    //         {
-    //           'option_name': '黄皮',
-    //           'option_value': 1
-    //         },
-    //         {
-    //           'option_name': '黑皮',
-    //           'option_value': 2
-    //         },
-    //         {
-    //           'option_name': '白皮',
-    //           'option_value': 3
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       'prop_id': 13,
-    //       'prop_name': '肤色',
-    //       'prop_option_value': 0,
-    //       'prop_option_value_final': 0,
-    //       'prop_type': 1,
-    //       'property_values': [
-    //         {
-    //           'option_name': '黄',
-    //           'option_value': 2
-    //         },
-    //         {
-    //           'option_name': '黑',
-    //           'option_value': 1
-    //         },
-    //         {
-    //           'option_name': '白',
-    //           'option_value': 3
-    //         }
-    //       ]
-    //     }
-    //   ]
-    // }
-    // this.photo_path = res.photo_path
-    // this.task_detail_id = res.task_detail_id
-    // this.props = res.props
-    // this.detail_type = res.detail_type
-    // /*eslint-disable*/
-    // this.qualityLock = res.quality_lock == 1 ? true : false
-    // this.quality_inspection = res.quality_inspection
-    // //初始化canvas&&img
-    // this.drawOpen = false
-    // this.currentFrameId = -1
-    // this.origin_w = null
-    // this.origin_h = null
-    // this.scale = 1 // 放大比例
-    // this.trans_x = 0 // x轴相对于scale=1时的移动量，
-    // this.trans_y = 0// y轴相对于scale=1时的移动量
-    // this.img.src = this.photo_path
-    // this.markup = []
-    // if(detail_type!=1){//不是新任务，则有画框记录
-    //   this.props.forEach(item=>{
-    //     if(item.prop_type==3){
-    //       // console.log(item.prop_option_value)
-    //       let pos = item.prop_option_value.split(',')
-    //       let obj ={
-    //         prop_id: item.prop_id,
-    //         sx: pos[0],
-    //         sy: pos[1],
-    //         wd: pos[2],
-    //         ht: pos[3]
-    //       }
-    //       this.markup.push(obj)
-    //     }
-    //   })
-    // }
   },
   mounted () {
     /*eslint-disable*/
@@ -211,6 +113,12 @@ export default {
     var wd = cvs.offsetWidth
     var ht = cvs.offsetHeight
 
+    // 保存图片的原始宽高数据,绑定在vue上
+    // var origin_w = null
+    // var origin_h = null
+    // var scale = 1 // 放大比例
+    // var trans_x = 0 // x轴相对于scale=1时的移动量，
+    // var trans_y = 0// y轴相对于scale=1时的移动量
     // 加载图片
     this.img.src = this.photo_path
     // 图片加载完成后，获取图片的原始宽高属性
@@ -240,14 +148,7 @@ export default {
     ding_png.src = '/sorting/image/dingding.jpg'
     ding_png.onload = function () {
     }
-    // 用来保存图片，标注等的位置大小数据
-    // var datas = {
-    //   markup: [// 用来存放标注的数据。
-    //   ],
-    //   polygon: [
-    //
-    //   ]
-    // }
+
 
     // 保存不同标注的颜色值
     var colors = {
@@ -324,16 +225,6 @@ export default {
       return arr
     }
 
-    // 保存可操作的状态
-    // var stats = {
-    //   move: false,
-    //   del: false,
-    //   ding: false,
-    //   line: false,
-    //   man: false,
-    //   car: false,
-    //   bycycle: false
-    // }
 
     // var fsize = 14
     // var coor = true
@@ -373,9 +264,6 @@ export default {
             var cy = yy * _this.scale + img_top
             var cwd = mup.wd * _this.scale
             var cht = mup.ht * _this.scale
-            // if(mup.color=='red'){
-            //   ctx.setLineDash([5, 5]);
-            // }
             ctx.strokeRect(cx, cy, cwd, cht)
             var txt = (mup.wd) + '*' + (mup.ht)
             ctx.lineWidth = '1'
@@ -387,7 +275,8 @@ export default {
         }
       }
 
-      // 根据data里面的数据渲染多边形
+      // polygon里的每个多边形渲染出来
+
       if (_this.polygon.length > 0) {
         for (var i = 0; i < _this.polygon.length; i++) {
           var poly = _this.polygon[i]
@@ -477,7 +366,6 @@ export default {
 
     // 给画布添加上一些操作事件
     function bindEvent () {
-      console.log('bind事件')
       // 鼠标的滚轮事件兼容
       var wheelname = navigator.userAgent.indexOf('Firefox') > 0 ? 'DOMMouseScroll' : 'mousewheel'
       cvs.addEventListener(wheelname, function (evt) {
@@ -515,7 +403,7 @@ export default {
         tmp_transy = _this.trans_y
       })
       cvs.addEventListener('mousemove', function (evt) {
-        if (!_this.stats.move || !ismove) {
+        if (!_this.stats.move || !ismove ) {
           return
         }
         var tmp_x = evt.clientX
@@ -641,6 +529,7 @@ export default {
         }
       })
 
+
       // 删除事件的绑定
       cvs.addEventListener('click', function (evt) {
         if (!_this.stats.del) {
@@ -667,9 +556,10 @@ export default {
         }
         if (_this.polygon.length > 0) {
           for (var i = 0; i < _this.polygon.length; i++) {
-            var tmp = _this.polygon[i].points
+            let tmp = _this.polygon[i].points
             var flag = isInPolygon(point, tmp)
             if (flag) {
+              console.log('flag')
               _this.polygon.splice(i, 1)
               // renderByData();
               break
@@ -679,10 +569,10 @@ export default {
       })
 
       var poly = { // 存储多边形的点坐标位置
-        prop_id: _this.currentPolygonId,
+        prop_id: -1,
         points: [],
         cp: false
-       }
+      }
       // 绑定标记的事件
       cvs.addEventListener('click', function (evt) {
         if (!_this.stats.line) {
@@ -692,8 +582,15 @@ export default {
         var y = evt.clientY
         var point = convertCoordtion(x, y)
         if (poly.points.length == 0) {
+          // 同一个属性id,只能画一个多边形
+          _this.polygon.forEach((item, index) => {
+            if (item.prop_id == poly.prop_id) {
+              _this.polygon.splice(index, 1)
+            }
+          })
           _this.polygon.push(poly)
         }
+        poly.prop_id = _this.currentPolygonId
         poly.points.push(point)
         // renderByData();
       })
@@ -705,11 +602,22 @@ export default {
             alert('标记形状无效')
           } else {
             poly.cp = true
+            console.log(poly)
           }
-          poly = {points: [], cp: false}
+          _this.polygon.forEach(item => {
+            _this.props.forEach(prop => {
+              if (item.prop_id == prop.prop_id) {//meto:这个points！！！
+                prop.prop_option_value = item.points
+                prop.prop_option_value_final = item.points
+              }
+            })
+          })
+          poly = {points: [], cp: false, prop_id:-1}
           // renderByData();
         }
       })
+
+
 
       // 绑定十字架事件
       cvs.addEventListener('mousemove', function (evt) {
@@ -736,6 +644,8 @@ export default {
       mk_fy = mk_fy / _this.scale
       return {x: Math.floor(mk_fx), y: Math.floor(mk_fy)}
     }
+
+
 
     document.addEventListener('keyup', _this.myKeyUp)
 
@@ -765,13 +675,21 @@ export default {
     },
     checkFrame (e) {
       this.drawOpen = true
+      this.stats.line = false
       this.currentFrameId = e.target.id
+      this.currentPolygonId = -1
+    },
+    checkPolygon (e) {
+      this.drawOpen = false
+      this.stats.line = true
+      this.currentPolygonId = e.target.id
+      this.currentFrameId = -1
+
     },
     onInput (id) {
       this.props.forEach(item => {
         if (item.prop_id == id) {
-          item.prop_option_value = event.target.value,
-          item.prop_option_value_final = event.target.value
+          item.prop_option_value = event.target.value
         }
       })
     },
@@ -857,55 +775,39 @@ export default {
       //   return
       // }
     },
-    getDetail (detail_type) {
-      if (detail_type == 2) {
+    getDetail (detailType) {
+      if (detailType == 2) {
         this.lastLoading = true
-      } else if (detail_type == 3) {
+      } else if (detailType == 3) {
         this.nextLoading = true
-      }else{
-        this.saveLoading = true
       }
-
-      let params = {
+      let params  = {
         type: 'POST',
-        url: this.baseUrl + '/check_task_details',
+        url: this.baseUrl + '/task/show_task_detail',
         async: false,
         data: {
-          'task_id':  this.$route.query.task_id,
-          "date":  this.$route.query.date,
-          "label_user": this.$route.query.label_user,
-          "quality_user": window.localStorage.getItem('nickname'),
-          "detail_type": detail_type,
-          'check_task_id': this.$route.query.check_task_id,
+          'nickname': window.localStorage.getItem('nickname'),
+          'task_id': this.task_id,
+          'detail_type': detailType,
           'task_detail_id': this.task_detail_id
         },
         success: (res) => {
-          if(res.msg) {
+          if(res.msg){
             this.$warning({
               title: '温馨提示：',
               content: res.msg,
               maskClosable: true
             })
             if (res.status == 666) {
-              this.$router.push({
-                path: '/label/quality_user_detail',
-                query: {
-                  'task_id': this.task_id,
-                  'check_task_id': this.check_task_id
-                }
-              })
+              this.$router.push({path: '/label/task_label'})
             }
           }else {
-            console.log('check_task_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
-            this.task_id  = res.task_id
             this.props = res.props
             this.detail_type = res.detail_type
-            this.check_data_info_id = res.check_data_info_id
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
-            this.quality_inspection = res.quality_inspection
             //初始化canvas&&img
             this.drawOpen = false
             this.currentFrameId = -1
@@ -916,35 +818,35 @@ export default {
             this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
             this.markup = []
-            // if(detail_type!=1){//不是新任务，则有画框记录
+            this.polygon = []
+            if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   // console.log(item.prop_option_value)
                   let pos = item.prop_option_value.split(',')
                   let obj ={
                     prop_id: item.prop_id,
-                    color:'green',
                     sx: pos[0],
                     sy: pos[1],
                     wd: pos[2],
                     ht: pos[3]
                   }
                   this.markup.push(obj)
-                  if( item.prop_option_value != item.prop_option_value_final){
-                    let posFinal = item.prop_option_value_final.split(',')
-                    let objFinal = {
-                      prop_id: item.prop_id,
-                      color:'red',
-                      sx: posFinal[0],
-                      sy: posFinal[1],
-                      wd: posFinal[2],
-                      ht: posFinal[3]
-                    }
-                    this.markup.push(objFinal)
-                  }
                 }
+                // if(item.prop_type==4){
+                //   // console.log(item.prop_option_value)
+                //   let pos = item.prop_option_value.split(',')
+                //   let poly ={
+                //     prop_id: item.prop_id,
+                //     points: pos[0],
+                //     cp: pos[1],
+                //     prod_id: pos[2]
+                //   }
+                //   this.polygon.push(poly)
+                // }
+                //==4
               })
-            // }
+            }
           }
           this.lastLoading = false
           this.nextLoading = false
@@ -955,44 +857,77 @@ export default {
         }
       }
       this.sendAjax(params)
-
     },
-    modifyDetail (result_status) {
+    modifyDetail () {
       this.modifyLoading = true
       let params = {
         type: 'POST',
-        url: this.baseUrl + '/modify_check_data',
+        url: this.baseUrl + '/task/modify_data',
         data: {
           'create_user': window.localStorage.getItem('nickname'),
-          'group_id': parseInt(window.localStorage.getItem('groupid')),
+          'group_id': window.localStorage.getItem('groupid'),
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
-          'check_data_info_id':this.check_data_info_id,
           'props': this.props,
-          'detail_type': this.detail_type,
-          'result_status':result_status
+          'detail_type': this.detail_type
+
         },
         success: (res) => {
           this.modifyLoading = false
           if (res.status == 'success') {
-            console.log('已提交')
-            //如果是质检新的，调取新的一张，与查看历史的对错不获取新的只保存
-            if(this.detail_type == 1){
-              this.getDetail(1)
-            }
-
-            // this.$success({
-            //   title: '修改成功：',
-            //   content: '此数据已保存。',
-            //   maskClosable: true
-            // })
+            this.$success({
+              title: '修改成功：',
+              content: '此数据已保存。',
+              maskClosable: true
+            })
           } else if (res.msg) {
             this.$warning({
               title: '温馨提示：',
               content: res.msg,
               maskClosable: true
             })
+          }
+        },
+        error: function (err) {
+          console.log('error!', err)
+        }
+      }
+      this.sendAjax(params)
+    },
+    saveData (detailType) {
+      //meto:这个points！！！
+      console.log('markup',this.markup)
+      console.log('polygon',this.polygon)
+      console.log("准备保存，弹出",this.props)
+      return  //meto :here!!释放拦截
+      this.saveLoading = true
+      event.target.blur()
+      if (this.detail_type !== 1) {
+        this.getDetail(1)
+        return
+      }
+      let params = {
+        type: 'POST',
+        url: this.baseUrl + '/task/save_data',
+        data: {
+          'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
+          'photo_path': this.photo_path,
+          'task_id': this.task_id,
+          'task_detail_id': this.task_detail_id,
+          'props': this.props
+        },
+        success: (res) => {
+          if (res.status == 'success') {
+            this.getDetail(1)
+          }else if (res.msg) {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg,
+              maskClosable: true
+            })
+            this.getDetail(1)
           }
         },
         error: function (err) {
@@ -1057,32 +992,8 @@ export default {
     width: 50%;
     margin-left:50px;
   }
-  .center{
-    width: 45%;
-  }
   .right{
-    width: 5%;
-    height: 100%;
-    position: fixed;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 200px;
-  }
-  .c-abtn{
-    width: 80px;
-    height: 80px;
-    font-size: 50px;
-  }
-  .c-green{
-    border-color: limegreen;
-    color: limegreen;
-    margin-bottom: 200px;
-  }
-  .c-green:hover{
-    color: #fff;
-    background-color: limegreen;
+    width: 50%;
   }
   #myimg{
     width: auto;
@@ -1100,13 +1011,11 @@ export default {
 }
   .left-bottom{
     width: 50%;
+    border-right:1px solid gray;
     text-align: left;
   }
   .red{
     background: red;
     color:white;
-  }
-  .c-diff{
-    background-color: #ff8940;
   }
 </style>

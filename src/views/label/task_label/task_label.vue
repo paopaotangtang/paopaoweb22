@@ -17,6 +17,7 @@
         <span slot="my_frame_count" >我的框数</span>
         <span slot="action"  slot-scope="text,record">
            <a-button type="primary"  @click="toTaskDetails(record)" >标注</a-button>
+           <a-button type="primary"  @click="toTaskDetailsPolygon(record)" >标注多边形</a-button>
         </span>
       </a-table>
       <div  v-else style="padding: 20px;">暂无任务信息</div>
@@ -79,6 +80,13 @@ export default {
       console.log('去标注', record)
       this.$router.push({
         path: '/label/task_details',
+        query: {
+          'task_id': record.task_id}})
+    },
+    toTaskDetailsPolygon (record) {
+      console.log('去标注', record)
+      this.$router.push({
+        path: '/label/task_details_line',
         query: {
           'task_id': record.task_id}})
     },
