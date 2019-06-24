@@ -252,7 +252,7 @@ export default {
           var mup = _this.markup[i]
           ctx.strokeStyle = mup.color || 'green'
           ctx.fontSize = '12px'
-          ctx.lineWidth = '3'
+          ctx.lineWidth = '5px'
           if (mup.sx != undefined && mup.sy != undefined && mup.wd != undefined && mup.ht != undefined) {
             var xx = mup.sx
             var yy = mup.sy
@@ -281,7 +281,7 @@ export default {
         for (var i = 0; i < _this.polygon.length; i++) {
           var poly = _this.polygon[i]
           ctx.beginPath()
-          ctx.strokeStyle = 'red'
+          ctx.strokeStyle =  poly.color || 'green'
           ctx.strokeWidth = '5px'
           for (var j = 0; j < poly.points.length; j++) {
             var point = poly.points[j]
@@ -465,7 +465,6 @@ export default {
           })
 
           _this.markup.push(mk_dt)
-          console.log(_this.markup)
           mk_move = false
         }
       })
@@ -557,10 +556,17 @@ export default {
         if (_this.polygon.length > 0) {
           for (var i = 0; i < _this.polygon.length; i++) {
             let tmp = _this.polygon[i].points
+            let tmpId = _this.polygon[i].prop_id
             var flag = isInPolygon(point, tmp)
             if (flag) {
               console.log('flag')
               _this.polygon.splice(i, 1)
+              _this.props.forEach(item => {
+                if (item.prop_id == tmpId) {
+                  item.prop_option_value = ''
+                  item.prop_option_value_final = ''
+                }
+              })
               // renderByData();
               break
             }
@@ -571,7 +577,8 @@ export default {
       var poly = { // 存储多边形的点坐标位置
         prop_id: -1,
         points: [],
-        cp: false
+        cp: false,
+        color:'red'
       }
       // 绑定标记的事件
       cvs.addEventListener('click', function (evt) {
@@ -581,16 +588,17 @@ export default {
         var x = evt.clientX
         var y = evt.clientY
         var point = convertCoordtion(x, y)
-        if (poly.points.length == 0) {
+        poly.prop_id = _this.currentPolygonId //点的时候赋予多边形ID，后面与已存在的作比较
+        if (poly.points.length == 0) {//说明上个操作是点击右键
           // 同一个属性id,只能画一个多边形
           _this.polygon.forEach((item, index) => {
-            if (item.prop_id == poly.prop_id) {
+            if (item.cp && item.prop_id == poly.prop_id) {
               _this.polygon.splice(index, 1)
             }
           })
           _this.polygon.push(poly)
         }
-        poly.prop_id = _this.currentPolygonId
+
         poly.points.push(point)
         // renderByData();
       })
@@ -599,26 +607,32 @@ export default {
           evt.preventDefault()
           if (poly.points.length <= 2) {
             _this.polygon.pop()
-            alert('标记形状无效')
+            _this.$warning({
+              title: '温馨提示：',
+              content: '标记形状无效',
+              maskClosable: true
+            })
           } else {
             poly.cp = true
             console.log(poly)
           }
           _this.polygon.forEach(item => {
             _this.props.forEach(prop => {
-              if (item.prop_id == prop.prop_id) {//meto:这个points！！！
-                // prop.prop_option_value = item.points
-                // prop.prop_option_value_final = item.points
+              if (item.prop_id == prop.prop_id) {
                 prop.prop_option_value = JSON.stringify(item.points)
                 prop.prop_option_value_final = JSON.stringify(item.points)
               }
             })
           })
-          poly = {points: [], cp: false, prop_id:-1}
+          poly = { // 重置多边形的点坐标位置
+            prop_id: -1,
+            points: [],
+            cp: false,
+            color:'red'
+          }
           // renderByData();
         }
       })
-
 
 
       // 绑定十字架事件
@@ -824,7 +838,6 @@ export default {
             if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
-                  // console.log(item.prop_option_value)
                   let pos = item.prop_option_value.split(',')
                   let obj ={
                     prop_id: item.prop_id,
@@ -835,24 +848,15 @@ export default {
                   }
                   this.markup.push(obj)
                 }
-                if(item.prop_type==4){
-                  // console.log(item.prop_option_value)
-                  let value = item.prop_option_value;
-                  let arr = JSON.parse(value)
-                  console.log('value:',arr)
-
-                  let value2 = JSON.parse(value)
-                  console.log('value2',value2)
-                  // let pos = item.prop_option_value.split(',')
-                  // let poly ={
-                  //   prop_id: item.prop_id,
-                  //   points: pos[0],
-                  //   cp: pos[1],
-                  //   prod_id: pos[2]
-                  // }
-                  // this.polygon.push(poly)
+                if(item.prop_type==4 && item.prop_option_value){
+                  let value = JSON.parse(item.prop_option_value);
+                  let poly = { // 存储多边形的点坐标位置
+                    prop_id: item.prop_id,
+                    points: value,
+                    cp: true
+                  }
+                  this.polygon.push(poly)
                 }
-                //==4
               })
             }
           }
@@ -904,11 +908,6 @@ export default {
       this.sendAjax(params)
     },
     saveData (detailType) {
-      //meto:这个points！！！
-      console.log('markup',this.markup)
-      console.log('polygon',this.polygon)
-      console.log("准备保存，弹出",this.props)
-      // return  //meto :here!!释放拦截
       this.saveLoading = true
       event.target.blur()
       if (this.detail_type !== 1) {
