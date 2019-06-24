@@ -869,7 +869,8 @@ export default {
                   let poly = { // 存储多边形的点坐标位置
                     prop_id: item.prop_id,
                     points: value,
-                    cp: true
+                    cp: true,
+                    test:456
                   }
                   this.polygon.push(poly)
                 }
