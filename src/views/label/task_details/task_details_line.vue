@@ -870,7 +870,8 @@ export default {
                     prop_id: item.prop_id,
                     points: value,
                     cp: true,
-                    test:456
+                    test:456,
+                    commit:1
                   }
                   this.polygon.push(poly)
                 }
