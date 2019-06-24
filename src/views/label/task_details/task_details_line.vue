@@ -864,6 +864,7 @@ export default {
                   this.markup.push(obj)
                 }
                 if(item.prop_type==4 && item.prop_option_value){
+                  console.log("jsonparse",item.prop_option_value)
                   let value = JSON.parse(item.prop_option_value);
                   let poly = { // 存储多边形的点坐标位置
                     prop_id: item.prop_id,
