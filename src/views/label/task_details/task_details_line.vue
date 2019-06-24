@@ -841,7 +841,9 @@ export default {
             this.qualityLock = res.quality_lock == 1 ? true : false
             //初始化canvas&&img
             this.drawOpen = false
+            this.drawPolygon = false
             this.currentFrameId = -1
+            this.currentPolygonId = -1
             this.origin_w = null
             this.origin_h = null
             this.scale = 1 // 放大比例
@@ -869,8 +871,7 @@ export default {
                   let poly = { // 存储多边形的点坐标位置
                     prop_id: item.prop_id,
                     points: value,
-                    cp: true,
-                    test:456
+                    cp: true
                   }
                   this.polygon.push(poly)
                 }
