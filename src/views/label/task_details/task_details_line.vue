@@ -76,6 +76,7 @@ export default {
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
       drawOpen: false, // 打开画框
+      drawPolygon: false, //打开画多边形
       img: new Image(),
       markup: [], // 用来存放标注的数据
       polygon: [],
@@ -278,6 +279,20 @@ export default {
       // polygon里的每个多边形渲染出来
 
       if (_this.polygon.length > 0) {
+        for (var i = 0; i < _this.polygon.length; i++) {
+          var poly = _this.polygon[i]
+          for (var j = 0; j < poly.points.length; j++) {
+            var point = poly.points[j]
+            let cx = point.x * _this.scale + img_left
+            let cy = point.y * _this.scale + img_top
+            ctx.beginPath()
+            ctx.arc(cx,cy,3,0,2*Math.PI)
+            ctx.fillStyle="red";
+            ctx.fill();
+            ctx.closePath()
+          }
+        }
+
         for (var i = 0; i < _this.polygon.length; i++) {
           var poly = _this.polygon[i]
           ctx.beginPath()
@@ -582,7 +597,7 @@ export default {
       }
       // 绑定标记的事件
       cvs.addEventListener('click', function (evt) {
-        if (!_this.stats.line) {
+        if (!_this.drawPolygon || _this.stats.move) {
           return
         }
         var x = evt.clientX
@@ -603,7 +618,7 @@ export default {
         // renderByData();
       })
       cvs.addEventListener('contextmenu', function (evt) {
-        if (_this.stats.line) {
+        if (_this.drawPolygon) {
           evt.preventDefault()
           if (poly.points.length <= 2) {
             _this.polygon.pop()
@@ -691,13 +706,13 @@ export default {
     },
     checkFrame (e) {
       this.drawOpen = true
-      this.stats.line = false
+      this.drawPolygon = false
       this.currentFrameId = e.target.id
       this.currentPolygonId = -1
     },
     checkPolygon (e) {
       this.drawOpen = false
-      this.stats.line = true
+      this.drawPolygon = true
       this.currentPolygonId = e.target.id
       this.currentFrameId = -1
 
