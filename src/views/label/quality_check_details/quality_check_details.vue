@@ -613,13 +613,12 @@ export default {
           }
         }
       })
-      let color = ''
-      if (_this.drawPolygon) { color = colors.drawPolygon }
+
       var poly = { // 存储多边形的点坐标位置
         prop_id: -1,
         points: [],
         cp: false,
-        color: color
+        color: 'red'
       }
       // 绑定标记的事件
       cvs.addEventListener('click', function (evt) {
@@ -891,7 +890,6 @@ export default {
             this.markup = []
             this.polygon = []
 
-            // if(detail_type!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   // console.log(item.prop_option_value)
@@ -946,7 +944,7 @@ export default {
                   }
                 }
               })
-            // }
+
           }
           this.lastLoading = false
           this.nextLoading = false
