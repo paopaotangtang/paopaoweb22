@@ -76,7 +76,7 @@ export default {
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
       drawOpen: false, // 打开画框
-      drawPolygon: false, //打开画多边形
+      drawPolygon: false, // 打开画多边形
       img: new Image(),
       markup: [], // 用来存放标注的数据
       polygon: [],
@@ -841,7 +841,9 @@ export default {
             this.qualityLock = res.quality_lock == 1 ? true : false
             //初始化canvas&&img
             this.drawOpen = false
+            this.drawPolygon = false
             this.currentFrameId = -1
+            this.currentPolygonId = -1
             this.origin_w = null
             this.origin_h = null
             this.scale = 1 // 放大比例
@@ -869,9 +871,7 @@ export default {
                   let poly = { // 存储多边形的点坐标位置
                     prop_id: item.prop_id,
                     points: value,
-                    cp: true,
-                    test:456,
-                    commit:1
+                    cp: true
                   }
                   this.polygon.push(poly)
                 }
