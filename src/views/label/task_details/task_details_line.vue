@@ -253,7 +253,7 @@ export default {
           var mup = _this.markup[i]
           ctx.strokeStyle = mup.color || 'green'
           ctx.fontSize = '12px'
-          ctx.lineWidth = '5px'
+          ctx.lineWidth = '1px'
           if (mup.sx != undefined && mup.sy != undefined && mup.wd != undefined && mup.ht != undefined) {
             var xx = mup.sx
             var yy = mup.sy
