@@ -274,7 +274,7 @@ export default {
           var mup = _this.markup[i]
           ctx.strokeStyle = mup.color || 'green'
           ctx.fontSize = '12px'
-          ctx.lineWidth = '3'
+          ctx.lineWidth = '1px'
           if (mup.sx != undefined && mup.sy != undefined && mup.wd != undefined && mup.ht != undefined) {
             var xx = mup.sx
             var yy = mup.sy
@@ -291,7 +291,7 @@ export default {
             // }
             ctx.strokeRect(cx, cy, cwd, cht)
             var txt = (mup.wd) + '*' + (mup.ht)
-            ctx.lineWidth = '1'
+            ctx.lineWidth = '1px'
             ctx.strokeText(txt, cx + cwd - ctx.measureText(txt).width - 4, cy + 12)
             if (mup.ding) {
               ctx.drawImage(ding_png, cx + 4, cy + 4, 20, 20)
@@ -320,7 +320,7 @@ export default {
           var poly = _this.polygon[i]
           ctx.beginPath()
           ctx.strokeStyle =  poly.color || 'green'
-          ctx.strokeWidth = '5px'
+          ctx.strokeWidth = '1px'
           for (var j = 0; j < poly.points.length; j++) {
             var point = poly.points[j]
             let cx = point.x * _this.scale + img_left
