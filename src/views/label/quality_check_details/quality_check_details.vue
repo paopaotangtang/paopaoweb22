@@ -56,6 +56,8 @@
               </a-tooltip>
               <!--<a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"  :placeholder="item.prop_option_value" :value="item.prop_option_value"/>-->
               <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentFrameId==item.prop_id?'primary':'default'" @click="checkFrame" >画框</a-button>
+              <a-button v-if="item.prop_type==4" :id="item.prop_id" :type="currentPolygonId==item.prop_id?'primary':'default'" @click="checkPolygon" >多边形</a-button>
+
             </td>
           </tr>
         </table>
@@ -89,7 +91,9 @@ export default {
       saveLoading: false,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
+      currentPolygonId: -1, // 当前多边形属性
       drawOpen: false, // 打开画框
+      drawPolygon: false, // 打开画多边形
       img: new Image(),
       markup: [], // 用来存放标注的数据
       polygon: [],
@@ -116,90 +120,6 @@ export default {
   beforeMount () {
     // 进入页面detail_type ==1,相当于新的一张
     this.getDetail(1)
-    // let res = {
-    //   'photo_path': 'http://127.0.0.1:82/static/1/5.jpg',
-    //   'quality_lock': 0,
-    //   'quality_inspection': 0,
-    //   'task_detail_id': 6321,
-    //   'task_id': 4,
-    //   'props': [
-    //     {
-    //       'prop_id': 11,
-    //       'prop_name': '衣服',
-    //       'prop_option_value': 0,
-    //       'prop_option_value_final': 0,
-    //       'prop_type': 1,
-    //       'property_values': [
-    //         {
-    //           'option_name': '黄皮',
-    //           'option_value': 1
-    //         },
-    //         {
-    //           'option_name': '黑皮',
-    //           'option_value': 2
-    //         },
-    //         {
-    //           'option_name': '白皮',
-    //           'option_value': 3
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       'prop_id': 13,
-    //       'prop_name': '肤色',
-    //       'prop_option_value': 0,
-    //       'prop_option_value_final': 0,
-    //       'prop_type': 1,
-    //       'property_values': [
-    //         {
-    //           'option_name': '黄',
-    //           'option_value': 2
-    //         },
-    //         {
-    //           'option_name': '黑',
-    //           'option_value': 1
-    //         },
-    //         {
-    //           'option_name': '白',
-    //           'option_value': 3
-    //         }
-    //       ]
-    //     }
-    //   ]
-    // }
-    // this.photo_path = res.photo_path
-    // this.task_detail_id = res.task_detail_id
-    // this.props = res.props
-    // this.detail_type = res.detail_type
-    // /*eslint-disable*/
-    // this.qualityLock = res.quality_lock == 1 ? true : false
-    // this.quality_inspection = res.quality_inspection
-    // //初始化canvas&&img
-    // this.drawOpen = false
-    // this.currentFrameId = -1
-    // this.origin_w = null
-    // this.origin_h = null
-    // this.scale = 1 // 放大比例
-    // this.trans_x = 0 // x轴相对于scale=1时的移动量，
-    // this.trans_y = 0// y轴相对于scale=1时的移动量
-    // this.img.src = this.photo_path
-    // this.markup = []
-    // if(detail_type!=1){//不是新任务，则有画框记录
-    //   this.props.forEach(item=>{
-    //     if(item.prop_type==3){
-    //       // console.log(item.prop_option_value)
-    //       let pos = item.prop_option_value.split(',')
-    //       let obj ={
-    //         prop_id: item.prop_id,
-    //         sx: pos[0],
-    //         sy: pos[1],
-    //         wd: pos[2],
-    //         ht: pos[3]
-    //       }
-    //       this.markup.push(obj)
-    //     }
-    //   })
-    // }
   },
   mounted () {
     /*eslint-disable*/
@@ -240,18 +160,11 @@ export default {
     ding_png.src = '/sorting/image/dingding.jpg'
     ding_png.onload = function () {
     }
-    // 用来保存图片，标注等的位置大小数据
-    // var datas = {
-    //   markup: [// 用来存放标注的数据。
-    //   ],
-    //   polygon: [
-    //
-    //   ]
-    // }
 
     // 保存不同标注的颜色值
     var colors = {
       drawOpen: 'red',
+      drawPolygon:'red',
       man: 'yellow',
       car: 'blue',
       bycycle: 'green'
@@ -386,13 +299,27 @@ export default {
           }
         }
       }
+      // polygon里的每个多边形渲染出来
 
-      // 根据data里面的数据渲染多边形
       if (_this.polygon.length > 0) {
         for (var i = 0; i < _this.polygon.length; i++) {
           var poly = _this.polygon[i]
+          for (var j = 0; j < poly.points.length; j++) {
+            var point = poly.points[j]
+            let cx = point.x * _this.scale + img_left
+            let cy = point.y * _this.scale + img_top
+            ctx.beginPath()
+            ctx.arc(cx,cy,3,0,2*Math.PI)
+            ctx.fillStyle="red";
+            ctx.fill();
+            ctx.closePath()
+          }
+        }
+
+        for (var i = 0; i < _this.polygon.length; i++) {
+          var poly = _this.polygon[i]
           ctx.beginPath()
-          ctx.strokeStyle = 'red'
+          ctx.strokeStyle =  poly.color || 'green'
           ctx.strokeWidth = '5px'
           for (var j = 0; j < poly.points.length; j++) {
             var point = poly.points[j]
@@ -416,6 +343,7 @@ export default {
           }
         }
       }
+
       // 绘制十字架
       if (_this.coor) {
         ctx.save()
@@ -543,7 +471,7 @@ export default {
       // 绑定人、车、非机动车的标注事件
       cvs.addEventListener('mousedown', function (evt) {
         if (!_this.opt && _this.drawOpen) {
-          var color = ''
+          let color = ''
           if (_this.drawOpen) { color = colors.drawOpen }
           mk_down = true
           mk_x = evt.clientX
@@ -667,46 +595,82 @@ export default {
         }
         if (_this.polygon.length > 0) {
           for (var i = 0; i < _this.polygon.length; i++) {
-            var tmp = _this.polygon[i].points
+            let tmp = _this.polygon[i].points
+            let tmpId = _this.polygon[i].prop_id
             var flag = isInPolygon(point, tmp)
             if (flag) {
+              console.log('flag')
               _this.polygon.splice(i, 1)
+              _this.props.forEach(item => {
+                if (item.prop_id == tmpId) {
+                  item.prop_option_value = ''
+                  item.prop_option_value_final = ''
+                }
+              })
               // renderByData();
               break
             }
           }
         }
       })
-
+      let color = ''
+      if (_this.drawPolygon) { color = colors.drawPolygon }
       var poly = { // 存储多边形的点坐标位置
-        prop_id: _this.currentPolygonId,
+        prop_id: -1,
         points: [],
-        cp: false
-       }
+        cp: false,
+        color: color
+      }
       // 绑定标记的事件
       cvs.addEventListener('click', function (evt) {
-        if (!_this.stats.line) {
+        if (!_this.drawPolygon || _this.stats.move) {
           return
         }
         var x = evt.clientX
         var y = evt.clientY
         var point = convertCoordtion(x, y)
-        if (poly.points.length == 0) {
+        poly.prop_id = _this.currentPolygonId //点的时候赋予多边形ID，后面与已存在的作比较
+        if (poly.points.length == 0) {//说明上个操作是点击右键
+          // 同一个属性id,只能画一个多边形
+          _this.polygon.forEach((item, index) => {
+            if (item.cp && item.prop_id == poly.prop_id) {
+              _this.polygon.splice(index, 1)
+            }
+          })
           _this.polygon.push(poly)
         }
+
         poly.points.push(point)
         // renderByData();
       })
       cvs.addEventListener('contextmenu', function (evt) {
-        if (_this.stats.line) {
+        if (_this.drawPolygon) {
           evt.preventDefault()
           if (poly.points.length <= 2) {
             _this.polygon.pop()
-            alert('标记形状无效')
+            _this.$warning({
+              title: '温馨提示：',
+              content: '标记形状无效',
+              maskClosable: true
+            })
           } else {
             poly.cp = true
+            console.log(poly)
           }
-          poly = {points: [], cp: false}
+          _this.polygon.forEach(item => {
+            _this.props.forEach(prop => {
+              if (item.prop_id == prop.prop_id) {
+                prop.prop_option_value = JSON.stringify(item.points)
+                prop.prop_option_value_final = JSON.stringify(item.points)
+              }
+            })
+          })
+          poly = { // 重置多边形的点坐标位置
+            prop_id: -1,
+            points: [],
+            cp: false,
+            color:'red'
+          }
           // renderByData();
         }
       })
@@ -765,7 +729,16 @@ export default {
     },
     checkFrame (e) {
       this.drawOpen = true
+      this.drawPolygon = false
       this.currentFrameId = e.target.id
+      this.currentPolygonId = -1
+    },
+    checkPolygon (e) {
+      this.drawOpen = false
+      this.drawPolygon = true
+      this.currentPolygonId = e.target.id
+      this.currentFrameId = -1
+
     },
     onInput (id) {
       this.props.forEach(item => {
@@ -916,6 +889,8 @@ export default {
             this.trans_y = 0// y轴相对于scale=1时的移动量
             this.img.src = this.photo_path
             this.markup = []
+            this.polygon = []
+
             // if(detail_type!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
@@ -941,6 +916,33 @@ export default {
                       ht: posFinal[3]
                     }
                     this.markup.push(objFinal)
+                  }
+                }
+
+                if(item.prop_type==4){
+                  if(item.prop_option_value){
+                    console.log("存在标注",item.prop_option_value)
+                    let value = JSON.parse(item.prop_option_value);
+                    let poly = { // 存储多边形的点坐标位置
+                      color:'green',
+                      prop_id: item.prop_id,
+                      points: value,
+                      cp: true
+                    }
+                    this.polygon.push(poly)
+                  }
+
+                  console.log(item.prop_option_value ,item.prop_option_value_final)
+                  if(item.prop_option_value != item.prop_option_value_final){
+                    console.log('存在final')
+                    let valueFinal = JSON.parse(item.prop_option_value_final);
+                    let polyFinal = { // 存储多边形的点坐标位置
+                      color:'red',
+                      prop_id: item.prop_id,
+                      points: valueFinal,
+                      cp: true
+                    }
+                    this.polygon.push(polyFinal)
                   }
                 }
               })

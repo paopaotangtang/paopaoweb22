@@ -76,7 +76,7 @@ export default {
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
       drawOpen: false, // 打开画框
-      drawPolygon: false, //打开画多边形
+      drawPolygon: false, // 打开画多边形
       img: new Image(),
       markup: [], // 用来存放标注的数据
       polygon: [],

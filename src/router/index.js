@@ -7,7 +7,6 @@ import Register from '@/views/register/register'
 import Task from '@/views/label/task/task'
 import DataSource from '@/views/label/datasource/datasource'
 import Attribute from '@/views/label/attribute/attribute'
-import TaskDetails from '@/views/label/task_details/task_details'
 import TaskDetailsLine from '@/views/label/task_details/task_details_line'
 
 import TaskLabel from '@/views/label/task_label/task_label'
@@ -96,13 +95,6 @@ const router = new Router({
         path: 'performance',
         name: 'performance',
         component: Performance,
-        meta: {
-          groupid: 2
-        }
-      }, {
-        path: 'task_details',
-        name: 'task_details',
-        component: TaskDetails,
         meta: {
           groupid: 2
         }
