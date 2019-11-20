@@ -122,6 +122,7 @@ export default {
     // var trans_y = 0// y轴相对于scale=1时的移动量
     // 加载图片
     this.img.src = this.photo_path
+    bindEvent()
     // 图片加载完成后，获取图片的原始宽高属性
     this.img.onload = function () {
       _this.origin_w = _this.img.width
@@ -138,7 +139,7 @@ export default {
       }
       var min = Math.min(w_scale, h_scale)
       _this.scale = Math.min(min, _this.scale)
-      bindEvent()
+
       setTimeout(function () {
         // renderByData();
         startRender()
