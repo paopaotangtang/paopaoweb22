@@ -36,11 +36,11 @@ var columns = [{
   title: '标注员',
   dataIndex: 'label_user'
 }, {
-  title: '抽检数量',
-  dataIndex: 'check_num'
-}, {
   title: '总数量',
   dataIndex: 'total_num'
+}, {
+  title: '抽检数量',
+  dataIndex: 'check_num'
 }, {
   title: '错误数',
   dataIndex: 'error_num'

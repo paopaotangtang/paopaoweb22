@@ -11,10 +11,11 @@
         <span slot="task_name" >task_name</span>
         <span slot="task_id" >task_id</span>
         <span slot="label_type" >label_type</span>
-        <span slot="all_count" >图片数量</span>
-        <span slot="completed_count" >已完成数量</span>
+        <span slot="all_count" >图片总数</span>
+        <span slot="completed_count" >已完成总数</span>
         <span slot="my_label_count" >我的标注量</span>
-        <span slot="my_frame_count" >我的框数</span>
+        <span slot="my_today_label_count" >今日标注量</span>
+        <!--<span slot="my_frame_count" >我的框数</span>-->
         <span slot="action"  slot-scope="text,record">
            <a-button type="primary"  @click="toTaskDetailsPolygon(record)" >标注</a-button>
         </span>
@@ -36,18 +37,23 @@ var columns = [{
   title: '任务类型',
   dataIndex: 'label_type'
 }, {
-  title: '图片数量',
+  title: '图片总数',
   dataIndex: 'all_count'
 }, {
-  title: '已完成数量',
+  title: '已完成总数',
   dataIndex: 'completed_count'
 }, {
-  title: '当前用户标注量',
+  title: '我的标注量',
   dataIndex: 'my_label_count'
 }, {
-  title: '当前用户框数',
-  dataIndex: 'my_frame_count'
-}, {
+  title: '今日标注量',
+  dataIndex: 'my_today_label_count'
+},
+//   {
+//   title: '当前用户框数',
+//   dataIndex: 'my_frame_count'
+// },
+{
   title: '操作',
   dataIndex: 'action',
   scopedSlots: { customRender: 'action' }
