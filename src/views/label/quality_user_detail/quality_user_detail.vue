@@ -45,7 +45,7 @@ var columns = [{
   title: '错误数',
   dataIndex: 'error_num'
 }, {
-  title: '已完成数量',
+  title: '已质检数量',
   dataIndex: 'already_num'
 }, {
   title: '操作',

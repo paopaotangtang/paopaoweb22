@@ -211,6 +211,7 @@ export default {
     // 加载图片
     this.img.src = this.photo_path
     // 图片加载完成后，获取图片的原始宽高属性
+    bindEvent()
     this.img.onload = function () {
       _this.origin_w = _this.img.width
       _this.origin_h = _this.img.height
@@ -226,7 +227,7 @@ export default {
       }
       var min = Math.min(w_scale, h_scale)
       _this.scale = Math.min(min, _this.scale)
-      bindEvent()
+
       setTimeout(function () {
         // renderByData();
         startRender()
@@ -1060,10 +1061,15 @@ export default {
   .ant-radio-group.ant-radio-group-outline.ant-radio-group-default span{
     line-height: 50px !important;
   }
+
   .c-left-td{
-    padding: 0 20px;
+    padding: 5px 20px 0;
     text-align: left;
   }
+  /*.ant-radio-button-wrapper{*/
+    /*margin-bottom:5px;*/
+    /*background: #ddf1e3;*/
+  /*}*/
   .c-done{
     text-align: left;
     line-height: 50px;
@@ -1096,6 +1102,8 @@ export default {
   }
   .center{
     width: 45%;
+    overflow-y:scroll;
+    height: 850px;
   }
   .right{
     width: 5%;

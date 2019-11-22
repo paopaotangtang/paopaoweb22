@@ -357,6 +357,8 @@ export default {
   }
   .right{
     width: 50%;
+    overflow-y:scroll;
+    height: 850px;
   }
   #myimg{
     width: auto;

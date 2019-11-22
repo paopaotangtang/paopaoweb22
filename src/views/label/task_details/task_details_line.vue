@@ -971,6 +971,7 @@ export default {
   label.ant-radio-wrapper{
     line-height: 50px;
   }
+
   .wrap{
     display: flex;
   }
@@ -985,8 +986,12 @@ export default {
     line-height: 50px !important;
   }
   .c-left-td{
-    padding: 0 20px;
+    padding: 5px 20px 0;
     text-align: left;
+  }
+  .ant-radio-button-wrapper{
+    margin-bottom:5px;
+    background: #ddf1e3;
   }
   .c-done{
     text-align: left;
@@ -1020,6 +1025,8 @@ export default {
   }
   .right{
     width: 50%;
+    overflow-y:scroll;
+    height: 850px;
   }
   #myimg{
     width: auto;
@@ -1044,4 +1051,8 @@ export default {
     background: red;
     color:white;
   }
+  tr{
+    border: 3px solid gray;
+  }
+
 </style>

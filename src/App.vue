@@ -24,6 +24,7 @@ export default {
     text-align: center;
     width: 100%;
     height: 100%;
+    background: #ddf1e3;
   }
   li{
     padding: 0;
