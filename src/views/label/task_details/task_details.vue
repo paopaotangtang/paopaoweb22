@@ -854,9 +854,9 @@ export default {
               content: res.msg,
               maskClosable: true
             })
-            if (res.status == 666) {
-              this.$router.push({path: '/label/task_label'})
-            }
+            // if (res.status == 666) {
+            //   this.$router.push({path: '/label/task_label'})
+            // }
           }else {
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id

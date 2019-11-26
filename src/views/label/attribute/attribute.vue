@@ -397,12 +397,13 @@ export default {
     border: 1px solid #cbcbcb;
     width: 80%;
     margin: 0 auto;
+    background: #ffffff;
   }
 
   .c-bread{
     padding: 0 10%;
     font-size: 22px;
-    line-height: 60px;
+    line-height: 40px;
     text-align: left;
   }
   .c-item{

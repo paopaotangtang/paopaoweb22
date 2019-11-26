@@ -173,6 +173,7 @@ export default {
     width: 80%;
     margin: 0 auto;
     color: rgba(0, 0, 0, 0.65);
+    background: #ffffff;
   }
   .c-bread{
     padding: 0 10%;

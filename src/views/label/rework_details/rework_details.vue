@@ -879,11 +879,11 @@ export default {
               content: res.msg,
               maskClosable: true
             })
-            if (res.status == 666) {
-              this.$router.push({
-                path: '/label/rework'
-              })
-            }
+            // if (res.status == 666) {
+            //   this.$router.push({
+            //     path: '/label/rework'
+            //   })
+            // }
           }else {
             // console.log('rework_details:',res)
             this.photo_path = res.photo_path
@@ -1066,10 +1066,10 @@ export default {
     padding: 5px 20px 0;
     text-align: left;
   }
-  /*.ant-radio-button-wrapper{*/
-    /*margin-bottom:5px;*/
-    /*background: #ddf1e3;*/
-  /*}*/
+  .ant-radio-button-wrapper{
+    margin-bottom:5px;
+    background: #ddf1e3;
+  }
   .c-done{
     text-align: left;
     line-height: 50px;

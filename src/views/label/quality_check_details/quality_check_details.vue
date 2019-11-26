@@ -859,15 +859,15 @@ export default {
               content: res.msg,
               maskClosable: true
             })
-            if (res.status == 666) {
-              this.$router.push({
-                path: '/label/quality_user_detail',
-                query: {
-                  'task_id': this.task_id,
-                  'check_task_id': this.check_task_id
-                }
-              })
-            }
+            // if (res.status == 666) {
+            //   this.$router.push({
+            //     path: '/label/quality_user_detail',
+            //     query: {
+            //       'task_id': this.task_id,
+            //       'check_task_id': this.check_task_id
+            //     }
+            //   })
+            // }
           }else {
             console.log('check_task_details:',res)
             this.photo_path = res.photo_path

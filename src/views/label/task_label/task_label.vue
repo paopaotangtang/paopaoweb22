@@ -28,11 +28,11 @@
 
 <script>
 var columns = [{
-  title: '任务名称',
-  dataIndex: 'task_name'
-}, {
   title: '任务id',
   dataIndex: 'task_id'
+}, {
+  title: '任务名称',
+  dataIndex: 'task_name'
 }, {
   title: '任务类型',
   dataIndex: 'label_type'
@@ -157,6 +157,7 @@ export default {
     width: 80%;
     margin: 0 auto;
     color: rgba(0, 0, 0, 0.65);
+    background: #ffffff;
   }
   .c-bread{
     padding: 0 10%;
