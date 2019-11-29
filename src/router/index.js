@@ -1,25 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Label from '@/views/label/label'
-import Login from '@/views/label/login/login'
-import Register from '@/views/register/register'
-
-import Task from '@/views/label/task/task'
-import DataSource from '@/views/label/datasource/datasource'
-import Attribute from '@/views/label/attribute/attribute'
-import TaskDetailsLine from '@/views/label/task_details/task_details_line'
-
-import TaskLabel from '@/views/label/task_label/task_label'
-import Rework from '@/views/label/rework/rework'
-import ReworkDetails from '@/views/label/rework_details/rework_details'
-import History from '@/views/label/history/history'
-import Performance from '@/views/label/performance/performance'
-
-import QualityTask from '@/views/label/quality_task/quality_task'
-import Handle from '@/views/label/handle/handle'
-import QualityHistory from '@/views/label/quality_history/quality_history'
-import QualityUserDetail from '@/views/label/quality_user_detail/quality_user_detail'
-import QualityCheckDetails from '@/views/label/quality_check_details/quality_check_details'
 
 Vue.use(Router)
 
@@ -30,126 +10,126 @@ const router = new Router({
     {
       path: '/',
       name: 'login',
-      component: Login
+      component: () => import('@/views/label/login/login')
     }, {
       path: '/login', // 默认子路由
       name: 'login',
-      component: Login,
+      component: () => import('@/views/label/login/login'),
       meta: {
         isLogin: false
       }
     }, {
       path: '/label',
       name: 'clabel',
-      component: Label,
-      children: [ {
+      component: () => import('@/views/label/label'),
+      children: [{
         path: 'task',
         name: 'task',
-        component: Task,
+        component: () => import('@/views/label/task/task'),
         meta: {
           groupid: 1
         }
       }, {
         path: 'datasource',
         name: 'datasource',
-        component: DataSource,
+        component: () => import('@/views/label/datasource/datasource'),
         meta: {
           groupid: 1
         }
       }, {
         path: 'attribute',
         name: 'attribute',
-        component: Attribute,
+        component: () => import('@/views/label/attribute/attribute'),
         meta: {
           groupid: 1
         }
       }, {
         path: 'task_label',
         name: 'task_label',
-        component: TaskLabel,
+        component: () => import('@/views/label/task_label/task_label'),
         meta: {
           groupid: 2
         }
       }, {
         path: 'rework',
         name: 'rework',
-        component: Rework,
+        component: () => import('@/views/label/rework/rework'),
         meta: {
           groupid: 2
         }
       }, {
         path: 'rework_details',
         name: 'rework_details',
-        component: ReworkDetails,
+        component: () => import('@/views/label/rework_details/rework_details'),
         meta: {
           groupid: 2
         }
       }, {
         path: 'history',
         name: 'history',
-        component: History,
+        component: () => import('@/views/label/history/history'),
         meta: {
           groupid: 2
         }
       }, {
         path: 'performance',
         name: 'performance',
-        component: Performance,
+        component: () => import('@/views/label/performance/performance'),
         meta: {
           groupid: 2
         }
       }, {
         path: 'task_details_line',
         name: 'task_details_line',
-        component: TaskDetailsLine,
+        component: () => import('@/views/label/task_details/task_details_line'),
         meta: {
           groupid: 2
         }
       }, {
         path: 'quality_task',
         name: 'quality_task',
-        component: QualityTask,
+        component: () => import('@/views/label/quality_task/quality_task'),
         meta: {
           groupid: 3
         }
       }, {
         path: 'handle',
         name: 'handle',
-        component: Handle,
+        component: () => import('@/views/label/handle/handle'),
         meta: {
           groupid: 3
         }
       }, {
         path: 'quality_history',
         name: 'quality_history',
-        component: QualityHistory,
+        component: () => import('@/views/label/quality_history/quality_history'),
         meta: {
           groupid: 3
         }
       }, {
         path: 'quality_user_detail',
         name: 'quality_user_detail',
-        component: QualityUserDetail,
+        component: () => import('@/views/label/quality_user_detail/quality_user_detail'),
         meta: {
           groupid: 3
         }
       }, {
         path: 'quality_check_details',
         name: 'quality_check_details',
-        component: QualityCheckDetails,
+        component: () => import('@/views/label/quality_check_details/quality_check_details'),
         meta: {
           groupid: 3
         }
-      } ]
+      }]
     },
     {
       path: '/register',
       name: 'register',
-      component: Register
+      component: () => import('@/views/register/register')
     }, {
       path: '*',
       name: 'login',
-      component: Login
+      component: () => import('@/views/label/login/login')
     }
   ]
 })
