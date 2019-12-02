@@ -853,7 +853,7 @@ export default {
             this.img.src = this.photo_path
             this.markup = []
             this.polygon = []
-            if(detailType!=1){//不是新任务，则有画框记录
+            // if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   let pos = item.prop_option_value.split(',')
@@ -877,7 +877,7 @@ export default {
                   this.polygon.push(poly)
                 }
               })
-            }
+            // }
           }
           this.lastLoading = false
           this.nextLoading = false
