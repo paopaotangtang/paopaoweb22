@@ -56,6 +56,13 @@
               </a-tooltip>
               <!--<a-input v-if="item.prop_type==2" @change="onInput(item.prop_id)"  :placeholder="item.prop_option_value" :value="item.prop_option_value"/>-->
               <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentFrameId==item.prop_id?'primary':'default'" @click="checkFrame" >画框</a-button>
+              <a-checkbox-group  v-if="item.prop_type==5" :value=item.prop_option_value @change="(val)=>checkChange(val,item.prop_id)" >
+                <a-checkbox v-for="option in item.property_values"
+                            :key="option.option_value"
+                            :value="option.option_value"
+                            :disabled="qualityInspection==-1?true:false"
+                >{{option.option_name}}</a-checkbox>
+              </a-checkbox-group>
             </td>
           </tr>
         </table>
@@ -757,6 +764,18 @@ export default {
         }
       })
     },
+    checkChange(checkedValues,id){
+      console.log();
+      this.props.forEach(item => {
+        if(item.prop_id == id) {
+          item.prop_option_value = checkedValues
+          item.prop_option_value_final = checkedValues
+          console.log(item.prop_option_value);
+        }
+
+      })
+      console.log(this.props);
+    },
     checkFrame (e) {
       this.drawOpen = true
       this.currentFrameId = e.target.id
@@ -929,6 +948,11 @@ export default {
                       ht: posFinal[3]
                     }
                     this.markup.push(objFinal)
+                  }
+                }
+                if(item.prop_type == 5){
+                  if(item.prop_option_value != item.prop_option_value_final){
+                    item.prop_option_value = item.prop_option_value_final;
                   }
                 }
               })
