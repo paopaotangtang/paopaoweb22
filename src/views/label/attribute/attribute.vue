@@ -211,7 +211,7 @@ export default {
       }
     },
     getPropertyValue (propId) {
-      console.log(propId);
+      console.log(propId)
       let params = {
         type: 'POST',
         url: this.baseUrl + '/show_property_value',
