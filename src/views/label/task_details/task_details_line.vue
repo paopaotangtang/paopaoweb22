@@ -877,15 +877,18 @@ export default {
             // if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
                 if(item.prop_type==3){
-                  let pos = item.prop_option_value.split(',')
-                  let obj ={
-                    prop_id: item.prop_id,
-                    sx: pos[0],
-                    sy: pos[1],
-                    wd: pos[2],
-                    ht: pos[3]
+                  console.log(item.prop_option_value)
+                  if (item.prop_option_value){
+                    let pos = item.prop_option_value.split(',')
+                    let obj ={
+                      prop_id: item.prop_id,
+                      sx: pos[0],
+                      sy: pos[1],
+                      wd: pos[2],
+                      ht: pos[3]
+                    }
+                    this.markup.push(obj)
                   }
-                  this.markup.push(obj)
                 }
                 if(item.prop_type==4 && item.prop_option_value){
                   console.log("jsonparse",item.prop_option_value)
