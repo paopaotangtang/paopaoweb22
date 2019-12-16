@@ -1020,6 +1020,13 @@ export default {
     padding: 5px 20px 0;
     text-align: left;
   }
+  .ant-checkbox-group{
+    line-height: 40px;
+
+  }
+  .ant-checkbox-wrapper{
+    font-size: 16px;
+  }
   .ant-radio-button-wrapper{
     margin-bottom:5px;
     background: #ddf1e3;

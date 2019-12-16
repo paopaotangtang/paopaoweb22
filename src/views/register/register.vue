@@ -112,7 +112,7 @@ export default {
             },
             success: (res) => {
               console.log('成功调用了ajax', res)
-              if (res.status === 'success') {
+              if (res.error_code === 0) {
                 console.log('返回了', res)
                 this.$success({
                   title: '注册成功',
@@ -120,7 +120,7 @@ export default {
                   maskClosable: true
                 })
                 this.$router.push({path: '/login'})
-              } else if (res.status === 'fail') {
+              } else if (res.error_code !== 0) {
                 this.$error({
                   title: '注册失败',
                   content: res.msg,
@@ -130,7 +130,7 @@ export default {
             },
             error: (err) => {
               this.$error({
-                title: '注册失败',
+                title: '注册失败了',
                 content: err,
                 maskClosable: true
               })
