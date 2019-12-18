@@ -127,6 +127,10 @@ const router = new Router({
       name: 'register',
       component: () => import('@/views/register/register')
     }, {
+      path: '/modify_pwd',
+      name: 'modify_pwd',
+      component: () => import('@/views/modify_pwd/modify_pwd')
+    }, {
       path: '*',
       name: 'login',
       component: () => import('@/views/label/login/login')

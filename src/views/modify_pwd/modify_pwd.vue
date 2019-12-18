@@ -8,43 +8,53 @@
         class="login-form"
         @submit="handleSubmit"
       >
-        <a-form-item>
+        <a-form-item label="用户名"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
           <a-input
             v-decorator="[
-          'username',
+          'nickname',
           { rules: [{ required: true, message: '请输入用户名!' }] }
         ]"
-            placeholder="Username"
+            placeholder="请输入用户名"
           >
             <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)"/>
           </a-input>
         </a-form-item>
-        <a-form-item>
+        <a-form-item label="旧密码"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
           <a-input
             v-decorator="[
-          'password',
-          { rules: [{ required: true, message: '请输入密码!' }] }
+          'old_password',
+          { rules: [{ required: true, message: '请输入旧的密码!' }] }
         ]"
             type="password"
-            placeholder="Password"
+            placeholder="请输入旧的密码"
+          >
+            <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)"/>
+          </a-input>
+        </a-form-item>
+                <a-form-item label="新密码"
+                     :label-col="labelCol"
+                     :wrapper-col="wrapperCol">
+          <a-input
+            v-decorator="[
+          'new_password',
+          { rules: [{ required: true, message: '请输入新的密码!' }] }
+        ]"
+            type="password"
+            placeholder="请输入新的密码"
           >
             <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)"/>
           </a-input>
         </a-form-item>
         <a-form-item>
-          <router-link class="login-form-forgot" to="/register">
-            没有账号？立即注册
-          </router-link>
-          <br>
-          <router-link class="modify-form-password" to="/modify_pwd">
-            修改密码
-          </router-link>
-          <br>
           <a-button
             type="primary"
             html-type="submit"
             class="login-form-button"
-          > 登录
+          > 确认修改
           </a-button>
         </a-form-item>
       </a-form>
@@ -55,88 +65,93 @@
 <script>
 
 export default {
-  name: 'login',
-  data () {
-    return {
-      form: this.$form.createForm(this)
-    }
-  },
   beforeCreate () {
     this.form = this.$form.createForm(this)
   },
   methods: {
+    handleSource (value) {
+      console.log(`Selected: ${value}`)
+      // this.groupChecked = value
+    },
     handleSubmit (e) {
       e.preventDefault()
       this.form.validateFields((err, values) => {
-        console.log('form:', values)
         if (!err) {
           let params = {
             type: 'POST',
-            url: this.baseUrl + '/login',
+            url: this.baseUrl + '/modify_pwd',
             data: {
-              'nickname': values.username,
-              'password': values.password
+              'nickname': values.nickname,
+              'old_password': values.old_password,
+              'new_password': values.new_password
             },
             success: (res) => {
               console.log('成功调用了ajax', res)
-              if (res.code === 200) { // 如果账号密码正确
+              if (res.error_code === 0) {
                 console.log('返回了', res)
-                window.localStorage.setItem('groupid', res.groupid)
-                window.localStorage.setItem('user_id', res.user_id)
-                window.localStorage.setItem('nickname', res.nickname)
                 this.$success({
-                  title: '登陆成功',
-                  content: res.msg,
+                  title: '修改成功',
+                  content: '您已成功修改密码，请重新登录',
                   maskClosable: true
                 })
-                if (res.groupid == 1) {
-                  this.$router.push('/label/task')
-                } else if (res.groupid == 2) {
-                  this.$router.push('/label/task_label')
-                } else if (res.groupid == 3) {
-                  this.$router.push('/label/quality_task')
-                }
-              } else if (res.error_code != 0) {
+                this.$router.push({path: '/login'})
+              } else if (res.error_code !== 0) {
                 this.$error({
-                  title: '登录失败',
+                  title: '修改失败',
                   content: res.msg,
                   maskClosable: true
                 })
               }
             },
-            error: function (err) {
-              console.log('ajax error!', err)
+            error: (err) => {
+              this.$error({
+                title: '修改失败',
+                content: err,
+                maskClosable: true
+              })
             }
           }
           this.sendAjax(params)
         }
       })
     }
-
+  },
+  name: 'modify_pwd',
+  data () {
+    return {
+      msg: '',
+      labelCol: {
+        sm: { span: 8 }
+      },
+      wrapperCol: {
+        sm: { span: 12 }
+      }
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
   header {
     height: 60px;
     font: 35px/60px "STXingkai";
     background: linear-gradient(to right, #98F5FF, #76EEC6);
     color: rgba(0, 0, 0, 0.76);
   }
+  h1{
+    padding: 20px;
+  }
   .c-login {
-    width: 300px;
-    height: 300px;
+    width: 400px;
+    height:400px;
     background: linear-gradient(to bottom, #98F5FF, #76EEC6);
     border-radius: 50px;
-    border: 4px solid #000;
-    margin: 15% auto 0;
+    border: 4px solid #000000;
+    margin: 10% auto 0;
     padding: 30px;
   }
-  .c-remember{
-    color: #1890ff;
-  }
-
+.back-login{
+  margin-left: 20px;
+}
 </style>
