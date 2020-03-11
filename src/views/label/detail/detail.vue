@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div class="right">
+      <div class="right"  ref="scrollRight">
         <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
         <table class="c-table" border="1">
           <tr>

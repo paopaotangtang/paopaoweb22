@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div class="center">
+      <div class="center"  ref="scrollRight">
         <!--<a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>-->
         <table class="c-table" border="1">
           <tr>
@@ -67,6 +67,7 @@
                             :class="item.prop_option_value!=item.prop_option_value_final&&option.option_value==item.prop_option_value_final?'red':''"
                 >{{option.option_name}}</a-checkbox>
               </a-checkbox-group>
+              <a-button v-if="item.prop_type==6" :id="item.prop_id" :type="currentPointId==item.prop_id?'primary':'default'" @click="checkPoint">关键点</a-button>
             </td>
           </tr>
         </table>
@@ -101,11 +102,14 @@ export default {
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
+      currentPointId: -1, // 当前关键点属性
       drawOpen: false, // 打开画框
       drawPolygon: false, // 打开画多边形
+      drawPoint: false, // 打开画关键点
       img: new Image(),
       markup: [], // 用来存放标注的数据
       polygon: [],
+      points: [], // 保存关键点数组
       opt: false, // 是否操作启用
       origin_w: null, // 保存图片的原始宽高数据
       origin_h: null,
@@ -351,6 +355,40 @@ export default {
             let cy = first.y * _this.scale + img_top
             ctx.drawImage(ding_png, cx - 10, cy - 10, 20, 20)
           }
+        }
+      }
+
+      //渲染关键点
+      if (_this.points.length > 0){
+        var annotation_str = 0
+
+        for (var s in _this.points){
+            var x = _this.points[s].point['x'] * _this.scale + img_left
+            var y = _this.points[s].point['y'] * _this.scale + img_top
+            annotation_str +=1
+
+            //画索引框
+            ctx.fillStyle="black";
+            ctx.globalAlpha = 0.5;
+            var bgnd_rect_width;
+            var strw = ctx.measureText(annotation_str).width;
+            var bgnd_rect_width = strw + 13
+            var char_width  = ctx.measureText('M').width;
+            var char_height = 1.8 * char_width;
+            ctx.fillRect(parseFloat(x -10),
+                        parseFloat(y - 1.2*char_height),
+                        parseFloat(bgnd_rect_width),
+                        parseFloat(char_height));
+
+            //填充文字
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = "yellow";
+            ctx.fillText(annotation_str, parseFloat(x - 0.4*char_width), parseFloat(y - 0.35*char_height));
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI*2);
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth=2;
+            ctx.stroke();
         }
       }
 
@@ -684,6 +722,70 @@ export default {
         }
       })
 
+            //在这里写关键点的代码
+      var keypoints = {
+        prop_id: -1,
+        point:[]
+      }
+
+      // 关键点事件监听
+      cvs.addEventListener('click', function(evt){
+        var pt2 = []
+        if(!_this.drawPoint || _this.stats.move){
+          return
+        }
+        var x = evt.clientX
+        var y = evt.clientY
+        var pt = convertCoordtion(x,y)
+
+        if(!_this.stats.del){
+          // 添加点
+          keypoints.prop_id = _this.currentPointId
+          keypoints.point = pt
+          console.log(keypoints.point)
+          _this.points.push(keypoints)
+          keypoints = {
+            prop_id: -1,
+            point:[]
+          }
+        } else{
+          // 删除点
+          var extend_num = 3
+          for(var index in _this.points){
+            var item = _this.points[index]
+            if(pt.x >= item.point.x-extend_num && pt.x <= item.point.x +extend_num && pt.y>= item.point.y - extend_num && pt.y<=item.point.y+extend_num ){
+              _this.points.splice(index,1)
+              break;
+            }
+          }
+        }
+        // 超出边界处理
+          if (pt.x > _this.origin_w || pt.y > _this.origin_h || pt.x < 0 || pt.y < 0) {
+
+            _this.points.pop()
+          }
+
+          pt2 = []
+        _this.props.forEach(prop => {
+          _this.points.forEach(item => {
+
+              if (item.prop_id == prop.prop_id) {
+                var pt3 = []
+                pt3.push(item.point.x)
+                pt3.push(item.point.y)
+                pt2.push(pt3)
+                prop.prop_option_value = pt2
+                prop.prop_option_value_final = pt2
+                // console.log('prop_id:',prop.prop_id)
+                // console.log(prop.prop_option_value)
+              }
+            })
+            pt2=[]
+          })
+        console.log(_this.points)
+      })
+
+
       // 绑定十字架事件
       cvs.addEventListener('mousemove', function (evt) {
         var x = evt.clientX
@@ -751,14 +853,27 @@ export default {
     checkFrame (e) {
       this.drawOpen = true
       this.drawPolygon = false
+      this.drawPoint = false
       this.currentFrameId = e.target.id
       this.currentPolygonId = -1
+      this.currentPointId = -1
     },
     checkPolygon (e) {
       this.drawOpen = false
       this.drawPolygon = true
+      this.drawPoint = false
       this.currentPolygonId = e.target.id
       this.currentFrameId = -1
+      this.currentPointId = -1
+
+    },
+    checkPoint (e) {
+      this.drawOpen = false
+      this.drawPolygon = false
+      this.drawPoint = true
+      this.currentPolygonId = -1
+      this.currentFrameId = -1
+      this.currentPointId = e.target.id
 
     },
     onInput (id) {
@@ -818,6 +933,7 @@ export default {
   this.stats[key] = true
 },
     myKeyUp (evt) {
+      console.log(evt.keyCode)
       evt.preventDefault()
       if (evt.keyCode == 46 || evt.keyCode == 68) {
         this.triggleMove($('#mk_del')[0], 'del', '2')
@@ -829,6 +945,17 @@ export default {
       }
       if (evt.keyCode == 88) {
        this.toggleXY($('#coor')[0])
+      }
+
+      if(evt.keyCode==107 || evt.keyCode == 187){ // 按 +或者=
+        console.log(evt.keyCode)
+        this.scale += 0.3
+      }
+      if(evt.keyCode==109 || evt.keyCode == 189){ // 按 -或者-
+        this.scale += -0.3
+        if (this.scale < 0.1) {
+          this.scale = 0.1
+        }
       }
       // if (evt.keyCode == 84) {
       //   triggleMove($('#mk_ding')[0], 'ding', '2')
@@ -903,6 +1030,8 @@ export default {
             //初始化canvas&&img
             this.drawOpen = false
             this.currentFrameId = -1
+            this.currentPolygonId = -1
+            this.currentPointId = -1
             this.origin_w = null
             this.origin_h = null
             this.scale = 1 // 放大比例
@@ -911,21 +1040,25 @@ export default {
             this.img.src = this.photo_path
             this.markup = []
             this.polygon = []
+            this.points = []
 
               this.props.forEach(item=>{
                 if(item.prop_type==3){
                   // console.log(item.prop_option_value)
-                  let pos = item.prop_option_value.split(',')
-                  let obj ={
-                    prop_id: item.prop_id,
-                    color:'green',
-                    sx: pos[0],
-                    sy: pos[1],
-                    wd: pos[2],
-                    ht: pos[3]
+                  if(item.prop_option_value && item.prop_option_value_final) {
+                    let pos = item.prop_option_value.split(',')
+                    let obj = {
+                      prop_id: item.prop_id,
+                      color: 'green',
+                      sx: pos[0],
+                      sy: pos[1],
+                      wd: pos[2],
+                      ht: pos[3]
+                    }
+                    this.markup.push(obj)
                   }
-                  this.markup.push(obj)
-                  if( item.prop_option_value != item.prop_option_value_final){
+
+                  if( item.prop_option_value != item.prop_option_value_final && item.prop_option_value_final){
                     let posFinal = item.prop_option_value_final.split(',')
                     let objFinal = {
                       prop_id: item.prop_id,
@@ -940,9 +1073,9 @@ export default {
                 }
 
                 if(item.prop_type==4){
-                  if(item.prop_option_value){
-                    console.log("存在标注",item.prop_option_value)
-                    let value = JSON.parse(item.prop_option_value);
+                  if(item.prop_option_value && item.prop_option_value_final){
+                    console.log("存在标注",item.prop_option_value_final)
+                    let value = JSON.parse(item.prop_option_value_final);
                     let poly = { // 存储多边形的点坐标位置
                       color:'green',
                       prop_id: item.prop_id,
@@ -953,7 +1086,7 @@ export default {
                   }
 
                   console.log(item.prop_option_value ,item.prop_option_value_final)
-                  if(item.prop_option_value != item.prop_option_value_final){
+                  if(item.prop_option_value != item.prop_option_value_final && item.prop_option_value_final){
                     console.log('存在final')
                     let valueFinal = JSON.parse(item.prop_option_value_final);
                     let polyFinal = { // 存储多边形的点坐标位置
@@ -970,8 +1103,25 @@ export default {
                     item.prop_option_value = item.prop_option_value_final;
                   }
                 }
+                // 获取数据库中关键点的数据
+                if(item.prop_type==6 && item.prop_option_value_final){
+                  let value = item.prop_option_value_final;
+                  if (value.length){
+                    console.log(value)
+                    value.forEach(pt=>{
+                      let keypoints = {
+                      prop_id: item.prop_id,
+                      point:[]
+                      }
+                      keypoints.point.x = pt[0]
+                      keypoints.point.y = pt[1]
+                      this.points.push(keypoints)
+                    })
+                    console.log(this.points)
+                  }
+                }
               })
-
+            this.$refs.scrollRight.scrollTop = 0
           }
           this.lastLoading = false
           this.nextLoading = false

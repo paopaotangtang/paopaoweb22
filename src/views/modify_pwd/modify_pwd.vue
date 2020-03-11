@@ -104,9 +104,10 @@ export default {
               }
             },
             error: (err) => {
+              console.log(err)
               this.$error({
                 title: '修改失败',
-                content: err,
+                content: err.responseJSON.msg,
                 maskClosable: true
               })
             }

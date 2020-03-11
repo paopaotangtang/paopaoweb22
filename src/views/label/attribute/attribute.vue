@@ -58,6 +58,7 @@
             <a-menu-item key="3" class="c-item" title="画框">画框</a-menu-item>
             <a-menu-item key="4" class="c-item" title="多边形">多边形</a-menu-item>
             <a-menu-item key="5" class="c-item" title="复选">复选</a-menu-item>
+            <a-menu-item key="6" class="c-item" title="关键点">关键点</a-menu-item>
           </a-menu>
           <a-button :disabled="modalType==1?false:true">
             {{modalObj.propType}}<a-icon type="down" />

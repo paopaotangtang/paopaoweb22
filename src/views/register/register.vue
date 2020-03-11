@@ -131,7 +131,7 @@ export default {
             error: (err) => {
               this.$error({
                 title: '注册失败了',
-                content: err,
+                content: err.responseJSON.msg,
                 maskClosable: true
               })
             }

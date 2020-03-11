@@ -105,7 +105,7 @@ export default {
               }
             },
             error: function (err) {
-              console.log('ajax error!', err)
+              console.log('ajax error!', err.responseJSON.msg)
             }
           }
           this.sendAjax(params)
