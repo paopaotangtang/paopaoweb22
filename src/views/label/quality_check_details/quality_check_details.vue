@@ -731,12 +731,25 @@ export default {
       // 关键点事件监听
       cvs.addEventListener('click', function(evt){
         var pt2 = []
-        if(!_this.drawPoint || _this.stats.move){
-          return
-        }
         var x = evt.clientX
         var y = evt.clientY
         var pt = convertCoordtion(x,y)
+
+                //增加提示，如果删除点等属性时没有选中对应的属性，则弹窗提示
+        if(!_this.drawPoint && !_this.drawOpen && !_this.drawPolygon && _this.stats.del){
+          if (pt.x <= _this.origin_w && pt.y <= _this.origin_h && pt.x >= 0 && pt.y >= 0) {
+            // alert('如需删除，请先选中对应的属性')
+            _this.$warning({
+              title: '温馨提示：',
+              content: '如需删除，请先选中对应的属性',
+              maskClosable: true
+            })
+          }
+        }
+        if(!_this.drawPoint || _this.stats.move){
+          return
+        }
+
 
         if(!_this.stats.del){
           // 添加点
@@ -767,7 +780,9 @@ export default {
 
           pt2 = []
         _this.props.forEach(prop => {
-          _this.points.forEach(item => {
+          pt2=[]
+          if (_this.points.length > 0){
+            _this.points.forEach(item => {
 
               if (item.prop_id == prop.prop_id) {
                 var pt3 = []
@@ -778,9 +793,18 @@ export default {
                 prop.prop_option_value_final = pt2
                 // console.log('prop_id:',prop.prop_id)
                 // console.log(prop.prop_option_value)
+                }
+              })
+            } else{
+            _this.props.forEach(prop => {
+              if (prop.prop_id ==  _this.currentPointId){
+                console.log('进入这里')
+                prop.prop_option_value = []
+                prop.prop_option_value_final = []
               }
             })
-            pt2=[]
+          }
+
           })
         console.log(_this.points)
       })

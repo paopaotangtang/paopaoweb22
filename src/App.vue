@@ -31,4 +31,14 @@ export default {
     margin: 0;
     list-style: none;
   }
+
+  .ant-checkbox-checked .ant-checkbox-inner::after{
+    transition:none !important;
+    }
+    .ant-checkbox-inner::after{
+    transition:none !important;
+    }
+    .ant-checkbox-checked .ant-checkbox-inner{
+    transition:none !important;
+  }
 </style>

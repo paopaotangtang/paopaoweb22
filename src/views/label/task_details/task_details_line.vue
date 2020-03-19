@@ -734,13 +734,29 @@ export default {
 
       // 关键点事件监听
       cvs.addEventListener('click', function(evt){
+
+
+        var x = evt.clientX
+        var y = evt.clientY
+        var pt = convertCoordtion(x,y)
+
+        //增加提示，如果删除点等属性时没有选中对应的属性，则弹窗提示
+        if(!_this.drawPoint && !_this.drawOpen && !_this.drawPolygon && _this.stats.del){
+          if (pt.x <= _this.origin_w && pt.y <= _this.origin_h && pt.x >= 0 && pt.y >= 0) {
+            // alert('如需删除，请先选中对应的属性')
+            _this.$warning({
+              title: '温馨提示：',
+              content: '如需删除，请先选中对应的属性',
+              maskClosable: true
+            })
+          }
+        }
+
         var pt2 = []
         if(!_this.drawPoint || _this.stats.move){
           return
         }
-        var x = evt.clientX
-        var y = evt.clientY
-        var pt = convertCoordtion(x,y)
+
 
         if(!_this.stats.del){
           // 添加点
@@ -758,7 +774,9 @@ export default {
           for(var index in _this.points){
             var item = _this.points[index]
             if(pt.x >= item.point.x-extend_num && pt.x <= item.point.x +extend_num && pt.y>= item.point.y - extend_num && pt.y<=item.point.y+extend_num ){
+              console.log('删除')
               _this.points.splice(index,1)
+              console.log(_this.points)
               break;
             }
           }
@@ -769,22 +787,34 @@ export default {
             _this.points.pop()
           }
 
-          pt2 = []
+          // pt2 = []
         _this.props.forEach(prop => {
-          _this.points.forEach(item => {
+          pt2=[]
+          if (_this.points.length > 0){
+            _this.points.forEach(item => {
 
               if (item.prop_id == prop.prop_id) {
                 var pt3 = []
                 pt3.push(item.point.x)
                 pt3.push(item.point.y)
                 pt2.push(pt3)
+                // console.log(pt2)
                 prop.prop_option_value = pt2
+                console.log(prop.prop_option_value)
                 prop.prop_option_value_final = pt2
                 // console.log('prop_id:',prop.prop_id)
                 // console.log(prop.prop_option_value)
               }
             })
-            pt2=[]
+          } else {
+            _this.props.forEach(prop => {
+              if (prop.prop_id ==  _this.currentPointId){
+                console.log('进入这里')
+                prop.prop_option_value = []
+                prop.prop_option_value_final = []
+              }
+            })
+          }
           })
         console.log(_this.points)
       })
@@ -1142,9 +1172,11 @@ export default {
         return
       }
       /*this.props.forEach()*/
+      console.log(this.props)
       let params = {
         type: 'POST',
         url: this.baseUrl + '/task/save_data',
+
         data: {
           'create_user': window.localStorage.getItem('nickname'),
           'group_id': window.localStorage.getItem('groupid'),
@@ -1152,6 +1184,7 @@ export default {
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
           'props': this.props
+
         },
         success: (res) => {
           if (res.status == 'success') {
