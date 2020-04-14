@@ -81,6 +81,7 @@ export default {
       lastLoading: false,
       nextLoading: false,
       saveLoading: false,
+      hasKeyCoded: false,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
@@ -972,6 +973,7 @@ export default {
       console.log(evt.keyCode)
       evt.preventDefault()
       if (evt.keyCode == 83) { //按s键等同于新的一张按钮
+        this.hasKeyCoded = true
         this.saveData(1)
         return
       }
@@ -1124,9 +1126,14 @@ export default {
           this.lastLoading = false
           this.nextLoading = false
           this.saveLoading = false
+          this.hasKeyCoded = false
         },
         error: function (err) {
           // console.log('error!', err)
+          this.lastLoading = false
+          this.nextLoading = false
+          this.saveLoading = false
+          this.hasKeyCoded = false
         }
       }
       this.sendAjax(params)
@@ -1204,6 +1211,9 @@ export default {
         },
         error: function (err) {
           console.log('error!', err)
+          this.saveLoading = false
+          this.hasKeyCoded = false
+
         }
       }
       this.sendAjax(params)

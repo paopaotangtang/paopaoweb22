@@ -99,6 +99,7 @@ export default {
       lastLoading: false,
       nextLoading: false,
       saveLoading: false,
+      hasKeyCoded: false,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
@@ -959,19 +960,26 @@ export default {
     myKeyUp (evt) {
       console.log(evt.keyCode)
       evt.preventDefault()
+      if(this.hasKeyCoded){
+        return
+      }
       if (evt.keyCode == 83){
+        this.hasKeyCoded = true
         this.modifyDetail(1)
         return
       }
       if (evt.keyCode == 87){//上一页
+        this.hasKeyCoded = true
         this.getDetail(2)
         return
       }
       if (evt.keyCode == 69){//下一页
+        this.hasKeyCoded = true
         this.getDetail(3)
         return
       }
       if (evt.keyCode == 90){//回到质检页
+        this.hasKeyCoded = true
         this.getDetail(1)
         return
       }
@@ -1166,9 +1174,14 @@ export default {
           this.lastLoading = false
           this.nextLoading = false
           this.saveLoading = false
+          this.hasKeyCoded = false
         },
         error: function (err) {
           // console.log('error!', err)
+          this.lastLoading = false
+          this.nextLoading = false
+          this.saveLoading = false
+          this.hasKeyCoded = false
         }
       }
       this.sendAjax(params)
@@ -1191,7 +1204,6 @@ export default {
           'result_status':result_status
         },
         success: (res) => {
-          this.modifyLoading = false
           if (res.status == 'success') {
             console.log('已提交')
             //如果是质检新的，调取新的一张，与查看历史的对错不获取新的只保存
@@ -1205,7 +1217,6 @@ export default {
                 maskClosable: true
               })
             }
-
             // this.$success({
             //   title: '修改成功：',
             //   content: '此数据已保存。',
@@ -1218,12 +1229,17 @@ export default {
               maskClosable: true
             })
           }
+          this.modifyLoading = false
+          this.hasKeyCoded = false
         },
         error: function (err) {
           console.log('error!', err)
+          this.modifyLoading = false
+          this.hasKeyCoded = false
         }
       }
       this.sendAjax(params)
+
     }
 
   }
