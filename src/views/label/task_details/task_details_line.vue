@@ -971,6 +971,10 @@ export default {
     myKeyUp (evt) {
       console.log(evt.keyCode)
       evt.preventDefault()
+      if (evt.keyCode == 83) { //按s键等同于新的一张按钮
+        this.saveData(1)
+        return
+      }
       if (evt.keyCode == 46 || evt.keyCode == 68) {
         this.triggleMove($('#mk_del')[0], 'del', '2')
         return

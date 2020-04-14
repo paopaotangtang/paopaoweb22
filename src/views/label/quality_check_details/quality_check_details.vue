@@ -959,6 +959,22 @@ export default {
     myKeyUp (evt) {
       console.log(evt.keyCode)
       evt.preventDefault()
+      if (evt.keyCode == 83){
+        this.modifyDetail(1)
+        return
+      }
+      if (evt.keyCode == 87){//上一页
+        this.getDetail(2)
+        return
+      }
+      if (evt.keyCode == 69){//下一页
+        this.getDetail(3)
+        return
+      }
+      if (evt.keyCode == 90){//回到质检页
+        this.getDetail(1)
+        return
+      }
       if (evt.keyCode == 46 || evt.keyCode == 68) {
         this.triggleMove($('#mk_del')[0], 'del', '2')
         return
@@ -1181,6 +1197,13 @@ export default {
             //如果是质检新的，调取新的一张，与查看历史的对错不获取新的只保存
             if(this.detail_type == 1){
               this.getDetail(1)
+            }
+            else{
+              this.$success({
+                title: '温馨提示：',
+                content: '修改成功',
+                maskClosable: true
+              })
             }
 
             // this.$success({
