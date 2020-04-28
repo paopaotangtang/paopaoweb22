@@ -987,6 +987,15 @@ export default {
       evt.preventDefault()
       if(this.hasKeyCoded){
         return
+
+      }
+      if (evt.keyCode == 75) {//k键控制辅助线
+        if (this.stats.guideLine){
+          this.stats.guideLine = false
+        }
+        else {
+          this.stats.guideLine = true
+        }
       }
       if (evt.keyCode == 83) { //按s键等同于新的一张按钮
         this.hasKeyCoded = true
