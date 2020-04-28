@@ -372,9 +372,9 @@ export default {
       if (_this.stats.guideLine){
         ctx.moveTo(img_left, img_top+60 * _this.scale)
         ctx.lineTo(img_left + 128 * _this.scale, img_top+60 * _this.scale)
-        ctx.stroke();
         ctx.moveTo(img_left, img_top+100 * _this.scale)
         ctx.lineTo(img_left + 128 * _this.scale, img_top+100 * _this.scale)
+        ctx.strokeStyle="red"
         ctx.stroke();
       }
 
