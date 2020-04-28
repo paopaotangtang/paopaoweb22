@@ -5,7 +5,7 @@
           <span id='mk_del' @click="triggleMove($event.target,'del',2)">删除（del/D）</span>
           <span id='mk_drag' @click="triggleMove($event.target,'move',2)">拖拽（Space）</span>
           <span  id="coor" class="c-span-active" @click="toggleXY($event.target)">坐标线（X）</span>
-          <span >废弃</span>
+          <span >辅助线(k)</span>
           <span>退出标注</span>
         </div>
         <div class="main-content" id="cvs_cont">
@@ -117,7 +117,8 @@ export default {
         line: false,
         man: false,
         car: false,
-        bycycle: false
+        bycycle: false,
+        guideLine: true
       },
       coor: true,
       coor_x: 0,
@@ -366,6 +367,17 @@ export default {
       var img_w = _this.origin_w * _this.scale
       var img_h = _this.origin_h * _this.scale
       ctx.drawImage(_this.img, img_left, img_top, img_w, img_h)
+
+      // 画两条辅助线
+      if (_this.stats.guideLine){
+        ctx.moveTo(img_left, img_top+60 * _this.scale)
+        ctx.lineTo(img_left + 128 * _this.scale, img_top+60 * _this.scale)
+        ctx.stroke();
+        ctx.moveTo(img_left, img_top+100 * _this.scale)
+        ctx.lineTo(img_left + 128 * _this.scale, img_top+100 * _this.scale)
+        ctx.stroke();
+      }
+
       // 根据data里面的数据绘制标注
       if (_this.markup.length > 0) {
         for (var i = 0; i < _this.markup.length; i++) {
@@ -1040,6 +1052,16 @@ export default {
 },
     myKeyUp (evt) {
       evt.preventDefault()
+
+      if (evt.keyCode == 75) {//k键控制辅助线
+        if (this.stats.guideLine){
+          this.stats.guideLine = false
+        }
+        else {
+          this.stats.guideLine = true
+        }
+      }
+
       if (evt.keyCode == 46 || evt.keyCode == 68) {
         this.triggleMove($('#mk_del')[0], 'del', '2')
         return

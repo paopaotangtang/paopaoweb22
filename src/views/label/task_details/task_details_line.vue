@@ -5,7 +5,7 @@
           <span id='mk_del' @click="triggleMove($event.target,'del',2)">删除（del/D）</span>
           <span id='mk_drag' @click="triggleMove($event.target,'move',2)">拖拽（Space）</span>
           <span  id="coor" class="c-span-active" @click="toggleXY($event.target)">坐标线（X）</span>
-          <span >废弃</span>
+          <span>辅助线(k)</span>
           <span>退出标注</span>
         </div>
         <div class="main-content" id="cvs_cont">
