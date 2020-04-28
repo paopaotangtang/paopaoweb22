@@ -106,7 +106,8 @@ export default {
         line: false,
         man: false,
         car: false,
-        bycycle: false
+        bycycle: false,
+        guideLine: true
       },
       coor: true,
       coor_x: 0,
@@ -267,6 +268,18 @@ export default {
       var img_w = _this.origin_w * _this.scale
       var img_h = _this.origin_h * _this.scale
       ctx.drawImage(_this.img, img_left, img_top, img_w, img_h)
+
+      // 画两条辅助线
+      if (_this.stats.guideLine){
+        ctx.moveTo(img_left, img_top+60)
+        ctx.lineTo(img_left + 128, img_top+60)
+        ctx.stroke();
+        ctx.moveTo(img_left, img_top+100)
+        ctx.lineTo(img_left + 128, img_top+100)
+        ctx.stroke();
+      }
+
+
       // 根据data里面的数据绘制矩形标注
       if (_this.markup.length > 0) {
         for (var i = 0; i < _this.markup.length; i++) {
@@ -972,6 +985,9 @@ export default {
     myKeyUp (evt) {
       console.log(evt.keyCode)
       evt.preventDefault()
+      if(this.hasKeyCoded){
+        return
+      }
       if (evt.keyCode == 83) { //按s键等同于新的一张按钮
         this.hasKeyCoded = true
         this.saveData(1)
