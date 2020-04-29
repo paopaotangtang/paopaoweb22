@@ -58,10 +58,12 @@
               <a-button v-if="item.prop_type==3" :id="item.prop_id" :type="currentFrameId==item.prop_id?'primary':'default'" @click="checkFrame" >画框</a-button>
               <a-button v-if="item.prop_type==4" :id="item.prop_id" :type="currentPolygonId==item.prop_id?'primary':'default'" @click="checkPolygon" >多边形</a-button>
               <a-checkbox-group  v-if="item.prop_type==5" :value=item.prop_option_value @change="(val)=>checkChange(val,item.prop_id)" >
-                <a-checkbox v-for="option in item.property_values"
+                <a-checkbox v-for="(option ,index) in item.property_values"
+
                             :key="option.option_value"
                             :value="option.option_value"
                             :disabled="qualityInspection==-1?true:false"
+                            :class="item.right_status[index]"
                 >{{option.option_name}}</a-checkbox>
               </a-checkbox-group>
               <a-button v-if="item.prop_type==6" :id="item.prop_id" :type="currentPointId==item.prop_id?'primary':'default'" @click="checkPoint">关键点</a-button>
