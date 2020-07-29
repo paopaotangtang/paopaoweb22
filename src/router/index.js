@@ -144,7 +144,7 @@ router.beforeEach((to, from, next) => {
   let needLogin = to.matched.some(item => item.meta.groupid)// 有要求先登录,且groupid==1管理员,的话就是true
   let groupid = localStorage.getItem('groupid')
   if (needLogin) { // 如果这个路由需要特定身份
-    console.log(to)
+    // console.log(to)
     if (groupid == to.meta.groupid) { // 如果是管理员就继续访问，否则去登录
       next()
     } else {

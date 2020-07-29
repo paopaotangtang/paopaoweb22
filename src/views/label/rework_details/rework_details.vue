@@ -18,6 +18,7 @@
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
             <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail(4)" :loading="modifyLoading">确认修改</a-button>
             <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
+            <a-tooltip title=""></a-tooltip>
           </div>
           <div >
             <a-button type="primary"  @click="saveAndNew(4)" :loading="saveLoading">新的一张</a-button>
@@ -26,7 +27,7 @@
       </div>
 
       <div class="center" ref="scrollRight">
-        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
+        <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">{{result_status}}</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -91,6 +92,7 @@ export default {
       check_data_info_id: -1,
       qualityLock: false,
       quality_inspection: 0,
+      result_status: null,
       modifyLoading: false,
       lastLoading: false,
       nextLoading: false,
@@ -1149,6 +1151,12 @@ export default {
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
             this.quality_inspection = res.quality_inspection
+            if(res.result_status== 1){
+              this.result_status = '此数据正确或已修改为质检建议结果，不可修改'
+            }else if(res.result_status == 0){
+              this.result_status = '此数据已被质检员确认，不可修改，结果为：错误'
+            }
+            // this.result_status = res.result_status=1?'正确':'错误'
             //初始化canvas&&img
             this.drawOpen = false
             this.drawPolygon = false

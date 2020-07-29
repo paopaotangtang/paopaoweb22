@@ -14,19 +14,25 @@
         <div class="wrap-bottom">
           <div class="left-bottom">
             历史记录：
+            <!--<a-button type="primary"  @click="getDetail(4)" :loading="fisrtLoading" v-if="is_doubt==0">回到首页</a-button>-->
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
             <a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>
             <a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>
           </div>
-          <div>
-            <a-button type="primary"  @click="saveData(1)" :loading="saveLoading">新的一张</a-button>
+          <div class="left-bottom">
+            <input v-model="inputValue" size="5" v-if="is_doubt==0">
+            <a-button style="margin-right: 50px" type="primary" @click="getDetail(5)" :loading="jumpLoading" v-if="is_doubt==0">跳转</a-button>
+            <a-button type="primary"  @click="doubtData(1)" :loading="doubtLoading" v-if="is_doubt==0 && detail_type==1" style="float: bottom;">存疑</a-button>
+            <a-button type="primary"  @click="saveData(1)" :loading="saveLoading" v-if="is_doubt==0" style="float: right">新的一张</a-button>
+            <a-button type="primary"  @click="saveDoubtData(1)" :loading="saveLoading" v-if="is_doubt==1" style="float: right">继续</a-button>
           </div>
         </div>
       </div>
 
       <div class="right" ref="scrollRight">
         <a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>
+        <a-tag v-if="doubt_status" color="#f50" style="margin-bottom: 10px;">存疑</a-tag>
         <table class="c-table" border="1">
           <tr>
             <th width="20%">属性名</th>
@@ -70,6 +76,8 @@ export default {
   data () {
     return {
       task_id: this.$route.query.task_id,
+      is_doubt: this.$route.query.is_doubt,
+      doubt_status: '',
       photo_path: '',
       task_detail_id: -1,
       props: [], // 传来的并传回去
@@ -79,8 +87,11 @@ export default {
       qualityLock: false,
       modifyLoading: false,
       lastLoading: false,
+      fisrtLoading: false,
       nextLoading: false,
       saveLoading: false,
+      jumpLoading: false,
+      doubtLoading: false,
       hasKeyCoded: false,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
@@ -107,11 +118,12 @@ export default {
         man: false,
         car: false,
         bycycle: false,
-        guideLine: true
+        guideLine: false
       },
       coor: true,
       coor_x: 0,
-      coor_y: 0
+      coor_y: 0,
+      inputValue: ''
     }
   },
 
@@ -147,7 +159,7 @@ export default {
       //画布宽高
       wd = cvs.offsetWidth
       ht = cvs.offsetHeight
-      console.log(wd," ",ht)
+      // console.log(wd," ",ht)
       var w_scale = 1
       var h_scale = 1
       if (_this.origin_w > wd) {
@@ -165,10 +177,10 @@ export default {
       }, 0)
     }
 
-    var ding_png = new Image()
-    ding_png.src = '/sorting/image/dingding.jpg'
-    ding_png.onload = function () {
-    }
+    // var ding_png = new Image()
+    // ding_png.src = '/sorting/image/dingding.jpg'
+    // ding_png.onload = function () {
+    // }
 
 
     // 保存不同标注的颜色值
@@ -563,7 +575,7 @@ export default {
               _this.markup.splice(index, 1)
             }
           })
-          console.log(mk_dt.prop_id)
+          // console.log(mk_dt.prop_id)
           _this.markup.push(mk_dt)
           mk_move = false
         }
@@ -984,7 +996,11 @@ export default {
   this.stats[key] = true
 },
     myKeyUp (evt) {
-      console.log(evt.keyCode)
+      console.log(evt.key)
+      if(evt.key=='f'||'d'){
+        console.log('fff')
+        console.log(evt.code)
+      }
       evt.preventDefault()
       if(this.hasKeyCoded){
         return
@@ -1015,7 +1031,7 @@ export default {
        this.toggleXY($('#coor')[0])
       }
       if(evt.keyCode==107 || evt.keyCode == 187){ // 按 +或者=
-        console.log(evt.keyCode)
+        // console.log(evt.keyCode)
         this.scale += 0.3
       }
       if(evt.keyCode==109 || evt.keyCode == 189){ // 按 -或者-
@@ -1051,6 +1067,10 @@ export default {
         this.lastLoading = true
       } else if (detailType == 3) {
         this.nextLoading = true
+      } else if (detailType == 4){
+        this.firstLoading = true
+      } else if (detailType == 5){
+        this.jumpLoading = true
       }
       let params  = {
         type: 'POST',
@@ -1060,7 +1080,9 @@ export default {
           'nickname': window.localStorage.getItem('nickname'),
           'task_id': this.task_id,
           'detail_type': detailType,
-          'task_detail_id': this.task_detail_id
+          'task_detail_id': this.task_detail_id,
+          'page':this.inputValue,
+          'is_doubt': this.is_doubt
         },
         success: (res) => {
           if(res.msg){
@@ -1072,11 +1094,13 @@ export default {
             // if (res.status == 666) {
             //   this.$router.push({path: '/label/task_label'})
             // }
-          }else {
+          }
+          else {
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.props = res.props
             this.detail_type = res.detail_type
+            this.doubt_status = res.is_doubt
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
             //初始化canvas&&img
@@ -1095,9 +1119,10 @@ export default {
             this.markup = []
             this.polygon = []
             this.points = []
+            console.log(this.task_detail_id)
             // if(detailType!=1){//不是新任务，则有画框记录
               this.props.forEach(item=>{
-                console.log('jinlaile')
+                // console.log('jinlaile')
                 if(item.prop_type==3){
                   console.log(item.prop_option_value)
                   if (item.prop_option_value){
@@ -1150,16 +1175,24 @@ export default {
             this.$refs.scrollRight.scrollTop = 0
           }
           this.lastLoading = false
+          this.fisrtLoading = false
           this.nextLoading = false
           this.saveLoading = false
+          this.doubtLoading = false
           this.hasKeyCoded = false
+          this.jumpLoading = false
+          this.inputValue = ''
         },
         error: function (err) {
           // console.log('error!', err)
           this.lastLoading = false
+          this.fisrtLoading = false
           this.nextLoading = false
           this.saveLoading = false
+          this.doubtLoading = false
           this.hasKeyCoded = false
+          this.jumpLoading = false
+          this.inputValue = ''
         }
       }
       this.sendAjax(params)
@@ -1220,6 +1253,7 @@ export default {
           'photo_path': this.photo_path,
           'task_id': this.task_id,
           'task_detail_id': this.task_detail_id,
+          'doubt':0,
           'props': this.props
 
         },
@@ -1243,8 +1277,94 @@ export default {
         }
       }
       this.sendAjax(params)
-    }
+    },
+    doubtData (detailType) {
+      this.doubtLoading = true
+      event.target.blur()
+      if (this.detail_type !== 1) {
+        this.getDetail(1)
+        return
+      }
+      /*this.props.forEach()*/
+      console.log(this.props)
+      let params = {
+        type: 'POST',
+        url: this.baseUrl + '/task/save_data',
 
+        data: {
+          'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
+          'photo_path': this.photo_path,
+          'task_id': this.task_id,
+          'task_detail_id': this.task_detail_id,
+          'doubt':1,
+          'props': this.props
+
+        },
+        success: (res) => {
+          if (res.status == 'success') {
+            this.getDetail(1)
+          }else if (res.msg) {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg,
+              maskClosable: true
+            })
+            this.getDetail(1)
+          }
+        },
+        error: function (err) {
+          console.log('error!', err)
+          this.doubtLoading = false
+          this.hasKeyCoded = false
+        }
+      }
+      this.sendAjax(params)
+    },
+    saveDoubtData (detailType) {
+      this.saveLoading = true
+      event.target.blur()
+      if (this.detail_type !== 1) {
+        this.getDetail(1)
+        return
+      }
+      /*this.props.forEach()*/
+      console.log(this.props)
+      let params = {
+        type: 'POST',
+        url: this.baseUrl + '/task/modify_data',
+
+        data: {
+          'create_user': window.localStorage.getItem('nickname'),
+          'group_id': window.localStorage.getItem('groupid'),
+          'photo_path': this.photo_path,
+          'task_id': this.task_id,
+          'task_detail_id': this.task_detail_id,
+          'doubt':1,
+          'props': this.props
+
+        },
+        success: (res) => {
+          if (res.status == 'success') {
+            this.getDetail(1)
+          }else if (res.msg) {
+            this.$warning({
+              title: '温馨提示：',
+              content: res.msg,
+              maskClosable: true
+            })
+            this.getDetail(1)
+          }
+        },
+        error: function (err) {
+          console.log('error!', err)
+          this.saveLoading = false
+          this.hasKeyCoded = false
+
+        }
+      }
+      this.sendAjax(params)
+    },
   }
 }
 </script>

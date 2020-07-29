@@ -16,6 +16,7 @@
             历史记录：
             <a-button type="primary"  @click="getDetail(2)" :loading="lastLoading" >上一张</a-button>
             <a-button type="primary"  @click="getDetail(3)" :loading="nextLoading">下一张</a-button>
+            <input v-model="inputValue" size="5" style="text-align:right;margin-left: 20px" > <a-button style="text-align:right" type="primary" @click="getDetail(5)" :loading="jumpLoading">跳转</a-button>
             <!--<a-button type="primary"  v-if="detail_type!==1 && !qualityLock" @click="modifyDetail()" :loading="modifyLoading">确认修改</a-button>-->
             <!--<a-tooltip title="此数据已被质检员确认，不可修改"><a-button type="primary"  v-if="detail_type!==1 && qualityLock" disabled>确认修改</a-button></a-tooltip>-->
           </div>
@@ -26,6 +27,8 @@
       </div>
 
       <div class="center"  ref="scrollRight">
+        <a-tag v-if="detail_type!=1 && result_status ==1" color="blue" style="margin-bottom: 10px; font-size: 20px">√</a-tag>
+        <a-tag v-if="detail_type!=1 && result_status ==0" color="red" style="margin-bottom: 10px; font-size: 20px">X</a-tag>
         <!--<a-tag v-if="qualityLock" color="#f50" style="margin-bottom: 10px;">此数据已被质检员确认，不可修改</a-tag>-->
         <table class="c-table" border="1">
           <tr>
@@ -93,6 +96,7 @@ export default {
       classActive: 'c-span-active',
       detail_type: 1,
       check_data_info_id: -1,
+      result_status: null,
       qualityLock: false,
       quality_inspection: 0,
       modifyLoading: false,
@@ -100,6 +104,7 @@ export default {
       nextLoading: false,
       saveLoading: false,
       hasKeyCoded: false,
+      jumpLoading: true,
       qualityInspection: 0,
       currentFrameId: -1, // 当前画框属性
       currentPolygonId: -1, // 当前多边形属性
@@ -129,7 +134,8 @@ export default {
       },
       coor: true,
       coor_x: 0,
-      coor_y: 0
+      coor_y: 0,
+      inputValue: ''
     }
   },
   beforeMount () {
@@ -882,11 +888,11 @@ export default {
         if(item.prop_id == id) {
           item.prop_option_value = checkedValues
           item.prop_option_value_final = checkedValues
-          console.log(item.prop_option_value);
+          // console.log(item.prop_option_value);
         }
 
       })
-      console.log(this.props);
+      // console.log(this.props);
     },
     checkFrame (e) {
       this.drawOpen = true
@@ -987,21 +993,25 @@ export default {
       }
 
       if (evt.keyCode == 83){
+        console.log('按了s，正确存储保存')
         this.hasKeyCoded = true
         this.modifyDetail(1)
         return
       }
       if (evt.keyCode == 87){//上一页
+        console.log('按了w，上一页')
         this.hasKeyCoded = true
         this.getDetail(2)
         return
       }
       if (evt.keyCode == 69){//下一页
+        console.log('按了e，下一页')
         this.hasKeyCoded = true
         this.getDetail(3)
         return
       }
       if (evt.keyCode == 90){//回到质检页
+        console.log('按了z，回到质检')
         this.hasKeyCoded = true
         this.getDetail(1)
         return
@@ -1054,7 +1064,10 @@ export default {
         this.lastLoading = true
       } else if (detail_type == 3) {
         this.nextLoading = true
-      }else{
+      } else if (detail_type ==5) {
+        this.jumpLoading = true
+      }
+      else{
         this.saveLoading = true
       }
 
@@ -1069,7 +1082,8 @@ export default {
           "quality_user": window.localStorage.getItem('nickname'),
           "detail_type": detail_type,
           'check_task_id': this.$route.query.check_task_id,
-          'task_detail_id': this.task_detail_id
+          'task_detail_id': this.task_detail_id,
+          'page': this.inputValue
         },
         success: (res) => {
           if(res.msg) {
@@ -1088,7 +1102,7 @@ export default {
             //   })
             // }
           }else {
-            console.log('check_task_details:',res)
+            // console.log('check_task_details:',res)
             this.photo_path = res.photo_path
             this.task_detail_id = res.task_detail_id
             this.task_id  = res.task_id
@@ -1098,6 +1112,7 @@ export default {
             /*eslint-disable*/
             this.qualityLock = res.quality_lock == 1 ? true : false
             this.quality_inspection = res.quality_inspection
+            this.result_status = res.result_status
             //初始化canvas&&img
             this.drawOpen = false
             this.currentFrameId = -1
@@ -1198,6 +1213,8 @@ export default {
           this.nextLoading = false
           this.saveLoading = false
           this.hasKeyCoded = false
+          this.jumpLoading = false
+          this.inputValue = ''
         },
         error: function (err) {
           // console.log('error!', err)
@@ -1205,12 +1222,15 @@ export default {
           this.nextLoading = false
           this.saveLoading = false
           this.hasKeyCoded = false
+          this.jumpLoading = false
+          this.inputValue = ''
         }
       }
       this.sendAjax(params)
 
     },
     modifyDetail (result_status) {
+
       this.modifyLoading = true
       let params = {
         type: 'POST',
@@ -1227,8 +1247,15 @@ export default {
           'result_status':result_status
         },
         success: (res) => {
+          console.log('修改结果' + result_status)
           if (res.status == 'success') {
-            console.log('已提交')
+            if(result_status == 0 ){
+            this.result_status = 0
+              }
+              else if(result_status == 1){
+              this.result_status = 1
+            }
+            // console.log('已提交')
             //如果是质检新的，调取新的一张，与查看历史的对错不获取新的只保存
             if(this.detail_type == 1){
               this.getDetail(1)
